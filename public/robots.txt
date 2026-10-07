@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Set Sitemap after configuring `site` in astro.config.mjs
+# Sitemap: https://example.com/sitemap-index.xml

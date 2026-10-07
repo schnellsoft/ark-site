@@ -1,0 +1,31 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "ark-site",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-10-07",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		// Match Astro trailingSlash: 'always'
+		"html_handling": "force-trailing-slash",
+		"not_found_handling": "404-page",
+		// Only invoke the Worker for R2-backed routes; static assets stay free
+		"run_worker_first": ["/api/*", "/media/*", "/content/*"]
+	},
+	"r2_buckets": [
+		{
+			"binding": "MEDIA",
+			"bucket_name": "ark-admin-media"
+		},
+		{
+			"binding": "CONTENT",
+			"bucket_name": "ark-admin-content"
+		}
+	],
+	"observability": {
+		"enabled": true,
+		"logs": { "enabled": true, "head_sampling_rate": 1 },
+		"traces": { "enabled": true, "head_sampling_rate": 0.01 }
+	}
+}

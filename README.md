@@ -1,46 +1,57 @@
-# Astro Starter Kit: Basics
+# Ark site
+
+Static Astro site deployed to Cloudflare Workers, with R2 bindings for admin media and content.
+
+## Stack
+
+- Astro 7 (static / SSG) + React islands
+- Cloudflare Workers (static assets + Worker for R2)
+- R2 buckets: `ark-admin-media`, `ark-admin-content`
+
+## Commands
+
+| Command | Action |
+| --- | --- |
+| `npm run dev` | Astro local dev |
+| `npm run build` | Build static site to `./dist` |
+| `npm run preview` | Build + `wrangler dev` (assets + Worker + local R2) |
+| `npm run deploy` | Build + deploy Worker and assets |
+| `npm run cf-typegen` | Regenerate `worker-configuration.d.ts` from Wrangler config |
+
+## Cloudflare layout
+
+- **Worker** (`worker/index.ts`): read-only R2 routes, then fall through to static assets
+- **Assets**: `./dist` from `astro build`
+- **R2**
+  - `MEDIA` → `ark-admin-media` (served at `/media/*` and `/api/media/*`)
+  - `CONTENT` → `ark-admin-content` (served at `/content/*` and `/api/content/*`)
+
+Populate objects with Wrangler or your admin app, for example:
 
 ```sh
-npm create astro@latest -- --template basics
+npx wrangler r2 object put ark-admin-content/pages/home.json --file=./home.json
+npx wrangler r2 object put ark-admin-media/hero.jpg --file=./hero.jpg
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Then fetch:
 
-## 🚀 Project Structure
+- `https://<your-worker>/content/pages/home.json`
+- `https://<your-worker>/media/hero.jpg`
 
-Inside of your Astro project, you'll see the following folders and files:
+## Deploy
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+1. Confirm buckets exist (already created in this account):
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+   ```sh
+   npx wrangler r2 bucket list
+   ```
 
-## 🧞 Commands
+2. Set `site` in `astro.config.mjs` to your real domain (and update `robots.txt` Sitemap if needed).
 
-All commands are run from the root of the project, from a terminal:
+3. Deploy:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+   ```sh
+   npm run deploy
+   ```
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+4. Optional custom domain: add `routes` in `wrangler.jsonc` or attach a domain in the Cloudflare dashboard.
