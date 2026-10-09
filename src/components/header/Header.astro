@@ -1,0 +1,314 @@
+---
+import { Image } from 'astro:assets';
+import logoMinImg from '../../assets/media/header/logo/logo_min.png';
+import logoMaxImg from '../../assets/media/header/logo/logo_max.png';
+import logoData from '../../data/header/header_logo.json';
+import menuData from '../../data/header/header_menu.json';
+import iconsData from '../../data/header/header_icons.json';
+import appointmentData from '../../data/header/appointment.json';
+import MenuTree from './MenuTree.astro';
+import {
+	cssMaxWidth,
+	moreEnabled,
+	resolveLangLabel,
+	spriteId,
+	type HeaderIconsData,
+	type HeaderLogoData,
+	type HeaderMenuData,
+	type Lang,
+} from '../../lib/header';
+import './header.css';
+
+const lang: Lang = 'ro';
+const logo = logoData as HeaderLogoData;
+const menu = menuData as HeaderMenuData;
+const icons = iconsData as HeaderIconsData;
+
+const menuMax = cssMaxWidth(menu['max-width']);
+const iconsMax = cssMaxWidth(icons['max-width']);
+const menuMore = moreEnabled(menu);
+const iconsMore = moreEnabled(icons);
+const iconSize = Number.parseFloat(String(menu.baseline ?? icons.baseline ?? '24')) || 24;
+
+const menuItems = (menu.menu ?? []).filter(
+	(item) => resolveLangLabel(item.label, lang) || spriteId(item.name),
+);
+const iconItems = (icons.icons ?? []).filter((item) => spriteId(item.name));
+
+const scheduleText = resolveLangLabel(appointmentData.text, lang, 'Book an appointment');
+
+const menuColor = menu.color?.trim() || undefined;
+const menuColorHover = menu['color-hover']?.trim() || undefined;
+const iconsColor = icons.color?.trim() || undefined;
+const iconsColorHover = icons['color-hover']?.trim() || undefined;
+
+function logoIsSvg(entry: { type?: string; svg?: string }) {
+	return entry?.type === 'svg' && typeof entry.svg === 'string' && entry.svg.trim().length > 0;
+}
+---
+
+<header
+	class="site-header"
+	data-header
+	style={`--header-block-size: 3.75rem;`}
+>
+	<section class="header-top">
+		{/* Logo CT */}
+		<a class="snd-ct-logo" href="/" aria-label="Ark">
+			<span class="snd-ct-logo-min">
+				{
+					logoIsSvg(logo.logo_min) ? (
+						<span class="snd-logo-svg" set:html={logo.logo_min.svg} />
+					) : (
+						<Image
+							src={logoMinImg}
+							alt="Ark Medical Clinic"
+							widths={[64, 96, 128]}
+							sizes="48px"
+							class="snd-logo-img"
+						/>
+					)
+				}
+			</span>
+			<span class="snd-ct-logo-max">
+				{
+					logoIsSvg(logo.logo_max) ? (
+						<span class="snd-logo-svg" set:html={logo.logo_max.svg} />
+					) : (
+						<Image
+							src={logoMaxImg}
+							alt="Ark Medical Clinic"
+							widths={[200, 280, 390]}
+							sizes="(min-width: 64em) 200px, 0px"
+							class="snd-logo-img"
+						/>
+					)
+				}
+			</span>
+		</a>
+
+		{/* Flexi CT — hidden spacer kept for layout identity */}
+		<div class="snd-ct-consultation" data-consultation aria-hidden="true"></div>
+
+		{/* Menu CT */}
+		<div
+			class="snd-ct-menu"
+			style={[
+				menuColor ? `--snd-list-color:${menuColor}` : '',
+				menuColorHover ? `--snd-list-color-hover:${menuColorHover}` : '',
+			]
+				.filter(Boolean)
+				.join(';')}
+		>
+			<div class="snd-list-comp" data-menu-comp data-more-enabled={menuMore ? 'true' : 'false'}>
+				<button
+					type="button"
+					class="snd-list-hamburger icon-btn"
+					aria-label="Open menu"
+					aria-expanded="false"
+					popovertarget="snd-menu-drawer"
+				>
+					<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+						<use href="/header/sprite.svg#hamburger"></use>
+					</svg>
+				</button>
+				<div id="snd-menu-drawer" class="snd-menu-drawer" popover="auto">
+					<MenuTree items={menuItems} lang={lang} inDrawer={true} iconSize={iconSize} />
+				</div>
+				{
+					menuMore ? (
+						<button
+							type="button"
+							class="snd-list-more icon-btn"
+							aria-label="More menu items"
+							aria-expanded="false"
+							popovertarget="snd-menu-overflow"
+							hidden
+						>
+							<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+								<use href="/header/sprite.svg#morev"></use>
+							</svg>
+						</button>
+					) : null
+				}
+				<div id="snd-menu-overflow" class="snd-list-overflow" popover="auto"></div>
+				<div
+					class="snd-list-ct"
+					style={menuMax ? `--snd-list-ct-max-width:${menuMax}` : undefined}
+				>
+					<nav class="snd-list" aria-label="Main menu" data-menu-list>
+						<MenuTree items={menuItems} lang={lang} inDrawer={false} iconSize={iconSize} />
+					</nav>
+				</div>
+			</div>
+		</div>
+
+		{/* Icons CT */}
+		<div
+			class="snd-ct-icons"
+			style={[
+				iconsColor ? `--snd-list-color:${iconsColor}` : '',
+				iconsColorHover ? `--snd-list-color-hover:${iconsColorHover}` : '',
+			]
+				.filter(Boolean)
+				.join(';')}
+		>
+			<div class="snd-list-comp" data-icons-comp data-more-enabled={iconsMore ? 'true' : 'false'}>
+				{
+					iconsMore ? (
+						<button
+							type="button"
+							class="snd-list-more icon-btn"
+							aria-label="More icons"
+							aria-expanded="false"
+							popovertarget="snd-icons-overflow"
+							hidden
+						>
+							<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+								<use href="/header/sprite.svg#morev"></use>
+							</svg>
+						</button>
+					) : null
+				}
+				<div id="snd-icons-overflow" class="snd-list-overflow" popover="auto"></div>
+				<div
+					class="snd-list-ct"
+					style={iconsMax ? `--snd-list-ct-max-width:${iconsMax}` : undefined}
+				>
+					<div class="snd-list" data-icons-list>
+						{
+							iconItems.map((icon) => {
+								const id = spriteId(icon.name);
+								const label = resolveLangLabel(icon.label, lang);
+								const aria = icon['aria-label'] || icon.description || label || id;
+								const color = icon.color?.trim();
+								const colorHover = icon['color-hover']?.trim();
+								const style = [
+									color ? `--snd-item-color:${color}` : '',
+									colorHover ? `--snd-item-color-hover:${colorHover}` : '',
+								]
+									.filter(Boolean)
+									.join(';');
+								return (
+									<div class="snd-list-item" style={style || undefined}>
+										<a
+											class:list={['snd-list-link', `brand-${id}`]}
+											href={icon.link || '#'}
+											aria-label={aria}
+											title={icon.description || undefined}
+										>
+											<svg
+												width={iconSize}
+												height={iconSize}
+												viewBox="0 0 24 24"
+												aria-hidden="true"
+												focusable="false"
+												class="snd-list-icon"
+											>
+												<use href={`/header/sprite.svg#${id}`} />
+											</svg>
+											<span
+												class="snd-list-label"
+												data-i18n-ro={resolveLangLabel(icon.label, 'ro')}
+												data-i18n-bg={resolveLangLabel(icon.label, 'bg')}
+												data-i18n-en={resolveLangLabel(icon.label, 'en')}
+											>
+												{label}
+											</span>
+										</a>
+									</div>
+								);
+							})
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{/* Others CT — language + account */}
+		<div class="snd-ct-others">
+			<div class="ct-lang">
+				<label class="ct-lang-label" for="ct-lang-select">Language</label>
+				<select class="ct-lang-select" id="ct-lang-select" name="language" data-lang-select>
+					<button type="button">
+						<selectedcontent></selectedcontent>
+					</button>
+					<option value="ro" aria-label="Romanian" selected>
+						<svg class="ct-lang-flag" viewBox="0 0 24 16" aria-hidden="true" focusable="false">
+							<rect width="8" height="16" fill="#002b7f"></rect>
+							<rect x="8" width="8" height="16" fill="#fcd116"></rect>
+							<rect x="16" width="8" height="16" fill="#ce1126"></rect>
+						</svg>
+						<span class="ct-lang-code">RO</span>
+					</option>
+					<option value="bg" aria-label="Bulgarian">
+						<svg class="ct-lang-flag" viewBox="0 0 24 16" aria-hidden="true" focusable="false">
+							<rect width="24" height="5.34" fill="#ffffff"></rect>
+							<rect y="5.33" width="24" height="5.34" fill="#00966e"></rect>
+							<rect y="10.66" width="24" height="5.34" fill="#d62612"></rect>
+						</svg>
+						<span class="ct-lang-code">BG</span>
+					</option>
+					<option value="en" aria-label="English">
+						<svg class="ct-lang-flag" viewBox="0 0 60 30" aria-hidden="true" focusable="false">
+							<rect width="60" height="30" fill="#012169"></rect>
+							<path d="M0 0 60 30M60 0 0 30" stroke="#fff" stroke-width="6"></path>
+							<path d="M0 0 60 30M60 0 0 30" stroke="#c8102e" stroke-width="2"></path>
+							<path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"></path>
+							<path d="M30 0v30M0 15h60" stroke="#c8102e" stroke-width="6"></path>
+						</svg>
+						<span class="ct-lang-code">EN</span>
+					</option>
+				</select>
+			</div>
+			<a class="snd-user-status icon-btn" href="#login" aria-label="Log in">
+				<svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
+					<defs>
+						<linearGradient id="ct-login-grad" x1="5" y1="2" x2="15" y2="14" gradientUnits="userSpaceOnUse">
+							<stop offset="0" stop-color="#FFE082"></stop>
+							<stop offset="1" stop-color="#E6C96A"></stop>
+						</linearGradient>
+					</defs>
+					<circle cx="10.1" cy="7" r="4.35" fill="url(#ct-login-grad)"></circle>
+					<path
+						fill="currentColor"
+						d="M3.2 21.2c0-4.15 3.05-7.05 6.9-7.05 1.55 0 2.98.48 4.12 1.28-1.55.55-2.67 2.02-2.67 3.77v4.2H3.2Z"
+					></path>
+					<path
+						fill="currentColor"
+						d="M16.15 12.15c-.94 0-1.7.76-1.7 1.7v1.3h-1.3c-.94 0-1.7.76-1.7 1.7s.76 1.7 1.7 1.7h1.3v1.3c0 .94.76 1.7 1.7 1.7s1.7-.76 1.7-1.7v-1.3h1.3c.94 0 1.7-.76 1.7-1.7s-.76-1.7-1.7-1.7h-1.3v-1.3c0-.94-.76-1.7-1.7-1.7Z"
+					></path>
+				</svg>
+			</a>
+		</div>
+	</section>
+
+	<section class="header-bottom" data-header-bottom>
+		<button
+			type="button"
+			class="btn-appointment"
+			data-appointment
+			aria-label={scheduleText}
+			data-i18n-ro={resolveLangLabel(appointmentData.text, 'ro')}
+			data-i18n-bg={resolveLangLabel(appointmentData.text, 'bg')}
+			data-i18n-en={resolveLangLabel(appointmentData.text, 'en')}
+		>
+			<span class="status-indicator" aria-hidden="true">
+				<span class="status-dot"></span>
+				<span class="status-pulse"></span>
+			</span>
+			<span class="btn-text" data-appointment-label>{scheduleText}</span>
+			<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+				<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+				<line x1="16" y1="2" x2="16" y2="6"></line>
+				<line x1="8" y1="2" x2="8" y2="6"></line>
+				<line x1="3" y1="10" x2="21" y2="10"></line>
+			</svg>
+		</button>
+	</section>
+</header>
+
+<script>
+	import { initHeader } from '../../scripts/header/index.js';
+	initHeader();
+</script>

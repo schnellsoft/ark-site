@@ -1,0 +1,11 @@
+{
+  "logo_min": {
+    "type": "image",
+    "src": "header/logo/logo_min.png"
+  },
+  "logo_max": {
+    "type": "image",
+    "src": "header/logo/logo_max.png"
+  },
+  "updated_at": "2026-10-08T04:41:31.371Z"
+}

@@ -21,6 +21,9 @@ pnpm-debug.log*
 # Cloudflare / Wrangler
 .wrangler/
 
+# Optional: uncomment if CI always re-syncs R2 media before build
+# src/assets/media/
+
 # macOS-specific files
 .DS_Store
 

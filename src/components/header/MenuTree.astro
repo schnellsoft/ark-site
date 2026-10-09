@@ -1,0 +1,124 @@
+---
+import type { Lang, MenuItem } from '../../lib/header';
+import { resolveLangLabel, spriteId } from '../../lib/header';
+
+interface Props {
+	items: MenuItem[];
+	lang: Lang;
+	level?: number;
+	inDrawer?: boolean;
+	iconSize?: number;
+	maxLevel?: number;
+}
+
+const {
+	items,
+	lang,
+	level = 1,
+	inDrawer = false,
+	iconSize = 24,
+	maxLevel = 3,
+} = Astro.props;
+
+function hasLabel(item: MenuItem): boolean {
+	return Boolean(resolveLangLabel(item.label, lang));
+}
+
+function visibleChildren(item: MenuItem): MenuItem[] {
+	if (level >= maxLevel || !Array.isArray(item.items)) return [];
+	return item.items.filter((child) => hasLabel(child) || spriteId(child.name));
+}
+---
+
+{
+	items.map((item) => {
+		const children = visibleChildren(item);
+		const hasChildren = children.length > 0;
+		const icon = spriteId(item.name);
+		const label = resolveLangLabel(item.label, lang);
+		const aria =
+			item['aria-label'] || item.description || label || undefined;
+		const color = item.color?.trim() || undefined;
+		const colorHover = item['color-hover']?.trim() || undefined;
+		const styleParts: string[] = [];
+		if (color) styleParts.push(`--snd-item-color:${color}`);
+		if (colorHover) styleParts.push(`--snd-item-color-hover:${colorHover}`);
+		const style = styleParts.length ? styleParts.join(';') : undefined;
+		const chevron = inDrawer ? 'chevron-right' : 'chevron-down';
+
+		return (
+			<div class="snd-list-item" data-level={level} style={style}>
+				{hasChildren ? (
+					<button
+						type="button"
+						class:list={['snd-list-link', icon && `brand-${icon}`]}
+						aria-expanded="false"
+						aria-label={aria}
+						title={item.description || undefined}
+					>
+						{icon ? (
+							<svg
+								width={iconSize}
+								height={iconSize}
+								viewBox="0 0 24 24"
+								aria-hidden="true"
+								focusable="false"
+								class="snd-list-icon"
+							>
+								<use href={`/header/sprite.svg#${icon}`} />
+							</svg>
+						) : null}
+						<span class="snd-list-label" data-i18n-ro={resolveLangLabel(item.label, 'ro')} data-i18n-bg={resolveLangLabel(item.label, 'bg')} data-i18n-en={resolveLangLabel(item.label, 'en')}>
+							{label}
+						</span>
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							aria-hidden="true"
+							focusable="false"
+							class="snd-list-chevron"
+						>
+							<use href={`/header/sprite.svg#${chevron}`} />
+						</svg>
+					</button>
+				) : (
+					<a
+						class:list={['snd-list-link', icon && `brand-${icon}`]}
+						href={item.link || '#'}
+						aria-label={aria}
+						title={item.description || undefined}
+					>
+						{icon ? (
+							<svg
+								width={iconSize}
+								height={iconSize}
+								viewBox="0 0 24 24"
+								aria-hidden="true"
+								focusable="false"
+								class="snd-list-icon"
+							>
+								<use href={`/header/sprite.svg#${icon}`} />
+							</svg>
+						) : null}
+						<span class="snd-list-label" data-i18n-ro={resolveLangLabel(item.label, 'ro')} data-i18n-bg={resolveLangLabel(item.label, 'bg')} data-i18n-en={resolveLangLabel(item.label, 'en')}>
+							{label}
+						</span>
+					</a>
+				)}
+				{hasChildren ? (
+					<div class="snd-submenu">
+						<Astro.self
+							items={children}
+							lang={lang}
+							level={level + 1}
+							inDrawer={inDrawer}
+							iconSize={iconSize}
+							maxLevel={maxLevel}
+						/>
+					</div>
+				) : null}
+			</div>
+		);
+	})
+}

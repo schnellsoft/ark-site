@@ -1,0 +1,99 @@
+{
+  "more": false,
+  "max-width": "202",
+  "color": "",
+  "color-hover": "",
+  "icons": [
+    {
+      "name": "email",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "description": "Send Emil To Us",
+      "aria-label": "Email",
+      "link": "/emails/to/us",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "whatsap",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "description": "To our WhatsApp",
+      "aria-label": "WhatsApp",
+      "link": "/wh/us",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "xtwitter",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "",
+      "link": "#",
+      "color": "#C44008",
+      "color-hover": "#2EA702"
+    },
+    {
+      "name": "facebook",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "",
+      "link": "#",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "instagram",
+      "label": {
+        "ro": "Insta",
+        "bg": "Insta",
+        "en": "Insta"
+      },
+      "description": "",
+      "aria-label": "",
+      "link": "#",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "location",
+      "label": {
+        "ro": "Locatia noastra",
+        "bg": "Нашето местоположение",
+        "en": "Our location"
+      },
+      "description": "Locatie",
+      "aria-label": "Locatie",
+      "link": "/location/to/us",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "phone-in",
+      "label": {
+        "ro": "Contacteaza",
+        "bg": "Contact",
+        "en": "Contact"
+      },
+      "description": "Contact",
+      "aria-label": "Contacteaza",
+      "link": "#",
+      "color": "",
+      "color-hover": ""
+    }
+  ]
+}

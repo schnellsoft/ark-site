@@ -1,0 +1,107 @@
+Skill: Cross-Platform Icon Adaptation (Desktop to Mobile)
+Overview
+This skill provides a complete set of guidelines, design specifications, and implementation patterns to adapt UI icons between desktop and mobile devices seamlessly.
+1. Dimensional & Touch Target Specifications
+Metric
+Desktop Standard
+Mobile Standard
+Rationale
+Visible Icon Size
+16px, 20px, 24px
+24px, 28px, 32px
+High-DPI screens and longer viewing distances require larger visible shapes.
+Minimum Tap/Click Area
+24 × 24px
+44 × 44px (Apple) 48 × 48px (Android)
+Compensates for finger pad surface area vs. 1px mouse precision.
+Stroke Thickness
+1px – 1.5px
+1.5px – 2px
+Thicker strokes maintain legibility on smaller mobile displays under outdoor glare.
+Minimum Gap Between Targets
+8px
+12px – 16px
+Prevents mis-taps on adjacent touch controls.
+
+2. Design System Rules
+A. Visual Simplification
+Reduce Internal Detail: Strip unnecessary inner line work when switching from desktop to mobile views.
+Filled vs. Outlined:
+Desktop: Outlined styles are common for lightweight density.
+Mobile: Use Filled variants for active states and critical navigation to maximize visual tap confirmation.
+B. Ergonomics & Placement
+Thumb Zone Rule (Mobile): Primary action icons (Navigation, Search, Actions) must live in the lower 60% of the mobile viewport.
+Top-Bar Offloading (Desktop): Secondary or utility icons (Settings, Profile, Export) belong in upper corners or sidebars.
+C. Interaction & Feedback
+Hover Elimination: Never hide essential icon labels behind hover tooltips on mobile. Provide explicit micro-labels or visible context.
+Touch Feedback: Always pair :active states with scaling or opacity drops (e.g., transform: scale(0.95)) for instantaneous tactile response.
+3. Production CSS Implementation
+Use this utility pattern to automatically handle touch targets, spacing, and interaction states responsively:
+/* Base Icon Button Container */
+.icon-btn {
+  /* Common layout defaults */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Desktop sizing (default) */
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px;
+  gap: 6px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+/* Embedded SVG styling */
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.5px;
+  flex-shrink: 0;
+}
+
+/* Desktop Hover State */
+@media (hover: hover) and (pointer: fine) {
+  .icon-btn:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+  }
+}
+
+/* Mobile Adaptation via Media Queries */
+@media (pointer: coarse) and (hover: none) {
+  .icon-btn {
+    /* Touch target expansion */
+    min-width: 48px;
+    min-height: 48px;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .icon-btn svg {
+    /* Visible asset enlargement & bolder stroke */
+    width: 24px;
+    height: 24px;
+    stroke-width: 2px;
+  }
+
+  /* Immediate feedback for touch press */
+  .icon-btn:active {
+    background-color: rgba(0, 0, 0, 0.12);
+    transform: scale(0.94);
+    border-radius: 50%;
+  }
+}
+
+
+4. Adaptation Checklist
+[ ] Touch Target: Are all mobile icon buttons extended to at least 44x44px or 48x48px?
+[ ] Labels: Are navigation icons accompanied by visible labels or clear visual contexts on touch screens?
+[ ] Stroke Weight: Do icons remain clear when rendered on a low-brightness mobile screen?
+[ ] Placement: Are key interactive icons positioned within easy thumb reach?
+[ ] Feedback: Does tapping an icon produce immediate visual feedback (e.g., active state/scale down)?

@@ -1,0 +1,734 @@
+.site-header {
+	--header-bg: color-mix(in srgb, #121516 92%, transparent);
+	/* Default matches schedule button; hover is a warm orange */
+	--header-fg: var(--primary);
+	--header-border: color-mix(in srgb, #ffe082 18%, transparent);
+	--primary: #ffe082;
+	--primary-hover: #ff9a3c;
+	--primary-ink: #1a1508;
+	--primary-glow: color-mix(in srgb, #ffe082 28%, transparent);
+	--panel-bg: #1a1a1a;
+	--snd-list-color: var(--header-fg);
+	--snd-list-color-hover: var(--primary-hover);
+	--snd-list-gap: 0.35rem;
+	--icon-size: 1.25rem;
+	--icon-stroke: 1.5;
+	--icon-target-min: 2rem;
+	--icon-gap: 0.375rem;
+
+	position: fixed;
+	inset: 0 0 auto 0;
+	z-index: 1000;
+	width: 100%;
+	max-width: 90rem;
+	margin-inline: auto;
+	box-sizing: border-box;
+	padding-inline: clamp(0.75rem, 2vw, 1.5rem);
+	background: var(--header-bg);
+	color: var(--header-fg);
+	border-bottom: 1px solid var(--header-border);
+	backdrop-filter: blur(12px);
+	box-shadow: 0 4px 18px rgb(0 0 0 / 0.28);
+}
+
+.header-top,
+.header-bottom {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	width: 100%;
+	min-height: 3.75rem;
+	box-sizing: border-box;
+}
+
+.header-bottom {
+	justify-content: center;
+	padding-block: 0.35rem 0.65rem;
+	container-type: inline-size;
+}
+
+/* Logo CT */
+.snd-ct-logo {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	text-decoration: none;
+	color: inherit;
+}
+
+/* Progressive collapse: Logo Min + More CT → hide logo (see collapse.ts) */
+.site-header.is-logo-collapsed .snd-ct-logo {
+	display: none;
+}
+
+.snd-ct-logo-min {
+	display: block;
+}
+
+.snd-ct-logo-max {
+	display: none;
+}
+
+.snd-logo-img {
+	display: block;
+	block-size: 2.75rem;
+	inline-size: auto;
+	max-inline-size: 12rem;
+	height: auto;
+}
+
+.snd-logo-svg svg {
+	display: block;
+	block-size: 2.75rem;
+	inline-size: auto;
+}
+
+@media (min-width: 64em) {
+	.snd-ct-logo-min {
+		display: none;
+	}
+
+	.snd-ct-logo-max {
+		display: block;
+	}
+}
+
+/* Flexi CT — permanently hidden; schedule CTA lives in .header-bottom */
+.snd-ct-consultation {
+	display: none;
+}
+
+.btn-appointment {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: clamp(0.35rem, 2cqi, 0.65rem);
+	box-sizing: border-box;
+	max-block-size: 100%;
+	flex: 0 0 auto;
+	min-inline-size: max-content;
+	white-space: normal;
+	text-wrap: balance;
+	background: transparent;
+	color: var(--primary);
+	border: 1.5px solid var(--primary);
+	border-radius: 999px;
+	padding-block: clamp(0.25rem, 1.2cqi, 0.5rem);
+	padding-inline: clamp(0.65rem, 3cqi, 1.15rem);
+	font: inherit;
+	font-size: clamp(0.7rem, 3.2cqi, 0.875rem);
+	line-height: 1.2;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	cursor: pointer;
+	position: relative;
+	transition:
+		background-color 0.3s ease,
+		color 0.3s ease,
+		box-shadow 0.3s ease;
+}
+
+/* Bottom-row schedule — readable on desktop */
+.header-bottom .btn-appointment {
+	font-size: clamp(0.85rem, 2.5vw, 1.05rem);
+	padding-block: clamp(0.35rem, 1.2vw, 0.6rem);
+	padding-inline: clamp(0.85rem, 3vw, 1.35rem);
+	gap: clamp(0.45rem, 2vw, 0.75rem);
+}
+
+.header-bottom .btn-appointment .btn-icon {
+	width: 1.15rem;
+	height: 1.15rem;
+}
+
+.btn-appointment .btn-icon {
+	width: 1rem;
+	height: 1rem;
+	flex-shrink: 0;
+}
+
+.status-indicator {
+	position: relative;
+	display: inline-flex;
+	width: 0.5rem;
+	height: 0.5rem;
+	flex-shrink: 0;
+}
+
+.status-dot,
+.status-pulse {
+	width: 100%;
+	height: 100%;
+	background-color: var(--primary);
+	border-radius: 50%;
+}
+
+.status-dot {
+	position: relative;
+	z-index: 2;
+}
+
+.status-pulse {
+	position: absolute;
+	inset: 0;
+	animation: live-pulse 2s infinite ease-out;
+	opacity: 0.6;
+	z-index: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.btn-appointment:hover {
+		background-color: var(--primary);
+		color: var(--primary-ink);
+		box-shadow: 0 0 1.5rem 0 var(--primary-glow);
+	}
+
+	.btn-appointment:hover .status-dot,
+	.btn-appointment:hover .status-pulse {
+		background-color: var(--primary-ink);
+	}
+}
+
+.btn-appointment:focus-visible {
+	outline: 2px solid var(--primary);
+	outline-offset: 2px;
+}
+
+@keyframes live-pulse {
+	0% {
+		transform: scale(1);
+		opacity: 0.75;
+	}
+	70% {
+		transform: scale(2.8);
+		opacity: 0;
+	}
+	100% {
+		transform: scale(2.8);
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.status-pulse {
+		animation: none;
+	}
+
+	.btn-appointment {
+		transition: none;
+	}
+}
+
+/* Menu / Icons */
+.snd-ct-menu,
+.snd-ct-icons {
+	flex: 0 1 auto;
+	min-width: 0;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	color: var(--snd-list-color, var(--header-fg));
+}
+
+.snd-ct-others {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.snd-list-comp {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	min-width: 0;
+	max-width: 100%;
+	width: auto;
+	padding: 0.125rem;
+}
+
+.snd-ct-icons .snd-list-comp {
+	width: 100%;
+}
+
+.snd-list-ct {
+	flex: 0 1 auto;
+	min-width: 0;
+	inline-size: var(--snd-list-ct-max-width, auto);
+	max-inline-size: 100%;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.snd-list {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	justify-content: space-evenly;
+	width: 100%;
+	min-width: 0;
+	gap: var(--snd-list-gap);
+}
+
+.snd-list-item {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-shrink: 0;
+	position: relative;
+	color: var(--snd-item-color, inherit);
+}
+
+.snd-list-item[hidden],
+.snd-list-more[hidden] {
+	display: none;
+}
+
+.snd-list-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	color: inherit;
+	text-decoration: none;
+	white-space: nowrap;
+	background: none;
+	border: none;
+	font: inherit;
+	cursor: pointer;
+	padding: 0.15rem 0.2rem;
+	transition: color 0.15s ease;
+}
+
+.snd-list-link svg {
+	flex-shrink: 0;
+	display: block;
+	color: var(--snd-item-color, currentColor);
+}
+
+.snd-list-label:empty {
+	display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.snd-list-link:hover,
+	.snd-list-link:focus-visible {
+		color: var(--snd-item-color-hover, var(--snd-list-color-hover, var(--primary-hover)));
+	}
+}
+
+.snd-list-chevron {
+	width: 1rem;
+	height: 1rem;
+	transform-origin: center;
+	transition: transform 0.22s ease;
+}
+
+.snd-list-item.is-open > .snd-list-link .snd-list-chevron {
+	transform: rotate(180deg);
+}
+
+.snd-menu-drawer .snd-list-item.is-open > .snd-list-link .snd-list-chevron {
+	transform: rotate(90deg);
+}
+
+.snd-submenu {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 2;
+	min-width: 12rem;
+	flex-direction: column;
+	align-items: stretch;
+	padding: 0.5rem;
+	background: var(--panel-bg);
+	border: 1px solid var(--header-border);
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.snd-list > .snd-list-item > .snd-submenu {
+	overflow: auto;
+	overscroll-behavior: contain;
+}
+
+.snd-submenu .snd-list-item {
+	justify-content: flex-start;
+	align-items: stretch;
+	flex-direction: column;
+	width: 100%;
+}
+
+.snd-submenu .snd-list-link {
+	width: 100%;
+	justify-content: flex-start;
+	padding: 0.4rem 0.25rem;
+}
+
+.snd-submenu .snd-submenu {
+	position: static;
+	min-width: 0;
+	margin: 0;
+	padding: 0 0 0 0.75rem;
+	background: transparent;
+	border: none;
+}
+
+.icon-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+	min-width: var(--icon-target-min);
+	min-height: var(--icon-target-min);
+	padding: 0.25rem;
+	gap: var(--icon-gap);
+	border-radius: 0.5rem;
+	transition:
+		background-color 0.15s ease,
+		transform 0.1s ease;
+}
+
+.icon-btn svg {
+	width: var(--icon-size);
+	height: var(--icon-size);
+	flex-shrink: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.icon-btn:hover {
+		background-color: color-mix(in srgb, currentColor 8%, transparent);
+	}
+}
+
+@media (pointer: coarse) {
+	.site-header {
+		--icon-size: 1.5rem;
+		--icon-target-min: 2.75rem;
+		--icon-gap: 0.5rem;
+	}
+
+	.icon-btn:active {
+		background-color: color-mix(in srgb, currentColor 12%, transparent);
+		transform: scale(0.94);
+	}
+}
+
+.snd-list-hamburger {
+	display: none;
+}
+
+.snd-ct-menu .snd-list-comp.is-compact .snd-list-hamburger {
+	display: inline-flex;
+}
+
+/* Hide menu bar items only — never target Icons CT */
+.snd-ct-menu .snd-list-comp.is-compact .snd-list-more,
+.snd-ct-menu .snd-list-comp.is-compact .snd-list-overflow,
+.snd-ct-menu .snd-list-comp.is-compact .snd-list-ct {
+	display: none;
+}
+
+/*
+ * Compact (hamburger): Menu CT sits immediately left of Flexi CT.
+ * Flexi CT stays measurable so the schedule button can return when wide enough.
+ * Icons CT grows and must never be hidden.
+ */
+.header-top:has(.snd-ct-menu .snd-list-comp.is-compact) {
+	justify-content: flex-start;
+}
+
+.header-top:has(.snd-ct-menu .snd-list-comp.is-compact) .snd-ct-logo {
+	order: 0;
+}
+
+.header-top:has(.snd-ct-menu .snd-list-comp.is-compact) .snd-ct-menu {
+	order: 1;
+	flex: 0 0 auto;
+}
+
+.header-top:has(.snd-ct-menu .snd-list-comp.is-compact) .snd-ct-icons {
+	order: 2;
+	display: flex;
+	flex: 1 1 0;
+	min-width: 0;
+	visibility: visible;
+	opacity: 1;
+}
+
+.header-top:has(.snd-ct-menu .snd-list-comp.is-compact) .snd-ct-others {
+	order: 3;
+	flex: 0 0 auto;
+}
+
+.header-top:has(.snd-ct-menu .snd-list-comp.is-compact) .snd-ct-icons .snd-list-comp {
+	width: 100%;
+}
+
+.header-top:has(.snd-ct-menu .snd-list-comp.is-compact) .snd-ct-icons .snd-list-ct {
+	display: flex;
+	flex: 1 1 0;
+	inline-size: auto;
+	max-inline-size: none;
+}
+
+@media (orientation: portrait) and (max-width: 48em) {
+	.header-top {
+		justify-content: flex-start;
+		gap: 0.5rem;
+	}
+
+	.snd-ct-logo {
+		display: none;
+	}
+
+	.ct-lang {
+		display: none;
+	}
+
+	.snd-ct-icons .snd-list-label {
+		display: none;
+	}
+
+	.snd-ct-icons .snd-list-link {
+		gap: 0;
+	}
+}
+
+.snd-list-overflow,
+.snd-menu-drawer {
+	margin: 0;
+	padding: 0.5rem;
+	background: var(--panel-bg);
+	color: inherit;
+	border: 1px solid var(--header-border);
+	box-sizing: border-box;
+	overflow: auto;
+	overscroll-behavior: contain;
+	min-width: 12rem;
+}
+
+.snd-list-overflow:is(:popover-open, .is-open),
+.snd-menu-drawer:is(:popover-open, .is-open) {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.snd-list-overflow .snd-list-item,
+.snd-menu-drawer .snd-list-item {
+	width: 100%;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.snd-list-overflow .snd-list-link,
+.snd-menu-drawer .snd-list-link {
+	width: 100%;
+	justify-content: flex-start;
+}
+
+.snd-list-overflow .snd-submenu,
+.snd-menu-drawer .snd-submenu {
+	position: static;
+	min-width: 0;
+	padding-inline-start: 1rem;
+	border: none;
+	background: transparent;
+}
+
+@supports (position-anchor: --foo) {
+	.snd-list-more {
+		anchor-name: --snd-list-more;
+	}
+
+	.snd-list-hamburger {
+		anchor-name: --snd-list-hamburger;
+	}
+
+	.snd-ct-icons .snd-list-more {
+		anchor-name: --snd-icons-more;
+	}
+
+	.snd-list-overflow:is(:popover-open, .is-open) {
+		margin: 0;
+		inset: auto;
+		position-anchor: --snd-list-more;
+		top: calc(anchor(bottom) + 4px);
+		left: anchor(left);
+		right: auto;
+		bottom: auto;
+		max-height: calc(100dvh - anchor(bottom) - 4px);
+	}
+
+	.snd-ct-icons .snd-list-overflow:is(:popover-open, .is-open) {
+		position-anchor: --snd-icons-more;
+	}
+
+	.snd-menu-drawer:is(:popover-open, .is-open) {
+		position-anchor: --snd-list-hamburger;
+		margin-block: 0;
+		margin-inline: auto;
+		top: calc(anchor(bottom) + 4px);
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: fit-content;
+		height: auto;
+	}
+}
+
+@supports not (position-anchor: --foo) {
+	.snd-list-overflow:is(:popover-open, .is-open),
+	.snd-menu-drawer:is(:popover-open, .is-open) {
+		position: fixed;
+		inset: auto;
+		z-index: 1100;
+	}
+}
+
+.ct-lang {
+	position: relative;
+	width: 6.25rem;
+	height: 3rem;
+	box-sizing: border-box;
+}
+
+.ct-lang-label {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.ct-lang-select,
+.ct-lang-select::picker(select) {
+	appearance: base-select;
+}
+
+.ct-lang-select {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	padding: 0 0.5rem;
+	color: var(--header-fg);
+	background: color-mix(in srgb, var(--primary) 6%, #1a1a1a);
+	border: 1px solid var(--header-border);
+	border-radius: 0.625rem;
+	font: inherit;
+	cursor: pointer;
+}
+
+.ct-lang-select:focus-visible {
+	outline: 2px solid var(--primary);
+	outline-offset: 2px;
+}
+
+.ct-lang-select::picker-icon {
+	color: var(--primary);
+}
+
+.ct-lang-select::picker(select) {
+	margin-block-start: 0.25rem;
+	padding: 0.375rem;
+	color: var(--header-fg);
+	background: var(--panel-bg);
+	border: 1px solid var(--header-border);
+	border-radius: 0.625rem;
+	box-shadow: 0 0.75rem 1.75rem rgb(0 0 0 / 0.45);
+}
+
+.ct-lang-select button,
+.ct-lang-select selectedcontent,
+.ct-lang-select option {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.ct-lang-select option {
+	padding: 0.5rem;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	color: var(--header-fg);
+}
+
+.ct-lang-select option::checkmark {
+	display: none;
+}
+
+.ct-lang-select option:is(:hover, :focus-visible) {
+	background: color-mix(in srgb, var(--primary) 12%, #2a2a2a);
+}
+
+.ct-lang-select option:checked {
+	background: color-mix(in srgb, var(--primary) 18%, #2a2a2a);
+	font-weight: 700;
+}
+
+.ct-lang-flag {
+	width: 1.375rem;
+	height: 0.9375rem;
+	flex-shrink: 0;
+	border-radius: 0.125rem;
+	box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+.ct-lang-code {
+	font-size: 0.8rem;
+	letter-spacing: 0.04em;
+	font-weight: 600;
+	color: var(--header-fg);
+}
+
+/* Fallback when appearance: base-select is unavailable */
+@supports not (appearance: base-select) {
+	.ct-lang-select {
+		appearance: none;
+		min-height: var(--icon-target-min);
+		padding: 0.35rem 0.55rem;
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+	}
+
+	.ct-lang-select button,
+	.ct-lang-flag {
+		display: none;
+	}
+}
+
+.snd-user-status {
+	color: var(--header-fg);
+	text-decoration: none;
+}
+
+.snd-user-status img,
+.snd-user-status svg {
+	display: block;
+	width: var(--icon-size);
+	height: var(--icon-size);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.snd-user-status:hover {
+		color: var(--primary-hover);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.snd-list-chevron {
+		transition: none;
+	}
+}

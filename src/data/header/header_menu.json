@@ -1,0 +1,75 @@
+{
+  "more": true,
+  "max-width": "400",
+  "color": "",
+  "color-hover": "",
+  "menu": [
+    {
+      "name": "",
+      "label": {
+        "ro": "Artic1e a",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "",
+      "link": "#",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "",
+      "label": {
+        "ro": "Article 1",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "",
+      "link": "#",
+      "color": "",
+      "color-hover": "",
+      "items": [
+        {
+          "name": "",
+          "label": {
+            "ro": "Article 1a",
+            "bg": "Член 1а",
+            "en": "Article 1a"
+          },
+          "description": "",
+          "aria-label": "",
+          "link": "#",
+          "color": "",
+          "color-hover": ""
+        },
+        {
+          "name": "",
+          "label": {
+            "ro": "Article 1b",
+            "bg": "",
+            "en": ""
+          },
+          "description": "",
+          "aria-label": "",
+          "link": "#",
+          "color": "",
+          "color-hover": ""
+        }
+      ]
+    },
+    {
+      "name": "whatsap",
+      "label": {
+        "ro": "Article Dumbo",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "",
+      "link": "/gogu/lulu",
+      "color": "",
+      "color-hover": ""
+    }
+  ]
+}
