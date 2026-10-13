@@ -1,0 +1,362 @@
+---
+import slideshow from '../../data/slideshow/slideshow.json';
+import { readdir, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+type SlideFiles = {
+	desktop?: Record<string, { width: number; height: number }>;
+	mobile?: Record<string, { width: number; height: number }>;
+	video?: { key: string; contentType: string };
+};
+
+type Slide = {
+	id: string;
+	position: number;
+	alt: string;
+	mediaKind: 'image' | 'video';
+	version: string;
+	files: SlideFiles;
+	desktopFocus?: { x: number; y: number } | null;
+	layer?: {
+		desktop?: { enabled?: boolean; rect?: Record<string, number>; opacity?: number };
+		mobile?: { sameAsDesktop?: boolean; enabled?: boolean; rect?: Record<string, number> };
+	} | null;
+};
+
+const settings = slideshow.settings ?? {};
+const slides = ([...(slideshow.slides ?? [])] as Slide[])
+	.filter((s) => (s as { enabled?: boolean }).enabled !== false)
+	.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+const mobileMaxWidth = Number(settings.output?.mobileMaxWidth) || 900;
+
+const htmlDir = join(process.cwd(), 'src/data/slideshow/html');
+const layerHtml = new Map<string, { desktop: string; mobile: string }>();
+try {
+	const files = await readdir(htmlDir);
+	for (const slide of slides) {
+		const desktopName = `${slide.id}.html`;
+		const mobileName = `${slide.id}.mobile.html`;
+		const desktop = files.includes(desktopName)
+			? await readFile(join(htmlDir, desktopName), 'utf8')
+			: '';
+		const mobile = files.includes(mobileName)
+			? await readFile(join(htmlDir, mobileName), 'utf8')
+			: '';
+		layerHtml.set(slide.id, { desktop, mobile });
+	}
+} catch {
+	/* no html dir yet */
+}
+
+function assetUrl(key: string) {
+	return `/media/${key}`;
+}
+
+const ratioRaw = String(settings.ratio ?? '16:9');
+const ratioParts = ratioRaw.split(':').map((n) => Number.parseFloat(n));
+const ratioCss =
+	ratioParts.length === 2 && ratioParts.every((n) => Number.isFinite(n) && n > 0)
+		? `${ratioParts[0]} / ${ratioParts[1]}`
+		: '16 / 9';
+
+const ukAttrs: Record<string, string | number | boolean> = {
+	animation: settings.animation ?? 'fade',
+	autoplay: settings.autoplay ? true : false,
+	'autoplay-interval': settings.autoplayInterval ?? 7000,
+	finite: settings.finite ? true : false,
+	'pause-on-hover': settings.pauseOnHover !== false,
+	velocity: settings.velocity ?? 1,
+	// Keep ratio for UIkit slide init; CSS overrides height on mobile.
+	ratio: ratioRaw,
+};
+if (settings.minHeight) ukAttrs['min-height'] = settings.minHeight;
+if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
+---
+
+{
+	slides.length === 0 ? (
+		<section class="slideshow-empty" aria-label="Slideshow">
+			<p>No slides yet.</p>
+		</section>
+	) : (
+		<section
+			class="ark-slideshow"
+			role="region"
+			aria-label="Clinic slideshow"
+			style={[
+				`--slide-ratio: ${ratioCss}`,
+				`--slide-height: calc(100dvh - var(--header-block-size, 3.75rem))`,
+				settings.minHeight ? `--slide-min-height: ${String(settings.minHeight)}` : '',
+				settings.maxHeight ? `--slide-max-height: ${String(settings.maxHeight)}` : '',
+			]
+				.filter(Boolean)
+				.join('; ')}
+		>
+			<div
+				class="uk-position-relative"
+				tabindex="-1"
+				uk-slideshow={Object.entries(ukAttrs)
+					.map(([k, v]) => `${k}: ${typeof v === 'string' ? v : v}`)
+					.join('; ')}
+			>
+				<div class="uk-slideshow-items">
+					{
+						slides.map((slide, index) => {
+							const isFirst = index === 0;
+							const files = slide.files || {};
+							const layer = layerHtml.get(slide.id);
+							const desktopLayer = layer?.desktop ?? '';
+							const mobileLayer =
+								slide.layer?.mobile?.sameAsDesktop === false
+									? (layer?.mobile ?? '')
+									: desktopLayer;
+							const sameMobile = slide.layer?.mobile?.sameAsDesktop !== false;
+							const dRect = slide.layer?.desktop?.rect;
+							const mRect =
+								slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop
+									? slide.layer.mobile.rect
+									: dRect;
+
+							return (
+								<div>
+									{slide.mediaKind === 'video' && files.video?.key ? (
+										<video
+											src={assetUrl(files.video.key)}
+											autoplay
+											muted
+											playsinline
+											loop
+											preload={isFirst ? 'auto' : 'metadata'}
+										/>
+									) : (
+										<picture>
+											{
+												Object.keys(files.mobile || {}).length ? (
+													<>
+														<source
+															media={`(max-width: ${mobileMaxWidth}px)`}
+															type="image/webp"
+															srcset={Object.keys(files.mobile!)
+																.map(
+																	(w) =>
+																		`${assetUrl(`slideshow/${slide.id}/slide-${slide.id}.${slide.version}-m-${w}.webp`)} ${w}w`,
+																)
+																.join(', ')}
+															sizes="100vw"
+														/>
+														<source
+															media={`(max-width: ${mobileMaxWidth}px)`}
+															srcset={Object.keys(files.mobile!)
+																.map(
+																	(w) =>
+																		`${assetUrl(`slideshow/${slide.id}/slide-${slide.id}.${slide.version}-m-${w}.jpg`)} ${w}w`,
+																)
+																.join(', ')}
+															sizes="100vw"
+														/>
+													</>
+												) : null
+											}
+											{
+												Object.keys(files.desktop || {}).length ? (
+													<source
+														type="image/webp"
+														srcset={Object.keys(files.desktop!)
+															.map(
+																(w) =>
+																	`${assetUrl(`slideshow/${slide.id}/slide-${slide.id}.${slide.version}-d-${w}.webp`)} ${w}w`,
+															)
+															.join(', ')}
+														sizes="100vw"
+													/>
+												) : null
+											}
+											<img
+												src={
+													files.desktop?.['1280']
+														? assetUrl(
+																`slideshow/${slide.id}/slide-${slide.id}.${slide.version}-d-1280.jpg`,
+															)
+														: files.desktop?.['1920']
+															? assetUrl(
+																	`slideshow/${slide.id}/slide-${slide.id}.${slide.version}-d-1920.jpg`,
+																)
+															: ''
+												}
+												width={files.desktop?.['1920']?.width || files.desktop?.['1280']?.width || 1920}
+												height={files.desktop?.['1920']?.height || files.desktop?.['1280']?.height || 1080}
+												alt={slide.alt || ''}
+												decoding="async"
+												style={
+													slide.desktopFocus &&
+													Number.isFinite(slide.desktopFocus.x) &&
+													Number.isFinite(slide.desktopFocus.y)
+														? `--desk-pos: ${slide.desktopFocus.x}% ${slide.desktopFocus.y}%`
+														: undefined
+												}
+												{...(isFirst
+													? { fetchpriority: 'high' as const }
+													: { loading: 'lazy' as const })}
+											/>
+										</picture>
+									)}
+
+									{desktopLayer && slide.layer?.desktop?.enabled !== false ? (
+										<div
+											class:list={[
+												'slide-layer',
+												sameMobile ? 'slide-layer--both' : 'slide-layer--desktop',
+											]}
+											data-variant="desktop"
+											style={`--l:${dRect?.left ?? 8}%;--t:${dRect?.top ?? 12}%;--w:${dRect?.width ?? 40}%;--h:${dRect?.height ?? 60}%;--op:${slide.layer?.desktop?.opacity ?? 1}`}
+										>
+											<div class="slide-layer__body" set:html={desktopLayer} />
+										</div>
+									) : null}
+
+									{!sameMobile && mobileLayer ? (
+										<div
+											class="slide-layer slide-layer--mobile"
+											data-variant="mobile"
+											style={`--l:${mRect?.left ?? 8}%;--t:${mRect?.top ?? 12}%;--w:${mRect?.width ?? 40}%;--h:${mRect?.height ?? 60}%;--op:1`}
+										>
+											<div class="slide-layer__body" set:html={mobileLayer} />
+										</div>
+									) : null}
+								</div>
+							);
+						})
+					}
+				</div>
+
+				<a class="uk-position-center-left uk-position-small" href uk-slidenav-previous uk-slideshow-item="previous" aria-label="Previous slide"></a>
+				<a class="uk-position-center-right uk-position-small" href uk-slidenav-next uk-slideshow-item="next" aria-label="Next slide"></a>
+
+				<div class="uk-position-bottom-center uk-position-small">
+					<ul class="uk-slideshow-nav uk-dotnav"></ul>
+				</div>
+			</div>
+		</section>
+	)
+}
+
+<style>
+	/* Always: viewport height minus measured header (admin min/max optional overrides). */
+	.ark-slideshow {
+		position: relative;
+		width: 100%;
+		aspect-ratio: auto;
+		height: var(--slide-height, calc(100dvh - var(--header-block-size, 3.75rem)));
+		min-height: var(--slide-min-height, var(--slide-height, 20rem));
+		max-height: var(--slide-max-height, none);
+		background: #0a0a0a;
+		overflow: hidden;
+	}
+	.ark-slideshow :global(.uk-position-relative) {
+		height: 100%;
+	}
+	.ark-slideshow :global(.uk-slideshow-items),
+	.ark-slideshow :global(.uk-slideshow-items > *) {
+		height: 100% !important;
+		min-height: 100% !important;
+		padding-bottom: 0 !important;
+	}
+	.ark-slideshow :global(.uk-slideshow-items) {
+		min-height: 280px;
+	}
+	/* UIkit hides all slides until JS marks .uk-active — show first as fallback */
+	.ark-slideshow :global(.uk-slideshow-items > *:first-child) {
+		display: block;
+	}
+	.ark-slideshow :global(picture),
+	.ark-slideshow :global(img),
+	.ark-slideshow :global(video) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		/* Mobile crops are already framed — keep center. Desktop focus only ≥901px. */
+		object-position: center;
+	}
+	@media (min-width: 901px) {
+		.ark-slideshow :global(img) {
+			object-position: var(--desk-pos, center);
+		}
+	}
+	.ark-slideshow :global(.uk-slidenav) {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 2.75rem;
+		min-height: 2.75rem;
+		padding: 0.35rem;
+		border-radius: 50%;
+		background: rgb(0 0 0 / 0.45);
+		color: #f5f5f5;
+		backdrop-filter: blur(6px);
+		transition:
+			background-color 0.2s ease,
+			transform 0.15s ease;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.ark-slideshow :global(.uk-slidenav:hover) {
+			background: rgb(0 0 0 / 0.65);
+			color: #fff;
+		}
+	}
+	.ark-slideshow :global(.uk-slidenav:focus-visible) {
+		outline: 2px solid var(--accent, #2a9d8f);
+		outline-offset: 2px;
+	}
+	.slideshow-empty {
+		padding: 3rem 1.5rem;
+		text-align: center;
+		color: #888;
+	}
+
+	.slide-layer {
+		position: absolute;
+		left: var(--l);
+		top: var(--t);
+		width: var(--w);
+		height: var(--h);
+		opacity: var(--op);
+		z-index: 2;
+		container-type: inline-size;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		scrollbar-width: thin;
+		pointer-events: none;
+	}
+	.slide-layer__body {
+		height: 100%;
+		padding: 0.75rem;
+		color: #fff;
+	}
+	.slide-layer--desktop {
+		display: block;
+	}
+	.slide-layer--mobile {
+		display: none;
+	}
+	@media (max-width: 900px) {
+		.slide-layer--desktop:not(.slide-layer--both) {
+			display: none;
+		}
+		.slide-layer--mobile {
+			display: block;
+		}
+	}
+</style>
+
+<script>
+	import UIkit from 'uikit/dist/js/uikit.min.js';
+	import Icons from 'uikit/dist/js/uikit-icons.min.js';
+	import '../../scripts/slide-layer-anim.ts';
+
+	// Vite ESM: min builds export the constructor; attach + register icons explicitly.
+	const ui = UIkit?.default ?? UIkit;
+	const icons = Icons?.default ?? Icons;
+	if (typeof ui?.use === 'function' && icons) ui.use(icons);
+	window.UIkit = ui;
+</script>

@@ -8,6 +8,9 @@
   "scripts": {
     "dev": "astro dev",
     "sync:header": "node scripts/sync-header-content.mjs",
+    "sync:slideshow": "node scripts/sync-slideshow-content.mjs",
+    "sync:all": "npm run sync:header && npm run sync:slideshow",
+    "prebuild": "node scripts/sync-slideshow-content.mjs",
     "build": "astro build",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
@@ -21,7 +24,8 @@
     "@types/react-dom": "^19.3.0",
     "astro": "^7.3.5",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "uikit": "^3.25.26"
   },
   "allowScripts": {
     "esbuild": true,

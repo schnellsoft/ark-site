@@ -1,0 +1,207 @@
+{
+  "settings": {
+    "animation": "fade",
+    "autoplay": true,
+    "autoplayInterval": 7000,
+    "animationDuration": 780,
+    "kenburns": true,
+    "finite": false,
+    "pauseOnHover": true,
+    "velocity": 1,
+    "swipeThreshold": 48,
+    "ratio": "16:9",
+    "minHeight": "",
+    "maxHeight": "",
+    "index": 0,
+    "output": {
+      "desktop": {
+        "width": 1920,
+        "height": 1080,
+        "quality": 80
+      },
+      "mobileLandscape": {
+        "width": 1280,
+        "height": 720,
+        "quality": 80
+      },
+      "mobilePortrait": {
+        "width": 1080,
+        "height": 1440,
+        "quality": 80
+      },
+      "mobileViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mobileMaxWidth": 900,
+      "tabletMaxWidth": 1024,
+      "outputFormat": "webp"
+    }
+  },
+  "slides": [
+    {
+      "id": "f7d8137c-22f1-41b2-b518-c553fef5f7a5",
+      "position": 1,
+      "title": "pexels-mm-dental-56682202-8260438",
+      "alt": "our resources",
+      "enabled": true,
+      "mediaKind": "image",
+      "version": "e177",
+      "mobileCrop": {
+        "left": 0,
+        "top": 160,
+        "width": 1920,
+        "height": 2560
+      },
+      "filters": {
+        "brightness": 100,
+        "contrast": 100,
+        "saturate": 100,
+        "hueRotate": 0,
+        "grayscale": 0,
+        "sepia": 0,
+        "invert": 0,
+        "blur": 0
+      },
+      "files": {
+        "desktop": {
+          "1280": {
+            "width": 1280,
+            "height": 1920
+          },
+          "1920": {
+            "width": 1920,
+            "height": 2880
+          }
+        },
+        "mobile": {
+          "720": {
+            "width": 720,
+            "height": 960
+          },
+          "1080": {
+            "width": 1080,
+            "height": 1440
+          }
+        },
+        "sourceKey": "slideshow/f7d8137c-22f1-41b2-b518-c553fef5f7a5/slide-f7d8137c-22f1-41b2-b518-c553fef5f7a5.e177-source.jpg"
+      },
+      "layer": {
+        "desktop": {
+          "enabled": true,
+          "rect": {
+            "left": 8,
+            "top": 12,
+            "width": 40,
+            "height": 60
+          },
+          "opacity": 1,
+          "background": {
+            "color": "#000000",
+            "opacity": 0.45,
+            "blur": 4
+          },
+          "padding": 4,
+          "radius": 12,
+          "textColor": "#ffffff",
+          "verticalAlign": "center",
+          "scaleText": true,
+          "animation": {
+            "duration": 600,
+            "delay": 200,
+            "stagger": 120
+          },
+          "zIndex": 2
+        },
+        "mobile": {
+          "sameAsDesktop": true
+        },
+        "hasDesktopHtml": false,
+        "hasMobileHtml": false
+      },
+      "libraryAssetId": "a72bfd79-ae01-4e15-8263-8a358e21e8ac"
+    },
+    {
+      "id": "de8997a8-4706-4a7d-b9df-f984bebf3d8f",
+      "position": 2,
+      "title": "pexels-iamluisao-12917374",
+      "alt": "dasd dasdasd",
+      "enabled": true,
+      "mediaKind": "image",
+      "version": "2950",
+      "mobileCrop": {
+        "left": 877,
+        "top": 0,
+        "width": 960,
+        "height": 1280
+      },
+      "filters": {
+        "brightness": 100,
+        "contrast": 100,
+        "saturate": 100,
+        "hueRotate": 0,
+        "grayscale": 0,
+        "sepia": 0,
+        "invert": 0,
+        "blur": 0
+      },
+      "files": {
+        "desktop": {
+          "1280": {
+            "width": 1280,
+            "height": 853
+          },
+          "1920": {
+            "width": 1920,
+            "height": 1280
+          }
+        },
+        "mobile": {
+          "720": {
+            "width": 720,
+            "height": 960
+          },
+          "1080": {
+            "width": 1080,
+            "height": 1440
+          }
+        },
+        "sourceKey": "slideshow/de8997a8-4706-4a7d-b9df-f984bebf3d8f/slide-de8997a8-4706-4a7d-b9df-f984bebf3d8f.2950-source.jpg"
+      },
+      "layer": {
+        "desktop": {
+          "enabled": true,
+          "rect": {
+            "left": 20.73,
+            "top": 18.72,
+            "width": 61.59,
+            "height": 61.94
+          },
+          "opacity": 1,
+          "background": {
+            "color": "#000000",
+            "opacity": 0.45,
+            "blur": 4
+          },
+          "padding": 4,
+          "radius": 12,
+          "textColor": "#ffffff",
+          "verticalAlign": "center",
+          "scaleText": true,
+          "animation": {
+            "duration": 600,
+            "delay": 200,
+            "stagger": 120
+          },
+          "zIndex": 2
+        },
+        "mobile": {
+          "sameAsDesktop": true
+        },
+        "hasDesktopHtml": false,
+        "hasMobileHtml": false
+      },
+      "libraryAssetId": "b3d9d04b-d169-4e54-82d8-6ecc2d8b4175"
+    }
+  ]
+}

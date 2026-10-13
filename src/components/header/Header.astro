@@ -35,6 +35,7 @@ const menuItems = (menu.menu ?? []).filter(
 );
 const iconItems = (icons.icons ?? []).filter((item) => spriteId(item.name));
 
+const appointmentEnabled = (appointmentData as { enabled?: boolean }).enabled === true;
 const scheduleText = resolveLangLabel(appointmentData.text, lang, 'Book an appointment');
 
 const menuColor = menu.color?.trim() || undefined;
@@ -263,13 +264,7 @@ function logoIsSvg(entry: { type?: string; svg?: string }) {
 			</div>
 			<a class="snd-user-status icon-btn" href="#login" aria-label="Log in">
 				<svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
-					<defs>
-						<linearGradient id="ct-login-grad" x1="5" y1="2" x2="15" y2="14" gradientUnits="userSpaceOnUse">
-							<stop offset="0" stop-color="#FFE082"></stop>
-							<stop offset="1" stop-color="#E6C96A"></stop>
-						</linearGradient>
-					</defs>
-					<circle cx="10.1" cy="7" r="4.35" fill="url(#ct-login-grad)"></circle>
+					<circle class="snd-user-head" cx="10.1" cy="7" r="4.35" fill="currentColor"></circle>
 					<path
 						fill="currentColor"
 						d="M3.2 21.2c0-4.15 3.05-7.05 6.9-7.05 1.55 0 2.98.48 4.12 1.28-1.55.55-2.67 2.02-2.67 3.77v4.2H3.2Z"
@@ -283,29 +278,33 @@ function logoIsSvg(entry: { type?: string; svg?: string }) {
 		</div>
 	</section>
 
-	<section class="header-bottom" data-header-bottom>
-		<button
-			type="button"
-			class="btn-appointment"
-			data-appointment
-			aria-label={scheduleText}
-			data-i18n-ro={resolveLangLabel(appointmentData.text, 'ro')}
-			data-i18n-bg={resolveLangLabel(appointmentData.text, 'bg')}
-			data-i18n-en={resolveLangLabel(appointmentData.text, 'en')}
-		>
-			<span class="status-indicator" aria-hidden="true">
-				<span class="status-dot"></span>
-				<span class="status-pulse"></span>
-			</span>
-			<span class="btn-text" data-appointment-label>{scheduleText}</span>
-			<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
-				<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-				<line x1="16" y1="2" x2="16" y2="6"></line>
-				<line x1="8" y1="2" x2="8" y2="6"></line>
-				<line x1="3" y1="10" x2="21" y2="10"></line>
-			</svg>
-		</button>
-	</section>
+	{
+		appointmentEnabled ? (
+			<section class="header-bottom" data-header-bottom>
+				<button
+					type="button"
+					class="btn-appointment"
+					data-appointment
+					aria-label={scheduleText}
+					data-i18n-ro={resolveLangLabel(appointmentData.text, 'ro')}
+					data-i18n-bg={resolveLangLabel(appointmentData.text, 'bg')}
+					data-i18n-en={resolveLangLabel(appointmentData.text, 'en')}
+				>
+					<span class="status-indicator" aria-hidden="true">
+						<span class="status-dot"></span>
+						<span class="status-pulse"></span>
+					</span>
+					<span class="btn-text" data-appointment-label>{scheduleText}</span>
+					<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+						<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+						<line x1="16" y1="2" x2="16" y2="6"></line>
+						<line x1="8" y1="2" x2="8" y2="6"></line>
+						<line x1="3" y1="10" x2="21" y2="10"></line>
+					</svg>
+				</button>
+			</section>
+		) : null
+	}
 </header>
 
 <script>
