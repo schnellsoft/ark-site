@@ -1,0 +1,217 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import catalog from '../../data/services/services.json';
+import type { ImageMetadata } from 'astro';
+
+type LocaleMap = { ro?: string; en?: string; bg?: string };
+type ServicePage = {
+	slug: string;
+	title: LocaleMap;
+	synopsis: LocaleMap;
+	paragraphs: { ro?: string[]; en?: string[]; bg?: string[] };
+	images: Array<{ master: string; webp?: string | null; alt: LocaleMap }>;
+	price: string;
+	currency: string;
+	iconSvg?: string;
+	pagePath?: string;
+};
+
+export function getStaticPaths() {
+	const services = Array.isArray((catalog as { services?: unknown[] }).services)
+		? (catalog as { services: Array<{ slug: string }> }).services
+		: [];
+	return services
+		.filter((s) => s?.slug)
+		.map((s) => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+if (!slug) {
+	return Astro.redirect('/');
+}
+
+const pageModules = import.meta.glob('../../data/services/pages/*.json', {
+	eager: true,
+	import: 'default',
+}) as Record<string, ServicePage>;
+
+const key = `../../data/services/pages/${slug}.json`;
+const page = pageModules[key];
+
+if (!page) {
+	return Astro.redirect('/');
+}
+
+const lang = 'ro';
+const title =
+	page.title?.[lang] || page.title?.ro || page.title?.en || slug;
+const synopsis =
+	page.synopsis?.[lang] || page.synopsis?.ro || page.synopsis?.en || '';
+const paragraphs =
+	page.paragraphs?.[lang] ||
+	page.paragraphs?.ro ||
+	page.paragraphs?.en ||
+	[];
+
+const imageModules = import.meta.glob<{ default: ImageMetadata }>(
+	'/src/assets/media/library/**/*.{jpg,jpeg,png,webp}',
+	{ eager: true },
+);
+
+function resolveImage(master: string) {
+	const hit = Object.entries(imageModules).find(
+		([path]) => path.endsWith(master) || path.includes(`/${master}`),
+	);
+	return hit?.[1]?.default ?? null;
+}
+---
+
+<Layout title={`${title} | Ark Medical Clinic`}>
+	<article class="svc-page">
+		<header class="svc-page-header">
+			{
+				page.iconSvg ? (
+					<div class="svc-page-icon" set:html={page.iconSvg} aria-hidden="true" />
+				) : null
+			}
+			<p class="svc-page-kicker">
+				<a href="/#services">Servicii</a>
+			</p>
+			<h1>{title}</h1>
+			{
+				synopsis ? <p class="svc-page-synopsis">{synopsis}</p> : null
+			}
+			<p class="svc-page-price">
+				{page.price} <span>{page.currency}</span>
+			</p>
+		</header>
+
+		<div class="svc-page-body">
+			{paragraphs.map((p) => <p>{p}</p>)}
+		</div>
+
+		{
+			page.images?.length ? (
+				<figure class="svc-page-gallery">
+					{page.images.map((img) => {
+						const asset = resolveImage(img.master);
+						const alt =
+							img.alt?.[lang] || img.alt?.ro || img.alt?.en || title;
+						if (asset) {
+							return (
+								<Image
+									src={asset}
+									alt={alt}
+									widths={[480, 768, 1200]}
+									sizes="(max-width: 768px) 100vw, 720px"
+								/>
+							);
+						}
+						return (
+							<img
+								src={`/media/${img.master}`}
+								alt={alt}
+								loading="lazy"
+								decoding="async"
+							/>
+						);
+					})}
+				</figure>
+			) : null
+		}
+	</article>
+</Layout>
+
+<style>
+	.svc-page {
+		width: min(100%, 48rem);
+		margin: 0 auto;
+		padding: calc(var(--header-block-size) + 1.5rem) var(--content-inline) 3rem;
+		color: #e8ecef;
+	}
+
+	.svc-page-header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		margin-bottom: 2rem;
+	}
+
+	.svc-page-icon {
+		width: 3.5rem;
+		height: 3.5rem;
+		color: var(--primary, #ffe082);
+	}
+
+	.svc-page-icon :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
+
+	.svc-page-kicker {
+		margin: 0;
+		font-size: 0.9rem;
+	}
+
+	.svc-page-kicker a {
+		color: var(--primary, #ffe082);
+		text-decoration: none;
+	}
+
+	.svc-page-kicker a:hover {
+		text-decoration: underline;
+	}
+
+	.svc-page h1 {
+		margin: 0;
+		font-size: clamp(1.75rem, 4vw, 2.35rem);
+		line-height: 1.2;
+		color: var(--primary, #ffe082);
+	}
+
+	.svc-page-synopsis {
+		margin: 0;
+		color: #9aa3a8;
+		font-size: 1.05rem;
+		line-height: 1.55;
+	}
+
+	.svc-page-price {
+		margin: 0;
+		font-size: 1.25rem;
+		font-variant-numeric: tabular-nums;
+		color: var(--primary, #ffe082);
+	}
+
+	.svc-page-price span {
+		font-size: 0.85em;
+		opacity: 0.85;
+	}
+
+	.svc-page-body {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		font-size: 1.05rem;
+		line-height: 1.65;
+	}
+
+	.svc-page-body p {
+		margin: 0;
+	}
+
+	.svc-page-gallery {
+		display: grid;
+		gap: 1rem;
+		margin: 2rem 0 0;
+		padding: 0;
+	}
+
+	.svc-page-gallery :global(img) {
+		width: 100%;
+		height: auto;
+		border-radius: 0.75rem;
+		border: 1px solid #2a3236;
+	}
+</style>

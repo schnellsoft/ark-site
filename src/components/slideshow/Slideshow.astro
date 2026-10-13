@@ -18,10 +18,56 @@ type Slide = {
 	files: SlideFiles;
 	desktopFocus?: { x: number; y: number } | null;
 	layer?: {
-		desktop?: { enabled?: boolean; rect?: Record<string, number>; opacity?: number };
-		mobile?: { sameAsDesktop?: boolean; enabled?: boolean; rect?: Record<string, number> };
+		desktop?: {
+			enabled?: boolean;
+			rect?: Record<string, number>;
+			opacity?: number;
+			textColor?: string;
+			scaleText?: boolean;
+			animation?: {
+				effect?: string;
+				direction?: string;
+				duration?: number;
+				delay?: number;
+				stagger?: number;
+				playMode?: string;
+			};
+		};
+		mobile?: {
+			sameAsDesktop?: boolean;
+			enabled?: boolean;
+			rect?: Record<string, number>;
+			opacity?: number;
+			textColor?: string;
+			scaleText?: boolean;
+			animation?: {
+				effect?: string;
+				direction?: string;
+				duration?: number;
+				delay?: number;
+				stagger?: number;
+				playMode?: string;
+			};
+		};
 	} | null;
 };
+
+function layerAnimAttrs(anim: NonNullable<NonNullable<Slide['layer']>['desktop']>['animation']) {
+	const effect = anim?.effect || 'fade';
+	const dir = anim?.direction || 'left';
+	const duration = Number(anim?.duration) || 600;
+	const delay = Number(anim?.delay) || 0;
+	const stagger = Number(anim?.stagger) || 120;
+	const play = anim?.playMode || 'once';
+	return {
+		'data-anim': effect,
+		'data-anim-dir': dir,
+		'data-anim-duration': String(duration),
+		'data-anim-delay': String(delay),
+		'data-anim-stagger': String(stagger),
+		'data-anim-play': play,
+	};
+}
 
 const settings = slideshow.settings ?? {};
 const slides = ([...(slideshow.slides ?? [])] as Slide[])
@@ -116,6 +162,21 @@ if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
 								slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop
 									? slide.layer.mobile.rect
 									: dRect;
+							const dAnim = slide.layer?.desktop?.animation;
+							const mAnim =
+								slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop
+									? slide.layer.mobile.animation
+									: dAnim;
+							const dText = slide.layer?.desktop?.textColor || '#ffffff';
+							const mText =
+								slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop
+									? slide.layer.mobile.textColor || dText
+									: dText;
+							const dScale = slide.layer?.desktop?.scaleText !== false;
+							const mScale =
+								slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop
+									? slide.layer.mobile.scaleText !== false
+									: dScale;
 
 							return (
 								<div>
@@ -205,10 +266,13 @@ if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
 										<div
 											class:list={[
 												'slide-layer',
+												'hl',
 												sameMobile ? 'slide-layer--both' : 'slide-layer--desktop',
+												dScale ? 'slide-layer--scale' : null,
 											]}
 											data-variant="desktop"
-											style={`--l:${dRect?.left ?? 8}%;--t:${dRect?.top ?? 12}%;--w:${dRect?.width ?? 40}%;--h:${dRect?.height ?? 60}%;--op:${slide.layer?.desktop?.opacity ?? 1}`}
+											{...layerAnimAttrs(dAnim)}
+											style={`--l:${dRect?.left ?? 8}%;--t:${dRect?.top ?? 12}%;--w:${dRect?.width ?? 40}%;--h:${dRect?.height ?? 60}%;--op:${slide.layer?.desktop?.opacity ?? 1};--tc:${dText}`}
 										>
 											<div class="slide-layer__body" set:html={desktopLayer} />
 										</div>
@@ -216,9 +280,15 @@ if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
 
 									{!sameMobile && mobileLayer ? (
 										<div
-											class="slide-layer slide-layer--mobile"
+											class:list={[
+												'slide-layer',
+												'hl',
+												'slide-layer--mobile',
+												mScale ? 'slide-layer--scale' : null,
+											]}
 											data-variant="mobile"
-											style={`--l:${mRect?.left ?? 8}%;--t:${mRect?.top ?? 12}%;--w:${mRect?.width ?? 40}%;--h:${mRect?.height ?? 60}%;--op:1`}
+											{...layerAnimAttrs(mAnim)}
+											style={`--l:${mRect?.left ?? 8}%;--t:${mRect?.top ?? 12}%;--w:${mRect?.width ?? 40}%;--h:${mRect?.height ?? 60}%;--op:${slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop ? (slide.layer.mobile.opacity ?? 1) : 1};--tc:${mText}`}
 										>
 											<div class="slide-layer__body" set:html={mobileLayer} />
 										</div>
@@ -327,11 +397,15 @@ if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
 		overscroll-behavior: contain;
 		scrollbar-width: thin;
 		pointer-events: none;
+		color: var(--tc, #fff);
 	}
 	.slide-layer__body {
 		height: 100%;
 		padding: 0.75rem;
-		color: #fff;
+		color: inherit;
+	}
+	.slide-layer--scale .slide-layer__body {
+		font-size: clamp(0.85rem, 4.5cqi, 2rem);
 	}
 	.slide-layer--desktop {
 		display: block;
@@ -345,6 +419,84 @@ if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
 		}
 		.slide-layer--mobile {
 			display: block;
+		}
+	}
+
+	/* Whole-layer animations (opacity / transform only). */
+	.hl[data-anim]:not([data-anim='none']):not(.is-in) {
+		opacity: 0;
+	}
+	.hl[data-anim].is-in,
+	.hl[data-anim='none'] {
+		opacity: var(--op, 1);
+		transform: none;
+		filter: none;
+	}
+	.hl[data-anim]:not([data-anim='none']).is-in {
+		transition:
+			opacity var(--d, 600ms) ease var(--delay, 0ms),
+			transform var(--d, 600ms) ease var(--delay, 0ms),
+			filter var(--d, 600ms) ease var(--delay, 0ms);
+	}
+	.hl[data-anim='slide'][data-anim-dir='left']:not(.is-in) {
+		transform: translateX(-24px);
+	}
+	.hl[data-anim='slide'][data-anim-dir='right']:not(.is-in) {
+		transform: translateX(24px);
+	}
+	.hl[data-anim='slide'][data-anim-dir='top']:not(.is-in) {
+		transform: translateY(-24px);
+	}
+	.hl[data-anim='slide'][data-anim-dir='bottom']:not(.is-in) {
+		transform: translateY(24px);
+	}
+	.hl[data-anim='zoom']:not(.is-in) {
+		transform: scale(0.9);
+	}
+	.hl[data-anim='reveal-lines']:not(.is-in) {
+		transform: translateY(18px);
+	}
+	.hl[data-anim='blur']:not(.is-in) {
+		filter: blur(8px);
+	}
+	.hl[data-anim='underline'].is-in .slide-layer__body {
+		text-decoration-line: underline;
+		text-decoration-thickness: 0.08em;
+		text-underline-offset: 0.18em;
+	}
+	.hl[data-anim='stagger']:not(.is-in) .slide-layer__body > * {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	.hl[data-anim='stagger'].is-in .slide-layer__body > * {
+		opacity: 1;
+		transform: none;
+		transition:
+			opacity var(--d, 600ms) ease var(--child-delay, 0ms),
+			transform var(--d, 600ms) ease var(--child-delay, 0ms);
+	}
+	.hl[data-anim='typewriter']:not(.is-in) .slide-layer__body {
+		max-width: 0;
+		overflow: hidden;
+		white-space: nowrap;
+	}
+	.hl[data-anim='typewriter'].is-in .slide-layer__body {
+		max-width: 100%;
+		transition: max-width var(--d, 600ms) steps(24, end) var(--delay, 0ms);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.hl[data-anim] {
+			opacity: var(--op, 1) !important;
+			transform: none !important;
+			filter: none !important;
+			transition: none !important;
+		}
+		.hl[data-anim] .slide-layer__body,
+		.hl[data-anim] .slide-layer__body > * {
+			opacity: 1 !important;
+			transform: none !important;
+			max-width: none !important;
+			transition: none !important;
 		}
 	}
 </style>

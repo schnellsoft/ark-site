@@ -1,0 +1,9 @@
+---
+import { ServicesCards as ServicesCardsApp } from './ServicesCards';
+import type { ServicesCatalog } from './ServicesCards';
+import catalog from '../../data/services/services.json';
+
+const data = catalog as ServicesCatalog;
+---
+
+<ServicesCardsApp client:load catalog={data} lang="ro" />
