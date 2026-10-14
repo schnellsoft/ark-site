@@ -1,3 +1,4 @@
+import { initBookingBadge } from '../booking';
 import { initAppointment } from './appointment';
 import { initCollapse } from './collapse';
 import { initLang } from './lang';
@@ -23,4 +24,5 @@ export function initHeader() {
 	}
 
 	initLang();
+	initBookingBadge();
 }

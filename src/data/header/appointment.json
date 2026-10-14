@@ -1,5 +1,6 @@
 {
-	"enabled": false,
+	"enabled": true,
+	"badgeCount": 0,
 	"text": {
 		"ro": "Programează o consultație",
 		"bg": "Запази час",
