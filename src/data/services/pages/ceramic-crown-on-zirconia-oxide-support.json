@@ -1,7 +1,7 @@
 {
   "slug": "ceramic-crown-on-zirconia-oxide-support",
   "title": {
-    "ro": "Coroană ceramic pe suport de oxid de zirnocniu",
+    "ro": "Coroană ceramic pe suport de oxid de zirconiu",
     "en": "Ceramic crown on zirconia oxide support",
     "bg": "Керамична корона върху циркониев оксид"
   },
@@ -58,5 +58,5 @@
   "price": "1200",
   "currency": "RON",
   "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"> <title>Ceramic crown on zirconia oxide support</title> <path d=\"M16 5h16c1.3 0 2.4 1 2.4 2.4v8.8c0 1.1-.9 2-2 2H15.6c-1.1 0-2-.9-2-2V7.4C13.6 6 14.7 5 16 5Z\"/><path d=\"M15.5 20h17\"/><path d=\"M18.2 20 21.2 41h5.6L29.8 20\"/> <path d=\"M36.5 7 37.8 10.2 41 11.5 37.8 12.8 36.5 16 35.2 12.8 32 11.5 35.2 10.2Z\"/> <text x=\"40\" y=\"11\" text-anchor=\"end\" fill=\"currentColor\" stroke=\"none\" font-size=\"8\" font-family=\"ui-sans-serif, system-ui, sans-serif\" font-weight=\"700\">Zr</text> </svg>",
-  "pagePath": "/services/ceramic-crown-on-zirconia-oxide-support"
+  "pagePath": "/services/ceramic-crown-on-zirconia-oxide-support/"
 }

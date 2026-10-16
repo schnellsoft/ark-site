@@ -1,0 +1,12 @@
+{
+  "latitude": "",
+  "longitude": "",
+  "address": "",
+  "googleMapsKey": "",
+  "building": {
+    "libraryId": null,
+    "master": null,
+    "webp": null
+  },
+  "updatedAt": ""
+}

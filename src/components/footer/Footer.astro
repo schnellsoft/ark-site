@@ -1,0 +1,321 @@
+---
+import spriteUrl from '../../assets/icons/sprite.svg?url';
+import contactData from '../../data/contact/contact.json';
+import footerData from '../../data/footer/footer.json';
+import locationData from '../../data/location/location.json';
+import scheduleData from '../../data/schedule/schedule.json';
+import { resolveLangLabel } from '../../lib/header';
+import { spriteSymbolId } from '../../lib/icons';
+
+type ScheduleDay = { day: number; open_time: string; close_time: string };
+type FooterIcon = {
+	name?: string;
+	label?: { ro?: string; bg?: string; en?: string } | string;
+	'aria-label'?: string;
+	link?: string;
+};
+
+const year = new Date().getFullYear();
+const days = (scheduleData.days ?? []) as ScheduleDay[];
+const icons = ((footerData as { icons?: FooterIcon[] }).icons ?? []).filter((icon) =>
+	spriteSymbolId(icon.name),
+);
+
+const address = String((locationData as { address?: string }).address ?? '').trim();
+const phone = String((contactData as { phone?: string }).phone ?? '').trim();
+const email = String((contactData as { email?: string }).email ?? '').trim();
+const phoneHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : '';
+const hasContact = Boolean(address || phone || email);
+
+const WEEKDAY_LABELS: Record<number, { ro: string; bg: string; en: string }> = {
+	1: { ro: 'Luni', bg: 'Понеделник', en: 'Monday' },
+	2: { ro: 'Marți', bg: 'Вторник', en: 'Tuesday' },
+	3: { ro: 'Miercuri', bg: 'Сряда', en: 'Wednesday' },
+	4: { ro: 'Joi', bg: 'Четвъртък', en: 'Thursday' },
+	5: { ro: 'Vineri', bg: 'Петък', en: 'Friday' },
+	6: { ro: 'Sâmbătă', bg: 'Събота', en: 'Saturday' },
+	7: { ro: 'Duminică', bg: 'Неделя', en: 'Sunday' },
+};
+
+function formatHours(open: string, close: string): string {
+	const o = (open ?? '').trim();
+	const c = (close ?? '').trim();
+	if (!o && !c) return '';
+	if (o && c) return `${o} – ${c}`;
+	return o || c;
+}
+---
+
+<footer class="site-footer">
+	<div class="site-footer__inner">
+		{
+			hasContact && (
+				<div class="site-footer__contact">
+					<h2
+						class="site-footer__heading"
+						data-i18n-ro="Contact"
+						data-i18n-bg="Контакт"
+						data-i18n-en="Contact"
+					>
+						Contact
+					</h2>
+					<ul class="site-footer__contact-list">
+						{address ? (
+							<li class="site-footer__contact-item">
+								<span
+									class="site-footer__contact-label"
+									data-i18n-ro="Adresă"
+									data-i18n-bg="Адрес"
+									data-i18n-en="Address"
+								>
+									Adresă
+								</span>
+								<span class="site-footer__contact-value">{address}</span>
+							</li>
+						) : null}
+						{phone ? (
+							<li class="site-footer__contact-item">
+								<span
+									class="site-footer__contact-label"
+									data-i18n-ro="Telefon"
+									data-i18n-bg="Телефон"
+									data-i18n-en="Phone"
+								>
+									Telefon
+								</span>
+								<a class="site-footer__contact-value" href={phoneHref}>
+									{phone}
+								</a>
+							</li>
+						) : null}
+						{email ? (
+							<li class="site-footer__contact-item">
+								<span
+									class="site-footer__contact-label"
+									data-i18n-ro="Email"
+									data-i18n-bg="Имейл"
+									data-i18n-en="Email"
+								>
+									Email
+								</span>
+								<a class="site-footer__contact-value" href={`mailto:${email}`}>
+									{email}
+								</a>
+							</li>
+						) : null}
+					</ul>
+				</div>
+			)
+		}
+
+		<div class="site-footer__schedule">
+			<h2
+				class="site-footer__heading"
+				data-i18n-ro="Program"
+				data-i18n-bg="График"
+				data-i18n-en="Hours"
+			>
+				Program
+			</h2>
+			<ul class="site-footer__days">
+				{
+					([1, 2, 3, 4, 5, 6, 7] as const).map((dayNum) => {
+						const row = days.find((d) => d.day === dayNum);
+						const labels = WEEKDAY_LABELS[dayNum];
+						const hours = formatHours(row?.open_time ?? '', row?.close_time ?? '');
+						return (
+							<li class="site-footer__day">
+								<span
+									class="site-footer__day-name"
+									data-i18n-ro={labels.ro}
+									data-i18n-bg={labels.bg}
+									data-i18n-en={labels.en}
+								>
+									{labels.ro}
+								</span>
+								{hours ? (
+									<span class="site-footer__day-hours">{hours}</span>
+								) : (
+									<span
+										class="site-footer__day-hours site-footer__day-hours--closed"
+										data-i18n-ro="Închis"
+										data-i18n-bg="Затворено"
+										data-i18n-en="Closed"
+									>
+										Închis
+									</span>
+								)}
+							</li>
+						);
+					})
+				}
+			</ul>
+		</div>
+
+		{
+			icons.length > 0 && (
+				<nav class="site-footer__icons" aria-label="Social">
+					{icons.map((icon) => {
+						const id = spriteSymbolId(icon.name);
+						const label = resolveLangLabel(icon.label, 'ro');
+						const aria = icon['aria-label'] || label || id;
+						return (
+							<a
+								class="site-footer__icon-link"
+								href={icon.link || '#'}
+								aria-label={aria}
+								data-i18n-ro={resolveLangLabel(icon.label, 'ro')}
+								data-i18n-bg={resolveLangLabel(icon.label, 'bg')}
+								data-i18n-en={resolveLangLabel(icon.label, 'en')}
+								data-i18n-aria-only
+							>
+								<svg
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									aria-hidden="true"
+									focusable="false"
+									class="site-footer__icon"
+								>
+									<use href={`${spriteUrl}#${id}`} />
+								</svg>
+							</a>
+						);
+					})}
+				</nav>
+			)
+		}
+
+		<p class="site-footer__copy">&copy; {year} Ark Medical Clinic</p>
+	</div>
+</footer>
+
+<style>
+	.site-footer {
+		margin-top: auto;
+		padding: clamp(1.5rem, 3vw, 2.5rem) var(--content-inline);
+		background: var(--bg-elevated);
+		border-top: 2px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+	}
+
+	.site-footer__inner {
+		max-width: var(--content-max);
+		margin-inline: auto;
+		display: grid;
+		gap: 1.75rem;
+		justify-items: center;
+		text-align: center;
+	}
+
+	.site-footer__heading {
+		margin: 0 0 0.75rem;
+		font-size: 0.85rem;
+		font-weight: 500;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, var(--fg) 70%, transparent);
+	}
+
+	.site-footer__contact-list,
+	.site-footer__days {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.site-footer__contact-list {
+		display: grid;
+		gap: 0.5rem;
+		width: min(100%, 28rem);
+		text-align: start;
+	}
+
+	.site-footer__contact-item {
+		display: grid;
+		gap: 0.15rem;
+		font-size: 0.95rem;
+	}
+
+	.site-footer__contact-label {
+		font-size: 0.75rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, var(--fg) 55%, transparent);
+	}
+
+	.site-footer__contact-value {
+		color: var(--fg);
+		text-decoration: none;
+	}
+
+	a.site-footer__contact-value:hover {
+		color: var(--primary);
+	}
+
+	.site-footer__days {
+		display: grid;
+		gap: 0.35rem 1.5rem;
+		grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+		width: min(100%, 40rem);
+		text-align: start;
+	}
+
+	.site-footer__day {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		font-size: 0.9rem;
+	}
+
+	.site-footer__day-name {
+		color: color-mix(in srgb, var(--fg) 85%, transparent);
+	}
+
+	.site-footer__day-hours {
+		font-variant-numeric: tabular-nums;
+		color: var(--accent);
+	}
+
+	.site-footer__day-hours--closed {
+		color: color-mix(in srgb, var(--fg) 45%, transparent);
+	}
+
+	.site-footer__icons {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.75rem;
+	}
+
+	.site-footer__icon-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 2.5rem;
+		block-size: 2.5rem;
+		border-radius: 0.5rem;
+		color: var(--fg);
+		background: color-mix(in srgb, var(--bg) 70%, transparent);
+		border: 1px solid var(--border);
+		transition:
+			color 160ms ease,
+			border-color 160ms ease,
+			background-color 160ms ease;
+	}
+
+	.site-footer__icon-link:hover {
+		color: var(--primary);
+		border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+		background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+	}
+
+	.site-footer__icon {
+		display: block;
+	}
+
+	.site-footer__copy {
+		margin: 0;
+		font-size: 0.85rem;
+		color: color-mix(in srgb, var(--fg) 55%, transparent);
+	}
+</style>
