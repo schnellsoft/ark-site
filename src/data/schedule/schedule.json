@@ -1,12 +1,40 @@
 {
   "days": [
-    { "day": 1, "open_time": "", "close_time": "" },
-    { "day": 2, "open_time": "", "close_time": "" },
-    { "day": 3, "open_time": "", "close_time": "" },
-    { "day": 4, "open_time": "", "close_time": "" },
-    { "day": 5, "open_time": "", "close_time": "" },
-    { "day": 6, "open_time": "", "close_time": "" },
-    { "day": 7, "open_time": "", "close_time": "" }
+    {
+      "day": 1,
+      "open_time": "09:30",
+      "close_time": "17:30"
+    },
+    {
+      "day": 2,
+      "open_time": "09:30",
+      "close_time": "17:30"
+    },
+    {
+      "day": 3,
+      "open_time": "09:30",
+      "close_time": "17:30"
+    },
+    {
+      "day": 4,
+      "open_time": "09:30",
+      "close_time": "17:30"
+    },
+    {
+      "day": 5,
+      "open_time": "09:30",
+      "close_time": "14:00"
+    },
+    {
+      "day": 6,
+      "open_time": "",
+      "close_time": ""
+    },
+    {
+      "day": 7,
+      "open_time": "",
+      "close_time": ""
+    }
   ],
-  "updatedAt": ""
+  "updatedAt": "2026-10-16T01:36:29.013Z"
 }

@@ -3,27 +3,25 @@
  * Pull location/location.json from ark-admin-content.
  * Usage: node scripts/sync-location-content.mjs
  */
-import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { syncRemoteJson } from './sync-r2-json.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const contentDir = join(root, 'src/data/location');
-const dest = join(contentDir, 'location.json');
+const dest = join(root, 'src/data/location/location.json');
 
-function wranglerGet(bucket, key, file) {
-	const result = spawnSync(
-		'npx',
-		['wrangler', 'r2', 'object', 'get', `${bucket}/${key}`, '--remote', `--file=${file}`],
-		{ cwd: root, encoding: 'utf8', stdio: 'inherit' },
-	);
-	if (result.status !== 0) {
-		throw new Error(`Failed to get ${bucket}/${key}`);
-	}
-}
-
-await mkdir(contentDir, { recursive: true });
-console.log('↓ content location/location.json');
-wranglerGet('ark-admin-content', 'location/location.json', dest);
+await syncRemoteJson({
+	root,
+	keys: 'location/location.json',
+	dest,
+	fallback: {
+		latitude: '',
+		longitude: '',
+		address: '',
+		googleMapsKey: '',
+		building: { libraryId: null, master: null, webp: null },
+		updatedAt: '',
+	},
+	label: 'location/location.json',
+});
 console.log('Location content sync complete.');

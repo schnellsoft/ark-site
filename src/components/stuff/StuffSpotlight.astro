@@ -1,0 +1,272 @@
+---
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import catalog from '../../data/stuff/stuff.json';
+import {
+	accentForIndex,
+	type StuffSpotlightLocalized,
+} from './stuff-spotlight';
+import './stuff-spotlight.css';
+
+type Lang = 'ro' | 'en' | 'bg';
+type LocaleMap = { ro?: string; en?: string; bg?: string };
+
+type StuffDoc = {
+	spotlight?: {
+		autoplay?: boolean;
+		delayMs?: number;
+		stopOnHover?: boolean;
+	};
+	providedServices?: Array<{
+		id: string;
+		name: LocaleMap;
+		enabled?: boolean;
+	}>;
+	members?: Array<{
+		id: string;
+		position: number;
+		name: LocaleMap;
+		role: LocaleMap;
+		doctorTitle?: boolean;
+		college?: string;
+		providedServiceIds?: string[];
+		snippet: LocaleMap;
+		portrait?: {
+			master?: string | null;
+			webp?: string | null;
+			portrait800?: string | null;
+		};
+		enabled?: boolean;
+	}>;
+};
+
+const doc = catalog as StuffDoc;
+const spotlight = {
+	autoplay: doc.spotlight?.autoplay !== false,
+	delayMs:
+		typeof doc.spotlight?.delayMs === 'number' && doc.spotlight.delayMs >= 500
+			? doc.spotlight.delayMs
+			: 3000,
+	stopOnHover: doc.spotlight?.stopOnHover !== false,
+};
+
+const titles: Record<Lang, string> = {
+	ro: 'Echipa noastră',
+	en: 'Meet our team',
+	bg: 'Нашият екип',
+};
+const pauseLabels: Record<Lang, string> = {
+	ro: '⏸ Pauză',
+	en: '⏸ Pause',
+	bg: '⏸ Пауза',
+};
+const playLabels: Record<Lang, string> = {
+	ro: '▶ Redă',
+	en: '▶ Play',
+	bg: '▶ Пуск',
+};
+
+const serviceById = new Map(
+	(doc.providedServices ?? []).map((s) => [s.id, s]),
+);
+
+function pick(map: LocaleMap | undefined, l: Lang): string {
+	if (!map) return '';
+	return (map[l] || map.ro || map.en || map.bg || '').trim();
+}
+
+function displayName(
+	m: NonNullable<StuffDoc['members']>[number],
+	l: Lang,
+): string {
+	const base = pick(m.name, l);
+	if (!base) return '';
+	if (m.doctorTitle && !/^dr\.?\s/i.test(base)) return `Dr. ${base}`;
+	return base;
+}
+
+function portraitKey(
+	m: NonNullable<StuffDoc['members']>[number],
+): string | null {
+	const p = m.portrait;
+	if (!p) return null;
+	return p.portrait800 || p.webp || p.master || null;
+}
+
+const imageModules = import.meta.glob<{ default: ImageMetadata }>(
+	'/src/assets/media/**/*.{jpg,jpeg,png,webp}',
+	{ eager: true },
+);
+
+function resolveAsset(key: string): ImageMetadata | null {
+	const hit = Object.entries(imageModules).find(
+		([path]) => path.endsWith(key) || path.includes(`/${key}`),
+	);
+	return hit?.[1]?.default ?? null;
+}
+
+const enabled = (doc.members ?? [])
+	.filter((m) => m.enabled !== false)
+	.sort((a, b) => a.position - b.position);
+
+const team: StuffSpotlightLocalized[] = [];
+for (const [index, m] of enabled.entries()) {
+	const names = {
+		ro: displayName(m, 'ro'),
+		en: displayName(m, 'en'),
+		bg: displayName(m, 'bg'),
+	};
+	if (!names.ro && !names.en && !names.bg) continue;
+
+	const key = portraitKey(m);
+	let img = '';
+	if (key) {
+		const asset = resolveAsset(key);
+		if (asset) {
+			const optimized = await getImage({
+				src: asset,
+				width: 800,
+				format: 'webp',
+			});
+			img = optimized.src;
+		} else {
+			img = `/media/${key}`;
+		}
+	}
+
+	const tags = {
+		ro: (m.providedServiceIds ?? [])
+			.map((id) => {
+				const svc = serviceById.get(id);
+				return svc ? pick(svc.name, 'ro') : '';
+			})
+			.filter(Boolean),
+		en: (m.providedServiceIds ?? [])
+			.map((id) => {
+				const svc = serviceById.get(id);
+				return svc ? pick(svc.name, 'en') : '';
+			})
+			.filter(Boolean),
+		bg: (m.providedServiceIds ?? [])
+			.map((id) => {
+				const svc = serviceById.get(id);
+				return svc ? pick(svc.name, 'bg') : '';
+			})
+			.filter(Boolean),
+	};
+
+	team.push({
+		n: names,
+		r: {
+			ro: pick(m.role, 'ro'),
+			en: pick(m.role, 'en'),
+			bg: pick(m.role, 'bg'),
+		},
+		c: accentForIndex(index),
+		img,
+		bio: {
+			ro: pick(m.snippet, 'ro'),
+			en: pick(m.snippet, 'en'),
+			bg: pick(m.snippet, 'bg'),
+		},
+		tags,
+		edu: (m.college ?? '').trim(),
+	});
+}
+
+const payload = {
+	team,
+	config: {
+		autoplay: spotlight.autoplay,
+		delayMs: spotlight.delayMs,
+		stopOnHover: spotlight.stopOnHover,
+		labels: {
+			ro: {
+				title: titles.ro,
+				pause: pauseLabels.ro,
+				play: playLabels.ro,
+			},
+			en: {
+				title: titles.en,
+				pause: pauseLabels.en,
+				play: playLabels.en,
+			},
+			bg: {
+				title: titles.bg,
+				pause: pauseLabels.bg,
+				play: playLabels.bg,
+			},
+		},
+	},
+};
+---
+
+{
+	team.length ? (
+		<section
+			class="stuff-spotlight"
+			id="team"
+			data-stuff-spotlight
+			data-ss-json={JSON.stringify(payload)}
+			aria-label={titles.ro}
+		>
+			<div class="stuff-spotlight__head">
+				<h2 class="stuff-spotlight__title" data-ss-title>
+					{titles.ro}
+				</h2>
+				<button
+					type="button"
+					class="stuff-spotlight__play"
+					data-ss-play
+					aria-pressed="true"
+				>
+					{spotlight.autoplay ? pauseLabels.ro : playLabels.ro}
+				</button>
+			</div>
+			<div class="stuff-spotlight__spot" data-ss-spot>
+				<div
+					class="stuff-spotlight__list"
+					data-ss-list
+					role="tablist"
+					aria-label={titles.ro}
+				>
+				</div>
+				<article
+					class="stuff-spotlight__detail"
+					data-ss-detail
+					aria-live="polite"
+				>
+				</article>
+			</div>
+		</section>
+	) : null
+}
+
+<script>
+	import {
+		initStuffSpotlight,
+		type StuffSpotlightConfig,
+		type StuffSpotlightLocalized,
+	} from './stuff-spotlight';
+
+	function boot() {
+		document
+			.querySelectorAll<HTMLElement>('[data-stuff-spotlight]')
+			.forEach((root) => {
+				const raw = root.dataset.ssJson;
+				if (!raw) return;
+				try {
+					const data = JSON.parse(raw) as {
+						team: StuffSpotlightLocalized[];
+						config: StuffSpotlightConfig;
+					};
+					initStuffSpotlight(root, data.team, data.config);
+				} catch {
+					// ignore malformed payload
+				}
+			});
+	}
+
+	boot();
+	document.addEventListener('astro:page-load', boot);
+</script>

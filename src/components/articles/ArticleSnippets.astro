@@ -1,0 +1,140 @@
+---
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import catalog from '../../data/articles/articles.json';
+import type { ArticleSnippetItem } from './article-snippets';
+import './article-snippets.css';
+
+type Lang = 'ro' | 'en' | 'bg';
+type LocaleMap = { ro?: string; en?: string; bg?: string };
+
+type ArticlesDoc = {
+	firstPage?: string[];
+	articles?: Array<{
+		id: string;
+		slug: string;
+		enabled?: boolean;
+		snippet?: {
+			title?: LocaleMap;
+			text?: LocaleMap;
+			date?: string | null;
+			image?: {
+				master?: string | null;
+				webp?: string | null;
+			};
+		};
+	}>;
+};
+
+const doc = catalog as ArticlesDoc;
+const byId = new Map((doc.articles ?? []).map((a) => [a.id, a]));
+
+const imageModules = import.meta.glob<{ default: ImageMetadata }>(
+	'/src/assets/media/**/*.{jpg,jpeg,png,webp}',
+	{ eager: true },
+);
+
+function resolveAsset(key: string): ImageMetadata | null {
+	const hit = Object.entries(imageModules).find(
+		([path]) => path.endsWith(key) || path.includes(`/${key}`),
+	);
+	return hit?.[1]?.default ?? null;
+}
+
+function localeTriple(map: LocaleMap | undefined): Record<Lang, string> {
+	return {
+		ro: (map?.ro || map?.en || map?.bg || '').trim(),
+		en: (map?.en || map?.ro || map?.bg || '').trim(),
+		bg: (map?.bg || map?.ro || map?.en || '').trim(),
+	};
+}
+
+const items: ArticleSnippetItem[] = [];
+for (const id of doc.firstPage ?? []) {
+	const a = byId.get(id);
+	if (!a || a.enabled === false) continue;
+	const title = localeTriple(a.snippet?.title);
+	if (!title.ro && !title.en && !title.bg) continue;
+
+	const key = a.snippet?.image?.webp || a.snippet?.image?.master || null;
+	let img = '';
+	if (key) {
+		const asset = resolveAsset(key);
+		if (asset) {
+			const optimized = await getImage({
+				src: asset,
+				width: 720,
+				format: 'webp',
+			});
+			img = optimized.src;
+		} else {
+			img = `/media/${key}`;
+		}
+	}
+
+	items.push({
+		id: a.id,
+		href: `/articles/${a.slug}`,
+		title,
+		date: (a.snippet?.date || '').trim(),
+		text: localeTriple(a.snippet?.text),
+		img,
+	});
+}
+
+const labels = {
+	ro: { section: 'Din clinică' },
+	en: { section: 'From the clinic' },
+	bg: { section: 'От клиниката' },
+};
+
+const payload = { items, config: { labels } };
+---
+
+{
+	items.length ? (
+		<section
+			class="article-snippets"
+			id="articles"
+			data-article-snippets
+			data-as-json={JSON.stringify(payload)}
+			aria-label={labels.ro.section}
+		>
+			<div class="article-snippets__head">
+				<h2 class="article-snippets__title" data-as-heading>
+					{labels.ro.section}
+				</h2>
+			</div>
+			<div class="article-snippets__list" data-as-list></div>
+		</section>
+	) : null
+}
+
+<script>
+	import {
+		initArticleSnippets,
+		type ArticleSnippetItem,
+		type ArticleSnippetsConfig,
+	} from './article-snippets';
+
+	function boot() {
+		document
+			.querySelectorAll<HTMLElement>('[data-article-snippets]')
+			.forEach((root) => {
+				const raw = root.dataset.asJson;
+				if (!raw) return;
+				try {
+					const data = JSON.parse(raw) as {
+						items: ArticleSnippetItem[];
+						config: ArticleSnippetsConfig;
+					};
+					initArticleSnippets(root, data.items, data.config);
+				} catch {
+					// ignore
+				}
+			});
+	}
+
+	boot();
+	document.addEventListener('astro:page-load', boot);
+</script>

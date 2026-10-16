@@ -1,0 +1,450 @@
+{
+  "spotlight": {
+    "autoplay": true,
+    "delayMs": 3000,
+    "stopOnHover": true
+  },
+  "categories": [
+    {
+      "id": "d80a01fb-cad7-4c99-a7ad-df9d1a5d6c90",
+      "slug": "manageri-b72f2deb68",
+      "position": 1,
+      "name": {
+        "ro": "Manageri",
+        "en": "Managers",
+        "bg": "Мениджъри"
+      },
+      "iconSvg": "",
+      "enabled": true
+    },
+    {
+      "id": "f2c7acea-0927-4e62-9059-a7e539aee610",
+      "slug": "asistenti-ad5bba941b",
+      "position": 2,
+      "name": {
+        "ro": "Asistenți",
+        "en": "Assistantly",
+        "bg": "Aсистентите"
+      },
+      "iconSvg": "",
+      "enabled": true
+    },
+    {
+      "id": "a9a915b8-e61a-45c4-9b1f-e94641d8b6cf",
+      "slug": "infirmieri-5dba4c0ce7",
+      "position": 3,
+      "name": {
+        "ro": "Infirmieri",
+        "en": "Nurses",
+        "bg": "Медицински сестри"
+      },
+      "iconSvg": "",
+      "enabled": true
+    },
+    {
+      "id": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "slug": "medic",
+      "position": 4,
+      "name": {
+        "ro": "Medici",
+        "en": "Doctors",
+        "bg": "Лекар"
+      },
+      "iconSvg": "",
+      "enabled": true
+    }
+  ],
+  "subcategories": [],
+  "roles": [
+    {
+      "id": "67811976-0451-47de-a98b-0af66ea58f8e",
+      "position": 1,
+      "name": {
+        "ro": "Infirmieră",
+        "en": "The nurse",
+        "bg": "медицинска сестра"
+      },
+      "enabled": true
+    },
+    {
+      "id": "6f5e768d-c7f8-49af-be01-295836bc7c4e",
+      "position": 2,
+      "name": {
+        "ro": "Infirmier",
+        "en": "Nurses",
+        "bg": "медицинска сестра"
+      },
+      "enabled": true
+    },
+    {
+      "id": "deed0ecb-b110-4022-91ae-b56f9df6cd96",
+      "position": 3,
+      "name": {
+        "ro": "Asistentă",
+        "en": "Nurse",
+        "bg": "медицинска сестра"
+      },
+      "enabled": true
+    },
+    {
+      "id": "35a2524c-4e94-4729-924a-de2338209555",
+      "position": 4,
+      "name": {
+        "ro": "Asistent",
+        "en": "Assistantly",
+        "bg": "асистент"
+      },
+      "enabled": true
+    },
+    {
+      "id": "1c4a8d27-4430-4903-8d03-8dfabcea6994",
+      "position": 5,
+      "name": {
+        "ro": "Asistent medical coordonator",
+        "en": "",
+        "bg": ""
+      },
+      "enabled": true
+    },
+    {
+      "id": "a89780bb-15e5-4dc7-94b7-b5c233eecdce",
+      "position": 6,
+      "name": {
+        "ro": "Medic specialist",
+        "en": "Medical Specialist",
+        "bg": "Специализиран лекар"
+      },
+      "enabled": true
+    },
+    {
+      "id": "1478a35a-5136-4689-a994-3007184ff6fa",
+      "position": 7,
+      "name": {
+        "ro": "Medic dentist",
+        "en": "Dentist Doctor",
+        "bg": "зъболекар"
+      },
+      "enabled": true
+    },
+    {
+      "id": "206d0bf2-2131-4a2e-9919-a843fdc21a14",
+      "position": 8,
+      "name": {
+        "ro": "Doctor",
+        "en": "Doctor",
+        "bg": "лекар"
+      },
+      "enabled": true
+    },
+    {
+      "id": "74e2b72b-6e45-42b0-9d9e-fa8717858485",
+      "position": 9,
+      "name": {
+        "ro": "Manager",
+        "en": "Manager",
+        "bg": "Мениджър"
+      },
+      "enabled": true
+    },
+    {
+      "id": "91a775cc-92ee-4a8b-87ed-ed3cf34c3ac4",
+      "position": 10,
+      "name": {
+        "ro": "Doctor",
+        "en": "The Doctor",
+        "bg": "Докторът"
+      },
+      "enabled": true
+    }
+  ],
+  "specialties": [
+    {
+      "id": "491cb203-0fff-4a3f-b12e-f3a8820bccc3",
+      "position": 1,
+      "name": {
+        "ro": "Endodonție",
+        "en": "Endodontically",
+        "bg": "ендодонция"
+      },
+      "enabled": true
+    },
+    {
+      "id": "4ae6bda8-cdd4-4232-9aae-5296287ef905",
+      "position": 2,
+      "name": {
+        "ro": "Chirurgie dento-alveolară",
+        "en": "Dento-alveolar surgery",
+        "bg": "денто-алвеоларна хирургия"
+      },
+      "enabled": true
+    },
+    {
+      "id": "e86b7a26-30c1-4671-a5e2-5779cc6b11da",
+      "position": 3,
+      "name": {
+        "ro": "Protetică dentară",
+        "en": "Dental protection",
+        "bg": "Стоматологична протеза"
+      },
+      "enabled": true
+    },
+    {
+      "id": "22f7d6f3-7b58-4e65-80d3-736f3307f72a",
+      "position": 4,
+      "name": {
+        "ro": "Chirurgie OMF",
+        "en": "Physician OMF",
+        "bg": "Хирургия OMF"
+      },
+      "enabled": true
+    },
+    {
+      "id": "2512b9a7-623a-454e-b3ed-9889fc99e2ac",
+      "position": 5,
+      "name": {
+        "ro": "Ortodonție și ortopedie dento-facială",
+        "en": "Dento-facial Orthodontics and Orthopedics",
+        "bg": "Ортодонтия и денто-лицева ортопедия"
+      },
+      "enabled": true
+    },
+    {
+      "id": "8a28bf19-0d64-47a0-b05d-9fadaab4519d",
+      "position": 6,
+      "name": {
+        "ro": "Pedodonție",
+        "en": "Pedagogical",
+        "bg": "Педодонтия"
+      },
+      "enabled": true
+    },
+    {
+      "id": "21a748ef-861a-4200-9bc4-4eb8e0878d6b",
+      "position": 7,
+      "name": {
+        "ro": "Paradontologie",
+        "en": "Paradoxical",
+        "bg": "Парадонтологията"
+      },
+      "enabled": true
+    }
+  ],
+  "providedServices": [
+    {
+      "id": "2863ae0d-5101-4bb9-ad43-0c7e81764950",
+      "position": 1,
+      "name": {
+        "ro": "Brațe",
+        "en": "Braces",
+        "bg": "ръцете"
+      },
+      "enabled": true
+    },
+    {
+      "id": "2d9a7083-20bc-4967-a242-5a589345b053",
+      "position": 2,
+      "name": {
+        "ro": "Coroane",
+        "en": "Crowns",
+        "bg": "короните"
+      },
+      "enabled": true
+    },
+    {
+      "id": "e3618415-449f-4031-a538-029c57ac8253",
+      "position": 3,
+      "name": {
+        "ro": "Sterilizare",
+        "en": "Sterilisation",
+        "bg": "Стерилизация"
+      },
+      "enabled": true
+    },
+    {
+      "id": "c509ee67-8973-46fa-bf74-2288eb2fe011",
+      "position": 4,
+      "name": {
+        "ro": "Canale de rădăcină",
+        "en": "Root canals",
+        "bg": "Коренни канали"
+      },
+      "enabled": true
+    },
+    {
+      "id": "0b4bfba0-e9ac-4acf-8852-6ca0b2380acc",
+      "position": 5,
+      "name": {
+        "ro": "Copii",
+        "en": "Kids",
+        "bg": "деца"
+      },
+      "enabled": true
+    },
+    {
+      "id": "bf722d14-9492-42cf-a8b7-91cf21d7cc46",
+      "position": 6,
+      "name": {
+        "ro": "Prevenire",
+        "en": "Prevention",
+        "bg": "превенция"
+      },
+      "enabled": true
+    },
+    {
+      "id": "cab3dcb5-2b9e-4c67-8266-858e202c09b5",
+      "position": 7,
+      "name": {
+        "ro": "Urgență",
+        "en": "Emergency",
+        "bg": "Спешна"
+      },
+      "enabled": true
+    },
+    {
+      "id": "796b783c-a954-494c-874f-b1d8419a707d",
+      "position": 8,
+      "name": {
+        "ro": "Implanturi",
+        "en": "Implants",
+        "bg": "импланти"
+      },
+      "enabled": true
+    },
+    {
+      "id": "f19ce2e4-c594-49c2-b8a4-59efce1427c4",
+      "position": 9,
+      "name": {
+        "ro": "Curățenie",
+        "en": "Cleaning",
+        "bg": "почистване"
+      },
+      "enabled": true
+    }
+  ],
+  "members": [
+    {
+      "id": "652c9840-911b-4692-a7d0-0a60fc5b6136",
+      "slug": "andrei-axeniuc-dc8ada2c54",
+      "position": 1,
+      "name": {
+        "ro": "Andrei Axeniuc",
+        "en": "",
+        "bg": ""
+      },
+      "roleId": "35a2524c-4e94-4729-924a-de2338209555",
+      "specialtyId": null,
+      "role": {
+        "ro": "Asistent",
+        "en": "Assistantly",
+        "bg": "асистент"
+      },
+      "specialty": {
+        "ro": "",
+        "en": "",
+        "bg": ""
+      },
+      "doctorTitle": false,
+      "college": "",
+      "providedServiceIds": [
+        "e3618415-449f-4031-a538-029c57ac8253"
+      ],
+      "snippet": {
+        "ro": "Rapid în fiecare acțiune, atent la detalii, nu greșește.",
+        "en": "Quickly in every action, paying attention to the details, do not make a mistake.",
+        "bg": "Бързо във всяко действие, внимателно към детайлите, не греши."
+      },
+      "categoryId": "f2c7acea-0927-4e62-9059-a7e539aee610",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "d5dda55a-019a-4a37-89d6-58fdf57f5487",
+        "master": "library/d5dda55a-019a-4a37-89d6-58fdf57f5487.jpg",
+        "webp": "library/d5dda55a-019a-4a37-89d6-58fdf57f5487.webp",
+        "portrait800": "library/d5dda55a-019a-4a37-89d6-58fdf57f5487-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "03052479-4adc-4518-9634-dec2246f1e58",
+      "slug": "andreea-stanescu-df78c2f3e4",
+      "position": 2,
+      "name": {
+        "ro": "Andreea Stănescu",
+        "en": "",
+        "bg": ""
+      },
+      "roleId": "1c4a8d27-4430-4903-8d03-8dfabcea6994",
+      "specialtyId": null,
+      "role": {
+        "ro": "Asistent medical coordonator",
+        "en": "",
+        "bg": ""
+      },
+      "specialty": {
+        "ro": "",
+        "en": "",
+        "bg": ""
+      },
+      "doctorTitle": false,
+      "college": "",
+      "providedServiceIds": [
+        "e3618415-449f-4031-a538-029c57ac8253"
+      ],
+      "snippet": {
+        "ro": "O asistentă dedicată muncii și experimentată. Calmul și bunăvoința o caracterizează.  ",
+        "en": "A dedicated and experienced nurse. Calm and goodwill characterize her.",
+        "bg": "Сестра, посветена на работата и опитна. Спокойствието и добротата я характеризират."
+      },
+      "categoryId": "f2c7acea-0927-4e62-9059-a7e539aee610",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "a733232b-1100-4c10-9421-b791fe19f05b",
+        "master": "library/a733232b-1100-4c10-9421-b791fe19f05b.jpg",
+        "webp": "library/a733232b-1100-4c10-9421-b791fe19f05b.webp",
+        "portrait800": "library/a733232b-1100-4c10-9421-b791fe19f05b-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "db04f25e-6aec-4380-80ff-6893fe54361a",
+      "slug": "camelia-laz-565ffb2b97",
+      "position": 3,
+      "name": {
+        "ro": "Camelia Lazăr",
+        "en": "Camelia Lazăr",
+        "bg": "Камелия Лазар"
+      },
+      "roleId": "67811976-0451-47de-a98b-0af66ea58f8e",
+      "specialtyId": null,
+      "role": {
+        "ro": "Infirmieră",
+        "en": "The nurse",
+        "bg": "медицинска сестра"
+      },
+      "specialty": {
+        "ro": "",
+        "en": "",
+        "bg": ""
+      },
+      "doctorTitle": false,
+      "college": "",
+      "providedServiceIds": [
+        "f19ce2e4-c594-49c2-b8a4-59efce1427c4"
+      ],
+      "snippet": {
+        "ro": "Un om harnic cu un comportament disciplinat. Curățenia este politica existențială a dânsei.",
+        "en": "",
+        "bg": ""
+      },
+      "categoryId": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "1aca77cb-bef0-4dde-865f-1b302b337623",
+        "master": "library/1aca77cb-bef0-4dde-865f-1b302b337623.jpg",
+        "webp": "library/1aca77cb-bef0-4dde-865f-1b302b337623.webp",
+        "portrait800": "library/1aca77cb-bef0-4dde-865f-1b302b337623-p800.webp"
+      },
+      "enabled": true
+    }
+  ],
+  "updatedAt": "2026-10-16T07:18:58.046Z"
+}

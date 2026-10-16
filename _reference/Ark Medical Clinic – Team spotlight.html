@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+<title>Dental Clinic – Team Spotlight</title>
+<style>
+:root{--bg:#121212;--card:#1d1a14;--ink:#f4efe3;--mute:#b8b09e;--acc:#ffdf85;--acc2:rgba(255,223,133,.10);--line:#4b3f26;--teal:#2a9d8f;
+color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Roboto,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1000px;margin:0 auto;padding:24px 16px 48px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+h1{font-size:1.5rem;margin:0}
+#play{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer;font:inherit;font-size:.9rem}
+#play:hover{border-color:var(--acc)}
+.spot{display:grid;grid-template-columns:240px 1fr;gap:16px}
+.list{display:flex;flex-direction:column;gap:8px;position:relative;max-height:420px;overflow-y:auto;padding:2px 8px 2px 2px;scrollbar-width:thin;scrollbar-color:var(--acc) var(--acc2)}
+.list::-webkit-scrollbar{width:10px;height:10px}
+.list::-webkit-scrollbar-track{background:var(--acc2);border-radius:999px}
+.list::-webkit-scrollbar-thumb{background:var(--acc);border-radius:999px;border:2px solid var(--acc2)}
+.list::-webkit-scrollbar-thumb:hover{background:var(--ink)}
+.list button{position:relative;overflow:hidden;display:flex;gap:12px;align-items:center;text-align:left;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font:inherit}
+.list button[aria-selected=true]{border-color:var(--acc);background:var(--acc2)}
+@keyframes prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.list button[aria-selected=true]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--acc);transform-origin:left;animation:prog var(--dur,6s) linear forwards}
+.list.paused button[aria-selected=true]::after{animation-play-state:paused}
+.mini{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;flex:none;background-size:cover;background-position:center}
+/* detail card: text left, portrait right = full height, half width */
+.detail{display:grid;grid-template-columns:1fr 1fr;height:420px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;animation:f .35s}
+@keyframes f{from{opacity:0;transform:translateY(6px)}}
+.info{padding:32px 28px;display:flex;flex-direction:column;justify-content:center}
+.info h3{margin:0;font-size:1.5rem;line-height:1.2}
+.role{color:var(--acc);font-weight:600;margin:4px 0 12px}
+.info p{color:var(--mute);margin:0 0 12px}
+.tag{display:inline-block;background:var(--acc2);color:var(--acc);border-radius:999px;padding:2px 10px;font-size:.78rem;margin:2px 2px 0 0}
+.portrait{position:relative;min-height:100%;overflow:hidden}
+.portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.ph{position:absolute;inset:0;display:grid;place-items:center;color:#fff}
+.ph svg{width:70%;height:auto;opacity:.35;position:absolute;bottom:0}
+.ph b{font-size:4rem;letter-spacing:.05em;position:relative}
+@media(max-width:700px){
+ .spot{grid-template-columns:1fr}
+ .list{flex-direction:row;overflow-x:auto;overflow-y:hidden;max-height:none;padding:2px 2px 10px}.list button{flex:none}
+ .detail{grid-template-columns:1fr;height:auto}
+ .portrait{order:-1;height:280px;min-height:0}
+}
+
+/* ---- Ark Medical Clinic theme ---- */
+h1{font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);font-weight:700}
+#play{background:var(--acc);color:#1a1405;border:0;font-weight:700;box-shadow:0 4px 14px rgba(255,223,133,.18)}
+#play:hover{filter:brightness(1.08)}
+.list button,.detail{background:linear-gradient(160deg,#2a2519,#17140e);border:1px solid var(--line);box-shadow:0 8px 22px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,223,133,.06)}
+.list button{border-radius:14px}
+.list button b{color:var(--acc);font-weight:700}
+.list button small{color:var(--mute)}
+.list button[aria-selected=true]{border-color:var(--acc);background:linear-gradient(160deg,#3a3120,#1c1810);box-shadow:0 0 0 1px var(--acc) inset,0 8px 26px rgba(255,223,133,.12)}
+.list button[aria-selected=true]::after{background:var(--acc);height:3px}
+.list{scrollbar-color:var(--acc) #231f16}
+.list::-webkit-scrollbar-track{background:#231f16;border:1px solid var(--line)}
+.list::-webkit-scrollbar-thumb{background:var(--acc);border:2px solid #231f16}
+.list::-webkit-scrollbar-thumb:hover{background:#fff1c2}
+.detail{border-radius:20px}
+.info h3{color:var(--acc);font-weight:700}
+.role{color:var(--teal);text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;padding-bottom:12px;border-bottom:1px solid rgba(42,157,143,.5)}
+.info p{color:var(--mute)}
+.tag{background:transparent;border:1px solid var(--line);color:var(--acc)}
+.mini{color:#1a1405}
+.ph b{color:#fff1c2}
+</style>
+</head>
+<body>
+<main>
+<div class="head"><h1>Meet our team</h1><button id="play" aria-pressed="true">⏸ Pause</button></div>
+<div class="spot">
+ <div class="list" id="list" role="tablist" aria-label="Team members"></div>
+ <article class="detail" id="detail" aria-live="polite"></article>
+</div>
+</main>
+<script>
+/* Add a photo with  img:"photos/elena.jpg"  (any URL or data URI). Without it, a placeholder is drawn. */
+const TEAM=[
+{n:"Dr. Elena Popescu",r:"Lead Dentist",c:"#b8892e",img:"",bio:"15 years in restorative and cosmetic dentistry. Believes every visit should be calm and painless.",tags:["Veneers","Whitening","Crowns"],edu:"UMF Bucharest, DDS"},
+{n:"Dr. Andrei Marin",r:"Orthodontist",c:"#2a9d8f",img:"",bio:"Specialises in clear aligners and braces for teens and adults.",tags:["Aligners","Braces","Retainers"],edu:"Orthodontics, Cluj-Napoca"},
+{n:"Dr. Ioana Radu",r:"Implantologist",c:"#9a6b3a",img:"",bio:"Guided implant surgery and full-arch rehabilitation with digital planning.",tags:["Implants","Bone grafts","3D imaging"],edu:"Implantology, Vienna"},
+{n:"Maria Ionescu",r:"Dental Hygienist",c:"#7f8f4a",img:"",bio:"Gentle cleanings and prevention plans tailored to each patient.",tags:["Cleaning","Prevention","Kids"],edu:"Certified Hygienist"},
+{n:"Dr. Mihai Stan",r:"Endodontist",c:"#a0623a",img:"",bio:"Root canal treatment under the microscope, focused on saving natural teeth.",tags:["Root canals","Microscope","Emergency"],edu:"Endodontics, Iași"},
+{n:"Dr. Sorin Barbu",r:"Pediatric Dentist",c:"#3f7f8f",img:"",bio:"Makes first visits fun and fear-free for children of all ages.",tags:["Kids","Sealants","Fluoride"],edu:"Pediatric Dentistry, Timișoara"},
+{n:"Alina Voicu",r:"Dental Assistant",c:"#8a7040",img:"",bio:"Chairside support that keeps every procedure smooth and comfortable.",tags:["Sterilisation","Chairside","Comfort"],edu:"Certified Dental Assistant"},
+{n:"Cristina Dobre",r:"Patient Coordinator",c:"#c2956b",img:"",bio:"Your first point of contact: bookings, insurance questions and follow-ups.",tags:["Booking","Insurance","Support"],edu:"Clinic management"}
+];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ini=n=>n.replace(/^Dr\.\s*/,"").split(" ").map(w=>w[0]).join("");
+const list=document.getElementById("list"),detail=document.getElementById("detail");
+
+list.innerHTML=TEAM.map(p=>`<button role="tab"><span class="mini" style="background:${p.img?`url('${esc(p.img)}') center/cover`:p.c}">${p.img?"":ini(p.n)}</span><span><b>${esc(p.n)}</b><br><small>${esc(p.r)}</small></span></button>`).join("");
+
+function portrait(p){
+ if(p.img) return `<img src="${esc(p.img)}" alt="${esc(p.n)}">`;
+ return `<div class="ph" style="background:linear-gradient(160deg,${p.c},#121212)"><svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="70" r="40" fill="#fff"/><path d="M10 200c0-55 40-85 90-85s90 30 90 85z" fill="#fff"/></svg><b>${ini(p.n)}</b></div>`;
+}
+var show=function(i){
+ [...list.children].forEach((b,j)=>b.setAttribute("aria-selected",i===j));
+ const p=TEAM[i];
+ detail.style.animation="none";detail.offsetHeight;detail.style.animation="";
+ detail.innerHTML=`<div class="info"><h3>${esc(p.n)}</h3><div class="role">${esc(p.r)}</div><p>${esc(p.bio)}</p><p><small>🎓 ${esc(p.edu)}</small></p><div>${p.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div></div><div class="portrait">${portrait(p)}</div>`;
+};
+[...list.children].forEach((b,i)=>b.onclick=()=>show(i));
+list.addEventListener("keydown",e=>{
+ const k=[...list.children],i=k.findIndex(b=>b.getAttribute("aria-selected")==="true");
+ if(e.key==="ArrowDown"||e.key==="ArrowRight")(k[(i+1)%k.length]).click();
+ if(e.key==="ArrowUp"||e.key==="ArrowLeft")(k[(i-1+k.length)%k.length]).click();
+});
+
+/* ---- Autoplay: each member is shown for DUR seconds; the progress bar on the active item drives the timer ---- */
+const DUR=6;
+list.style.setProperty("--dur",DUR+"s");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let playing=!reduce,hover=false,cur=0;
+const play=document.getElementById("play");
+function sync(){
+ list.classList.toggle("paused",!playing||hover||document.hidden);
+ play.textContent=playing?"⏸ Pause":"▶ Play";
+ play.setAttribute("aria-pressed",playing);
+}
+const _show=show;
+show=function(i){
+ cur=i;_show(i);
+ const b=list.children[i];
+ b.style.animation="none";b.offsetHeight;b.style.animation=""; // restart bar even on re-click
+ list.scrollTo({top:b.offsetTop-(list.clientHeight-b.offsetHeight)/2,left:b.offsetLeft-(list.clientWidth-b.offsetWidth)/2,behavior:"smooth"});
+};
+[...list.children].forEach((b,i)=>b.onclick=()=>show(i));
+list.addEventListener("animationend",e=>{if(e.animationName==="prog"&&playing)show((cur+1)%TEAM.length)});
+const spot=document.querySelector(".spot");
+spot.addEventListener("mouseenter",()=>{hover=true;sync()});
+spot.addEventListener("mouseleave",()=>{hover=false;sync()});
+spot.addEventListener("focusin",()=>{hover=true;sync()});
+spot.addEventListener("focusout",()=>{hover=false;sync()});
+document.addEventListener("visibilitychange",sync);
+play.onclick=()=>{playing=!playing;if(playing)show(cur);sync()};
+show(0);sync();
+</script>
+</body>
+</html>

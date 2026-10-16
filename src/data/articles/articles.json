@@ -1,0 +1,35 @@
+{
+  "categories": [
+    {
+      "id": "0c567b05-b3f9-475c-a05a-a9d7258baf53",
+      "slug": "events",
+      "position": 1,
+      "name": {
+        "ro": "",
+        "en": "Events",
+        "bg": ""
+      },
+      "iconSvg": "",
+      "enabled": true
+    }
+  ],
+  "subcategories": [],
+  "articles": [
+    {
+      "id": "501a4768-a0ea-4023-8fb6-779b297d54e1",
+      "slug": "o-noapte-la-muzeu",
+      "position": 1,
+      "title": {
+        "ro": "O noapte la muzeu",
+        "en": "",
+        "bg": ""
+      },
+      "categoryId": "0c567b05-b3f9-475c-a05a-a9d7258baf53",
+      "subcategoryId": null,
+      "datetime": "2026-10-14T08:42",
+      "enabled": true
+    }
+  ],
+  "updatedAt": "2026-10-14T05:45:39.267Z",
+  "firstPage": []
+}
