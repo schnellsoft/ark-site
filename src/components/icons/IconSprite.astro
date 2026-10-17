@@ -1,0 +1,31 @@
+---
+/**
+ * Same-document SVG sprite so <use href="#id"> inherits currentColor.
+ * External sprite URLs paint black (default) and ignore page CSS color.
+ */
+import spriteRaw from '../../assets/icons/sprite.svg?raw';
+
+const html = String(spriteRaw)
+	.replace(/\sstyle\s*=\s*["']display:\s*none;?["']/i, '')
+	.replace(
+		/<svg\b([^>]*)>/i,
+		'<svg$1 class="ark-icon-sprite" aria-hidden="true" focusable="false">',
+	);
+---
+
+<div class="ark-icon-sprite-host" set:html={html} />
+
+<style is:global>
+	.ark-icon-sprite-host {
+		position: absolute;
+		inline-size: 0;
+		block-size: 0;
+		overflow: hidden;
+		pointer-events: none;
+	}
+
+	.ark-icon-sprite {
+		/* Keep symbols referenceable; display:none breaks <use> in some engines */
+		display: block;
+	}
+</style>

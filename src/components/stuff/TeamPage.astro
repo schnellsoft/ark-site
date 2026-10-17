@@ -1,0 +1,251 @@
+---
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import catalog from '../../data/stuff/stuff.json';
+import { accentForIndex } from './stuff-spotlight';
+import type {
+	TeamCardLocalized,
+	TeamCategoryLocalized,
+	TeamPageConfig,
+} from './team-page';
+import './team-page.css';
+
+type Lang = 'ro' | 'en' | 'bg';
+type LocaleMap = { ro?: string; en?: string; bg?: string };
+
+type StuffDoc = {
+	categories?: Array<{
+		id: string;
+		position: number;
+		name: LocaleMap;
+		enabled?: boolean;
+	}>;
+	providedServices?: Array<{
+		id: string;
+		name: LocaleMap;
+		enabled?: boolean;
+	}>;
+	members?: Array<{
+		id: string;
+		position: number;
+		categoryId?: string | null;
+		name: LocaleMap;
+		role: LocaleMap;
+		doctorTitle?: boolean;
+		college?: string;
+		providedServiceIds?: string[];
+		snippet: LocaleMap;
+		portrait?: {
+			master?: string | null;
+			webp?: string | null;
+			portrait800?: string | null;
+		};
+		enabled?: boolean;
+	}>;
+};
+
+const doc = catalog as StuffDoc;
+
+const titles: Record<Lang, string> = {
+	ro: 'Echipa noastră',
+	en: 'Meet our team',
+	bg: 'Нашият екип',
+};
+const leads: Record<Lang, string> = {
+	ro: 'Profesioniștii care vă îngrijesc zâmbetul — organizați pe roluri în clinică.',
+	en: 'The professionals who care for your smile — organised by role in the clinic.',
+	bg: 'Професионалистите, които се грижат за вашата усмивка — по роли в клиниката.',
+};
+
+const serviceById = new Map(
+	(doc.providedServices ?? []).map((s) => [s.id, s]),
+);
+
+function pick(map: LocaleMap | undefined, l: Lang): string {
+	if (!map) return '';
+	return (map[l] || map.ro || map.en || map.bg || '').trim();
+}
+
+function displayName(
+	m: NonNullable<StuffDoc['members']>[number],
+	l: Lang,
+): string {
+	const base = pick(m.name, l);
+	if (!base) return '';
+	if (m.doctorTitle && !/^dr\.?\s/i.test(base)) return `Dr. ${base}`;
+	return base;
+}
+
+function portraitKey(
+	m: NonNullable<StuffDoc['members']>[number],
+): string | null {
+	const p = m.portrait;
+	if (!p) return null;
+	return p.portrait800 || p.webp || p.master || null;
+}
+
+const imageModules = import.meta.glob<{ default: ImageMetadata }>(
+	'/src/assets/media/**/*.{jpg,jpeg,png,webp}',
+	{ eager: true },
+);
+
+function resolveAsset(key: string): ImageMetadata | null {
+	const hit = Object.entries(imageModules).find(
+		([path]) => path.endsWith(key) || path.includes(`/${key}`),
+	);
+	return hit?.[1]?.default ?? null;
+}
+
+const categories: TeamCategoryLocalized[] = (doc.categories ?? [])
+	.filter((c) => c.enabled !== false)
+	.map((c) => ({
+		id: c.id,
+		position: Number(c.position) || 0,
+		name: {
+			ro: pick(c.name, 'ro'),
+			en: pick(c.name, 'en'),
+			bg: pick(c.name, 'bg'),
+		},
+	}))
+	.sort((a, b) => a.position - b.position);
+
+const categoryOrder = new Map(categories.map((c) => [c.id, c.position]));
+
+const enabledMembers = (doc.members ?? [])
+	.filter((m) => m.enabled !== false && m.categoryId)
+	.sort((a, b) => {
+		const ca = categoryOrder.get(a.categoryId!) ?? 9999;
+		const cb = categoryOrder.get(b.categoryId!) ?? 9999;
+		if (ca !== cb) return ca - cb;
+		return (Number(a.position) || 0) - (Number(b.position) || 0);
+	});
+
+const members: TeamCardLocalized[] = [];
+let accentIndex = 0;
+for (const m of enabledMembers) {
+	const names = {
+		ro: displayName(m, 'ro'),
+		en: displayName(m, 'en'),
+		bg: displayName(m, 'bg'),
+	};
+	if (!names.ro && !names.en && !names.bg) continue;
+
+	const key = portraitKey(m);
+	let img = '';
+	if (key) {
+		const asset = resolveAsset(key);
+		if (asset) {
+			const optimized = await getImage({
+				src: asset,
+				width: 800,
+				format: 'webp',
+			});
+			img = optimized.src;
+		} else {
+			img = `/media/${key}`;
+		}
+	}
+
+	const tags = {
+		ro: (m.providedServiceIds ?? [])
+			.map((id) => {
+				const svc = serviceById.get(id);
+				return svc ? pick(svc.name, 'ro') : '';
+			})
+			.filter(Boolean),
+		en: (m.providedServiceIds ?? [])
+			.map((id) => {
+				const svc = serviceById.get(id);
+				return svc ? pick(svc.name, 'en') : '';
+			})
+			.filter(Boolean),
+		bg: (m.providedServiceIds ?? [])
+			.map((id) => {
+				const svc = serviceById.get(id);
+				return svc ? pick(svc.name, 'bg') : '';
+			})
+			.filter(Boolean),
+	};
+
+	members.push({
+		id: m.id,
+		categoryId: m.categoryId!,
+		position: Number(m.position) || 0,
+		n: names,
+		r: {
+			ro: pick(m.role, 'ro'),
+			en: pick(m.role, 'en'),
+			bg: pick(m.role, 'bg'),
+		},
+		c: accentForIndex(accentIndex++),
+		img,
+		bio: {
+			ro: pick(m.snippet, 'ro'),
+			en: pick(m.snippet, 'en'),
+			bg: pick(m.snippet, 'bg'),
+		},
+		tags,
+		edu: (m.college ?? '').trim(),
+	});
+}
+
+const config: TeamPageConfig = {
+	labels: {
+		ro: { title: titles.ro, lead: leads.ro },
+		en: { title: titles.en, lead: leads.en },
+		bg: { title: titles.bg, lead: leads.bg },
+	},
+};
+
+const payload = { categories, members, config };
+---
+
+{
+	members.length ? (
+		<section
+			class="team-page"
+			data-team-page
+			data-team-json={JSON.stringify(payload)}
+			aria-label={titles.ro}
+		>
+			<header class="team-page__head">
+				<h1 class="team-page__title" data-team-title>
+					{titles.ro}
+				</h1>
+				<p class="team-page__lead" data-team-lead>
+					{leads.ro}
+				</p>
+			</header>
+			<div data-team-body></div>
+		</section>
+	) : null
+}
+
+<script>
+	import {
+		initTeamPage,
+		type TeamCardLocalized,
+		type TeamCategoryLocalized,
+		type TeamPageConfig,
+	} from './team-page';
+
+	function boot() {
+		document.querySelectorAll<HTMLElement>('[data-team-page]').forEach((root) => {
+			const raw = root.dataset.teamJson;
+			if (!raw) return;
+			try {
+				const data = JSON.parse(raw) as {
+					categories: TeamCategoryLocalized[];
+					members: TeamCardLocalized[];
+					config: TeamPageConfig;
+				};
+				initTeamPage(root, data.categories, data.members, data.config);
+			} catch {
+				// ignore malformed payload
+			}
+		});
+	}
+
+	boot();
+	document.addEventListener('astro:page-load', boot);
+</script>

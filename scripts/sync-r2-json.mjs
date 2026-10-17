@@ -4,11 +4,30 @@
  * When remote is missing, also tries the sibling ark-admin vinext local R2
  * (.cloudflare/state/v3/r2) — where admin CONTENT.put lands during `pnpm dev`.
  */
-import { mkdir, writeFile, readFile, access, copyFile, readdir } from 'node:fs/promises';
+import {
+	mkdir,
+	writeFile,
+	readFile,
+	access,
+	copyFile,
+	readdir,
+	stat,
+	unlink,
+} from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { DatabaseSync } from 'node:sqlite';
+
+/** Remove zero-byte stubs wrangler sometimes leaves after a failed get. */
+async function removeIfEmpty(file) {
+	try {
+		const s = await stat(file);
+		if (s.size === 0) await unlink(file);
+	} catch {
+		/* missing is fine */
+	}
+}
 
 function resolveAdminRoot(siteRoot) {
 	if (process.env.ARK_ADMIN_ROOT) return process.env.ARK_ADMIN_ROOT;
@@ -94,11 +113,30 @@ export function wranglerGet(root, bucket, key, file) {
 
 /**
  * Prefer remote R2; fall back to local vinext R2 from sibling ark-admin.
+ * Never leaves empty files that break Astro `astro:assets` metadata.
  * @returns {Promise<'remote'|'local'|null>}
  */
 export async function fetchR2Object(root, bucket, key, file) {
-	if (wranglerGet(root, bucket, key, file)) return 'remote';
-	if (await copyLocalVinextR2Object(root, bucket, key, file)) return 'local';
+	if (wranglerGet(root, bucket, key, file)) {
+		try {
+			const s = await stat(file);
+			if (s.size > 0) return 'remote';
+		} catch {
+			/* fall through */
+		}
+		await removeIfEmpty(file);
+	} else {
+		await removeIfEmpty(file);
+	}
+	if (await copyLocalVinextR2Object(root, bucket, key, file)) {
+		try {
+			const s = await stat(file);
+			if (s.size > 0) return 'local';
+		} catch {
+			/* fall through */
+		}
+		await removeIfEmpty(file);
+	}
 	return null;
 }
 

@@ -1,0 +1,49 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import GalleryViewer from '../../../components/gallery/GalleryViewer.astro';
+import indexDoc from '../../../data/galleries/galleries.json';
+
+type LocaleMap = { ro?: string; en?: string; bg?: string };
+type GalleryEntry = {
+	id: string;
+	slug: string;
+	name?: LocaleMap;
+	enabled?: boolean;
+};
+
+export function getStaticPaths() {
+	const galleries = Array.isArray((indexDoc as { galleries?: GalleryEntry[] }).galleries)
+		? (indexDoc as { galleries: GalleryEntry[] }).galleries
+		: [];
+	return galleries
+		.filter((g) => g?.slug && g.enabled !== false)
+		.map((g) => ({ params: { slug: g.slug } }));
+}
+
+const { slug } = Astro.params;
+if (!slug) {
+	return Astro.redirect('/');
+}
+
+const modules = import.meta.glob('../../../data/galleries/*/gallery.json', {
+	eager: true,
+	import: 'default',
+}) as Record<string, { id: string; slug: string; name?: LocaleMap; settings?: Record<string, unknown>; slides?: unknown[] }>;
+
+const match = Object.entries(modules).find(([path, doc]) => {
+	if (doc?.slug === slug) return true;
+	return path.includes(`/galleries/${slug}/gallery.json`);
+});
+
+const gallery = match?.[1];
+if (!gallery) {
+	return Astro.redirect('/404');
+}
+
+const title =
+	gallery.name?.ro || gallery.name?.en || gallery.name?.bg || gallery.slug || 'Gallery';
+---
+
+<Layout title={`${title} · Ark Medical Clinic`}>
+	<GalleryViewer gallery={gallery as any} />
+</Layout>

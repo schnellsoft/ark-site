@@ -3745,5 +3745,10 @@
     }
   ],
   "pdfKey": "services/price-list.pdf",
-  "updatedAt": "2026-10-14T03:38:29.490Z"
+  "updatedAt": "2026-10-14T03:38:29.490Z",
+  "pdfKeys": {
+    "ro": "services/price-list-ro.pdf",
+    "en": "services/price-list-en.pdf",
+    "bg": "services/price-list-bg.pdf"
+  }
 }

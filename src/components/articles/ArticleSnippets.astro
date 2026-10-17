@@ -74,7 +74,7 @@ for (const id of doc.firstPage ?? []) {
 
 	items.push({
 		id: a.id,
-		href: `/articles/${a.slug}`,
+		href: `/articles/${a.slug}/`,
 		title,
 		date: (a.snippet?.date || '').trim(),
 		text: localeTriple(a.snippet?.text),

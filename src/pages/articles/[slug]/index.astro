@@ -1,0 +1,77 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ArticlePageView from '../../../components/articles/ArticlePageView.astro';
+import catalog from '../../../data/articles/articles.json';
+
+type LocaleMap = { ro?: string; en?: string; bg?: string };
+
+type CatalogArticle = {
+	id: string;
+	slug: string;
+	title?: LocaleMap;
+	datetime?: string | null;
+	enabled?: boolean;
+};
+
+type PageDoc = {
+	id: string;
+	slug: string;
+	title?: LocaleMap;
+	datetime?: string | null;
+	enabled?: boolean;
+	body?: LocaleMap;
+};
+
+export function getStaticPaths() {
+	const articles = Array.isArray((catalog as { articles?: CatalogArticle[] }).articles)
+		? (catalog as { articles: CatalogArticle[] }).articles
+		: [];
+	return articles
+		.filter((a) => a?.slug && a.enabled !== false)
+		.map((a) => ({ params: { slug: a.slug } }));
+}
+
+const { slug } = Astro.params;
+if (!slug) {
+	return Astro.redirect('/');
+}
+
+const pageModules = import.meta.glob('../../../data/articles/pages/*.json', {
+	eager: true,
+	import: 'default',
+}) as Record<string, PageDoc>;
+
+let page: PageDoc | null = null;
+for (const [path, doc] of Object.entries(pageModules)) {
+	const fromPath = path.split('/').pop()?.replace(/\.json$/, '') ?? '';
+	if ((doc?.slug || fromPath) === slug) {
+		page = doc;
+		break;
+	}
+}
+
+const catalogHit = (
+	Array.isArray((catalog as { articles?: CatalogArticle[] }).articles)
+		? (catalog as { articles: CatalogArticle[] }).articles
+		: []
+).find((a) => a.slug === slug);
+
+if (!page && !catalogHit) {
+	return Astro.redirect('/404');
+}
+
+const title = page?.title || catalogHit?.title || { ro: slug, en: slug, bg: slug };
+const body = page?.body || { ro: '', en: '', bg: '' };
+const datetime = page?.datetime ?? catalogHit?.datetime ?? null;
+const pageTitle =
+	title.ro || title.en || title.bg || slug;
+---
+
+<Layout title={`${pageTitle} · Ark Medical Clinic`}>
+	<ArticlePageView
+		slug={slug}
+		title={title}
+		body={body}
+		datetime={datetime}
+	/>
+</Layout>

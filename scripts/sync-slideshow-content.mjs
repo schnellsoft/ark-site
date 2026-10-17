@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
- * Pull slideshow.json, layer HTML, and slide media from R2 into src/.
+ * Pull slideshow.json, layer HTML, and slide media into src/.
+ * Prefers sibling ark-admin local vinext R2 (where `pnpm dev` CONTENT/MEDIA.put lands),
+ * then falls back to remote R2.
  * Usage: node scripts/sync-slideshow-content.mjs
- * Falls back to empty local stubs if remote objects are missing.
  */
-import { mkdir, writeFile, readFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, copyFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { copyLocalVinextR2Object, wranglerGet } from './sync-r2-json.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dataDir = join(root, 'src/data/slideshow');
@@ -16,13 +17,14 @@ const mediaDir = join(root, 'src/assets/media');
 /** Public static copies for production (static output, no runtime R2). */
 const publicMediaDir = join(root, 'public/media');
 
-function wranglerGet(bucket, key, file) {
-	const result = spawnSync(
-		'npx',
-		['wrangler', 'r2', 'object', 'get', `${bucket}/${key}`, '--remote', `--file=${file}`],
-		{ cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
-	);
-	return result.status === 0;
+/**
+ * Prefer local vinext (admin save target during dev), then remote.
+ * @returns {Promise<'local'|'remote'|null>}
+ */
+async function fetchPreferLocal(bucket, key, file) {
+	if (await copyLocalVinextR2Object(root, bucket, key, file)) return 'local';
+	if (wranglerGet(root, bucket, key, file)) return 'remote';
+	return null;
 }
 
 await mkdir(htmlDir, { recursive: true });
@@ -30,9 +32,14 @@ await mkdir(join(mediaDir, 'slideshow'), { recursive: true });
 await mkdir(join(publicMediaDir, 'slideshow'), { recursive: true });
 
 const jsonDest = join(dataDir, 'slideshow.json');
-console.log('↓ content slideshow/slideshow.json');
-if (!wranglerGet('ark-admin-content', 'slideshow/slideshow.json', jsonDest)) {
-	console.warn('No remote slideshow.json — writing empty stub');
+console.log('↓ content slideshow/slideshow.json (prefer local vinext)');
+const jsonSource = await fetchPreferLocal(
+	'ark-admin-content',
+	'slideshow/slideshow.json',
+	jsonDest,
+);
+if (!jsonSource) {
+	console.warn('No slideshow.json locally or remotely — writing empty stub');
 	await writeFile(
 		jsonDest,
 		JSON.stringify(
@@ -55,10 +62,13 @@ if (!wranglerGet('ark-admin-content', 'slideshow/slideshow.json', jsonDest)) {
 			2,
 		),
 	);
+} else {
+	console.log(`✓ slideshow.json from ${jsonSource}`);
 }
 
 const doc = JSON.parse(await readFile(jsonDest, 'utf8'));
 const slides = Array.isArray(doc.slides) ? doc.slides : [];
+console.log(`Slides: ${slides.length}`);
 
 for (const slide of slides) {
 	const id = slide.id;
@@ -66,15 +76,27 @@ for (const slide of slides) {
 
 	const desktopHtml = join(htmlDir, `${id}.html`);
 	console.log(`↓ html slideshow/html/${id}.html`);
-	if (!wranglerGet('ark-admin-content', `slideshow/html/${id}.html`, desktopHtml)) {
+	const htmlSource = await fetchPreferLocal(
+		'ark-admin-content',
+		`slideshow/html/${id}.html`,
+		desktopHtml,
+	);
+	if (!htmlSource) {
 		await writeFile(desktopHtml, '');
+	} else {
+		console.log(`  ✓ ${htmlSource}`);
 	}
 
 	const mobileSame = slide.layer?.mobile?.sameAsDesktop !== false;
 	if (!mobileSame) {
 		const mobileHtml = join(htmlDir, `${id}.mobile.html`);
 		console.log(`↓ html slideshow/html/${id}.mobile.html`);
-		if (!wranglerGet('ark-admin-content', `slideshow/html/${id}.mobile.html`, mobileHtml)) {
+		const mSource = await fetchPreferLocal(
+			'ark-admin-content',
+			`slideshow/html/${id}.mobile.html`,
+			mobileHtml,
+		);
+		if (!mSource) {
 			await writeFile(mobileHtml, '');
 		}
 	}
@@ -82,6 +104,7 @@ for (const slide of slides) {
 	const keys = new Set();
 	const files = slide.files || {};
 	if (files.video?.key) keys.add(files.video.key);
+	if (files.sourceKey) keys.add(files.sourceKey);
 	if (slide.version) {
 		const prefix = `slideshow/${id}/`;
 		for (const w of Object.keys(files.desktop || {})) {
@@ -100,9 +123,12 @@ for (const slide of slides) {
 		await mkdir(dirname(dest), { recursive: true });
 		await mkdir(dirname(pubDest), { recursive: true });
 		console.log(`↓ media ${key}`);
-		if (wranglerGet('ark-admin-media', key, dest)) {
-			const { copyFile } = await import('node:fs/promises');
+		const mediaSource = await fetchPreferLocal('ark-admin-media', key, dest);
+		if (mediaSource) {
 			await copyFile(dest, pubDest);
+			console.log(`  ✓ ${mediaSource}`);
+		} else {
+			console.warn(`  ✗ missing ${key}`);
 		}
 	}
 }

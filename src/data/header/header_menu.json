@@ -1,5 +1,5 @@
 {
-  "more": true,
+  "more": false,
   "max-width": "400",
   "color": "",
   "color-hover": "",
@@ -7,25 +7,12 @@
     {
       "name": "",
       "label": {
-        "ro": "Artic1e a",
-        "bg": "",
-        "en": ""
+        "ro": "Despre noi",
+        "bg": "За нас",
+        "en": "About us"
       },
       "description": "",
-      "aria-label": "",
-      "link": "#",
-      "color": "",
-      "color-hover": ""
-    },
-    {
-      "name": "",
-      "label": {
-        "ro": "Article 1",
-        "bg": "",
-        "en": ""
-      },
-      "description": "",
-      "aria-label": "",
+      "aria-label": "despre noi",
       "link": "#",
       "color": "",
       "color-hover": "",
@@ -33,41 +20,54 @@
         {
           "name": "",
           "label": {
-            "ro": "Article 1a",
-            "bg": "Член 1а",
-            "en": "Article 1a"
+            "ro": "Echipa",
+            "bg": "екипът",
+            "en": "Team"
           },
           "description": "",
-          "aria-label": "",
-          "link": "#",
+          "aria-label": "echipa",
+          "link": "/team",
           "color": "",
           "color-hover": ""
         },
         {
           "name": "",
           "label": {
-            "ro": "Article 1b",
-            "bg": "",
-            "en": ""
+            "ro": "Activitatea noastră",
+            "bg": "Нашата дейност",
+            "en": "Our activity"
           },
           "description": "",
-          "aria-label": "",
-          "link": "#",
+          "aria-label": "activitatea noastră",
+          "link": "/pages/about-our-activity",
           "color": "",
           "color-hover": ""
         }
       ]
     },
     {
-      "name": "whatsap",
+      "name": "",
       "label": {
-        "ro": "Article Dumbo",
-        "bg": "",
-        "en": ""
+        "ro": "Contact",
+        "bg": "Контакт",
+        "en": "Contact"
       },
       "description": "",
-      "aria-label": "",
-      "link": "/gogu/lulu",
+      "aria-label": "contact",
+      "link": "/contact",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "",
+      "label": {
+        "ro": "Servicii",
+        "bg": "Услуги",
+        "en": "Services"
+      },
+      "description": "",
+      "aria-label": "servicii",
+      "link": "/services/",
       "color": "",
       "color-hover": ""
     }

@@ -1,0 +1,185 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import locationData from '../../data/location/location.json';
+import './location-page.css';
+
+type LocDoc = {
+	latitude?: string;
+	longitude?: string;
+	address?: string;
+	googleMapsKey?: string;
+	siteDomain?: string;
+	building?: {
+		libraryId?: string | null;
+		master?: string | null;
+		webp?: string | null;
+	};
+};
+
+const loc = locationData as LocDoc;
+const address = (loc.address || '').trim();
+const lat = (loc.latitude || '').trim();
+const lng = (loc.longitude || '').trim();
+const key = (loc.googleMapsKey || '').trim();
+
+/** Placeholder / empty keys must not show the embed or keep setup hints. */
+function isMapsApiKeyConfigured(value: string): boolean {
+	if (!value) return false;
+	const lower = value.toLowerCase();
+	if (
+		lower === 'changeme' ||
+		lower === 'change-me' ||
+		lower === 'your-api-key' ||
+		lower === 'todo' ||
+		lower === 'xxx'
+	) {
+		return false;
+	}
+	// Typical Google API keys start with AIza; also accept any long opaque token.
+	if (/^AIza[0-9A-Za-z_-]{20,}$/.test(value)) return true;
+	return value.length >= 20 && !/\s/.test(value);
+}
+
+const keyReady = isMapsApiKeyConfigured(key);
+
+const imageModules = import.meta.glob<{ default: ImageMetadata }>(
+	'/src/assets/media/library/**/*.{jpg,jpeg,png,webp}',
+	{ eager: true },
+);
+
+function resolveAsset(keyPath: string | null | undefined): ImageMetadata | null {
+	if (!keyPath) return null;
+	const normalized = keyPath.replace(/^\/+/, '');
+	const hit = Object.entries(imageModules).find(([path]) => {
+		const p = path.replace(/\\/g, '/');
+		return (
+			p.endsWith(`/${normalized}`) ||
+			p.endsWith(normalized) ||
+			p.includes(`/media/${normalized}`)
+		);
+	});
+	return hit?.[1]?.default ?? null;
+}
+
+const buildingCandidates = [
+	loc.building?.webp,
+	loc.building?.master,
+].filter((k): k is string => typeof k === 'string' && k.trim().length > 0);
+
+let buildingAsset: ImageMetadata | null = null;
+let buildingKey: string | null = null;
+for (const candidate of buildingCandidates) {
+	const asset = resolveAsset(candidate);
+	if (asset) {
+		buildingAsset = asset;
+		buildingKey = candidate;
+		break;
+	}
+	buildingKey = buildingKey || candidate;
+}
+
+const buildingFallback = buildingKey ? `/media/${buildingKey}` : '';
+
+const titles = {
+	ro: 'Locație',
+	en: 'Location',
+	bg: 'Локация',
+};
+
+let embedSrc = '';
+if (keyReady) {
+	const params = new URLSearchParams({ key, zoom: '16' });
+	if (lat && lng) {
+		params.set('q', `${lat},${lng}`);
+	} else if (address) {
+		params.set('q', address);
+	} else {
+		params.set('q', 'Călărași, Romania');
+	}
+	embedSrc = `https://www.google.com/maps/embed/v1/place?${params.toString()}`;
+}
+
+const mapsSearchHref =
+	lat && lng
+		? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
+		: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || 'Ark Medical Clinic')}`;
+---
+
+<section class="loc-page" aria-label={titles.ro} data-loc-page data-maps-ready={keyReady ? '1' : '0'}>
+	<div class="loc-page__intro">
+		<figure class="loc-page__building">
+			{
+				buildingAsset ? (
+					<Image
+						src={buildingAsset}
+						alt={address || 'Clinic building'}
+						widths={[480, 720, 960]}
+						sizes="(min-width: 720px) 22rem, 100vw"
+						class="loc-page__building-img"
+					/>
+				) : buildingFallback ? (
+					<img
+						class="loc-page__building-img"
+						src={buildingFallback}
+						alt={address || 'Clinic building'}
+						width="720"
+						height="540"
+						loading="eager"
+						decoding="async"
+					/>
+				) : (
+					<div class="loc-page__building-ph">Building photo coming soon</div>
+				)
+			}
+		</figure>
+		<div class="loc-page__copy">
+			<h1
+				data-i18n-ro={titles.ro}
+				data-i18n-en={titles.en}
+				data-i18n-bg={titles.bg}
+			>
+				{titles.ro}
+			</h1>
+			{
+				address ? (
+					<p class="loc-page__address">{address}</p>
+				) : (
+					<p class="loc-page__address">Address will appear here once set in admin.</p>
+				)
+			}
+			{
+				!keyReady ? (
+					<p class="loc-page__hint" data-loc-key-hint>
+						Add a Google Maps Embed API key in Site / Location to show the interactive map.
+						Restrict the key to your static site domain in Google Cloud Console.
+					</p>
+				) : null
+			}
+		</div>
+	</div>
+
+	<div class="loc-page__map" data-loc-map>
+		{
+			embedSrc ? (
+				<iframe
+					title="Clinic map"
+					src={embedSrc}
+					loading="lazy"
+					referrerpolicy="no-referrer-when-downgrade"
+					allowfullscreen
+					data-loc-map-frame
+				/>
+			) : (
+				<div class="loc-page__map-fallback" data-loc-map-fallback>
+					<p data-loc-map-fallback-text>
+						Map preview unavailable until a Google Maps API key is configured.
+					</p>
+					<a href={mapsSearchHref} target="_blank" rel="noopener noreferrer">
+						Open in Google Maps
+					</a>
+				</div>
+			)
+		}
+	</div>
+</section>

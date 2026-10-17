@@ -1,0 +1,79 @@
+.login-page {
+	box-sizing: border-box;
+	width: min(100%, 28rem);
+	margin-inline: auto;
+	padding: 2.5rem var(--content-inline, clamp(0.75rem, 2vw, 1.5rem)) 4rem;
+	color: var(--fg, #ffe082);
+	text-align: center;
+}
+
+.login-page *,
+.login-page *::before,
+.login-page *::after {
+	box-sizing: border-box;
+}
+
+.login-page__card {
+	display: grid;
+	gap: 1rem;
+	padding: 1.75rem 1.35rem;
+	border-radius: 1rem;
+	border: 1px solid var(--border, #2a2a2a);
+	background:
+		radial-gradient(ellipse at top, color-mix(in srgb, var(--primary, #ffe082) 12%, transparent), transparent 55%),
+		var(--bg-elevated, #1a1a1a);
+}
+
+.login-page__icon {
+	width: 3.25rem;
+	height: 3.25rem;
+	margin-inline: auto;
+	color: var(--primary, #ffe082);
+}
+
+.login-page__title {
+	margin: 0;
+	font-size: clamp(1.35rem, 3vw, 1.75rem);
+	color: var(--primary, #ffe082);
+}
+
+.login-page__lead {
+	margin: 0;
+	line-height: 1.5;
+	color: color-mix(in srgb, var(--fg, #ffe082) 72%, transparent);
+}
+
+.login-page__note {
+	margin: 0;
+	font-size: 0.9rem;
+	line-height: 1.45;
+	color: color-mix(in srgb, var(--accent, #2a9d8f) 85%, var(--fg, #ffe082));
+}
+
+.login-page__actions {
+	display: grid;
+	gap: 0.65rem;
+	margin-block-start: 0.35rem;
+}
+
+.login-page__actions a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-block-size: 2.75rem;
+	padding: 0.55rem 1rem;
+	border-radius: 0.65rem;
+	text-decoration: none;
+	font-weight: 650;
+}
+
+.login-page__actions a.primary {
+	border: 1px solid color-mix(in srgb, var(--primary, #ffe082) 50%, transparent);
+	background: color-mix(in srgb, var(--primary, #ffe082) 14%, transparent);
+	color: var(--primary, #ffe082);
+}
+
+.login-page__actions a.ghost {
+	border: 1px solid var(--border, #2a2a2a);
+	color: color-mix(in srgb, var(--fg, #ffe082) 80%, transparent);
+}

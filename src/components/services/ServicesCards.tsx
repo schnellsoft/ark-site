@@ -57,6 +57,9 @@ export type ServicesCatalog = {
 		pagePath: string;
 		enabled?: boolean;
 	}>;
+	pdfKey?: string;
+	pdfKeys?: { ro?: string; en?: string; bg?: string };
+	updatedAt?: string;
 };
 
 const RECOMMENDED = '__recommended__';

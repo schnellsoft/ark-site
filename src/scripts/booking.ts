@@ -42,6 +42,23 @@ export function toggleServiceSelection(slug: string): boolean {
 	return !on;
 }
 
+export function setServiceSelected(slug: string, selected: boolean): boolean {
+	const current = readSelectedServices();
+	const on = current.includes(slug);
+	if (selected === on) return on;
+	const next = selected ? [...current, slug] : current.filter((s) => s !== slug);
+	writeSelectedServices(next);
+	return selected;
+}
+
+export function deselectService(slug: string): void {
+	setServiceSelected(slug, false);
+}
+
+export function clearSelectedServices(): void {
+	writeSelectedServices([]);
+}
+
 export function syncBookingBadge(count = readSelectedServices().length) {
 	const badge = document.querySelector<HTMLElement>('[data-booking-badge]');
 	const btn = document.querySelector<HTMLElement>('[data-booking]');

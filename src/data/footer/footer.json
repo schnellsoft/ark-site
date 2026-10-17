@@ -1,3 +1,44 @@
 {
-  "icons": []
+  "icons": [
+    {
+      "name": "orig:locationp",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "aria-label": "location",
+      "link": "https://arkmed.ro/locatie"
+    },
+    {
+      "name": "orig:instagram",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "aria-label": "instagram",
+      "link": "https://instagram.com/ark_med_clinic/"
+    },
+    {
+      "name": "origin:whatsapp",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "aria-label": "whatsapp",
+      "link": "https://api.whatsapp.com/send?phone=+40770389737"
+    },
+    {
+      "name": "orig:facebook",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "aria-label": "facebook",
+      "link": "https://www.facebook.com/ark.med.94"
+    }
+  ]
 }

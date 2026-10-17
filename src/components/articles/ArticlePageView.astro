@@ -1,0 +1,85 @@
+---
+import type { Lang } from '../../scripts/header/lang';
+import './article-page.css';
+
+type LocaleMap = { ro?: string; en?: string; bg?: string };
+
+interface Props {
+	slug: string;
+	title: LocaleMap;
+	body: LocaleMap;
+	datetime?: string | null;
+}
+
+const { slug, title, body, datetime } = Astro.props;
+
+function triple(map: LocaleMap | undefined): Record<Lang, string> {
+	return {
+		ro: (map?.ro || map?.en || map?.bg || '').trim(),
+		en: (map?.en || map?.ro || map?.bg || '').trim(),
+		bg: (map?.bg || map?.ro || map?.en || '').trim(),
+	};
+}
+
+const titleMap = triple(title);
+const bodyMap = triple(body);
+const initialTitle = titleMap.ro || titleMap.en || titleMap.bg || slug;
+const initialBody = bodyMap.ro || bodyMap.en || bodyMap.bg || '';
+const dateLabel = (datetime || '').trim().slice(0, 10);
+
+const payload = {
+	title: titleMap,
+	body: bodyMap,
+	datetime: datetime || null,
+};
+---
+
+<article
+	class="article-page"
+	data-article-page
+	data-ap-json={JSON.stringify(payload)}
+	aria-labelledby="article-page-title"
+>
+	<a class="article-page__back" href="/#articles">← Articole</a>
+	{
+		dateLabel ? (
+			<time class="article-page__date" data-ap-date datetime={dateLabel}>
+				{dateLabel}
+			</time>
+		) : (
+			<span class="article-page__date" data-ap-date hidden></span>
+		)
+	}
+	<h1 class="article-page__title" id="article-page-title" data-ap-title>
+		{initialTitle}
+	</h1>
+	{
+		initialBody ? (
+			<div class="article-page__body" data-ap-body set:html={initialBody} />
+		) : (
+			<div class="article-page__body article-page__empty" data-ap-body>
+				<p>Conținut în curs de publicare.</p>
+			</div>
+		)
+	}
+</article>
+
+<script>
+	import { initArticlePage, type ArticlePageLocalized } from './article-page';
+
+	function boot() {
+		document.querySelectorAll<HTMLElement>('[data-article-page]').forEach((root) => {
+			const raw = root.dataset.apJson;
+			if (!raw) return;
+			try {
+				const data = JSON.parse(raw) as ArticlePageLocalized;
+				initArticlePage(root, data);
+			} catch {
+				// ignore
+			}
+		});
+	}
+
+	boot();
+	document.addEventListener('astro:page-load', boot);
+</script>

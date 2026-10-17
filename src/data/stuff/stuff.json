@@ -1,7 +1,7 @@
 {
   "spotlight": {
     "autoplay": true,
-    "delayMs": 3000,
+    "delayMs": 5000,
     "stopOnHover": true
   },
   "categories": [
@@ -323,9 +323,417 @@
   ],
   "members": [
     {
+      "id": "4dec2c72-5df8-485e-9f37-8a90cd599ea7",
+      "slug": "evgeni-enikov-d9046e91e2",
+      "position": 1,
+      "name": {
+        "ro": "Evgeni Enikov",
+        "en": "Evgeny Enikov",
+        "bg": "Евгений Еников"
+      },
+      "roleId": "a89780bb-15e5-4dc7-94b7-b5c233eecdce",
+      "specialtyId": "4ae6bda8-cdd4-4232-9aae-5296287ef905",
+      "role": {
+        "ro": "Medic specialist",
+        "en": "Medical Specialist",
+        "bg": "Специализиран лекар"
+      },
+      "specialty": {
+        "ro": "Chirurgie dento-alveolară",
+        "en": "Dento-alveolar surgery",
+        "bg": "денто-алвеоларна хирургия"
+      },
+      "doctorTitle": true,
+      "college": "Stomatologie – UMF „Carol Davila” București",
+      "providedServiceIds": [],
+      "snippet": {
+        "ro": "Cadru medical experimentat, bun organizator și coordonator. ",
+        "en": "",
+        "bg": ""
+      },
+      "categoryId": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "eef1b49c-053e-4631-bd7f-a0156f72cc65",
+        "master": "library/eef1b49c-053e-4631-bd7f-a0156f72cc65.jpg",
+        "webp": "library/eef1b49c-053e-4631-bd7f-a0156f72cc65.webp",
+        "portrait800": "library/eef1b49c-053e-4631-bd7f-a0156f72cc65-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "75e68fdb-e818-4e12-ae18-5a993c866c70",
+      "slug": "andreea-dutoiu-bebb4f61ac",
+      "position": 2,
+      "name": {
+        "ro": "Andreea Dutoiu",
+        "en": "by Andreea Dutoiu",
+        "bg": "Андреа Дънов"
+      },
+      "roleId": "74e2b72b-6e45-42b0-9d9e-fa8717858485",
+      "specialtyId": null,
+      "role": {
+        "ro": "Manager",
+        "en": "Manager",
+        "bg": "Мениджър"
+      },
+      "specialty": {
+        "ro": "",
+        "en": "",
+        "bg": ""
+      },
+      "doctorTitle": false,
+      "college": "",
+      "providedServiceIds": [],
+      "snippet": {
+        "ro": "Comunicativă, receptivă la problemele pacienților, interfața dintre echipa noastră și dumneavoastră.",
+        "en": "Communicative, receptive to patient problems, the interface between our team and you.",
+        "bg": "Комуникативен, отзивчив към проблемите на пациентите, интерфейсът между нашия екип и вас."
+      },
+      "categoryId": "d80a01fb-cad7-4c99-a7ad-df9d1a5d6c90",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "d7ceb983-6507-4503-a25e-d1d1ac2d2e5a",
+        "master": "library/d7ceb983-6507-4503-a25e-d1d1ac2d2e5a.jpg",
+        "webp": "library/d7ceb983-6507-4503-a25e-d1d1ac2d2e5a.webp",
+        "portrait800": "library/d7ceb983-6507-4503-a25e-d1d1ac2d2e5a-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "7b4c5dec-b67c-49a3-a8e6-255fd8a44284",
+      "slug": "cosmin-ghita-10117a5b61",
+      "position": 3,
+      "name": {
+        "ro": "Cosmin Ghiță",
+        "en": "Cosmetic Guess",
+        "bg": "Козирогът гадае"
+      },
+      "roleId": "a89780bb-15e5-4dc7-94b7-b5c233eecdce",
+      "specialtyId": "22f7d6f3-7b58-4e65-80d3-736f3307f72a",
+      "role": {
+        "ro": "Medic specialist",
+        "en": "Medical Specialist",
+        "bg": "Специализиран лекар"
+      },
+      "specialty": {
+        "ro": "Chirurgie OMF",
+        "en": "Physician OMF",
+        "bg": "Хирургия OMF"
+      },
+      "doctorTitle": true,
+      "college": "Medicină Dentară – UMF „Iuliu Hațieganu” Cluj-Napoca",
+      "providedServiceIds": [],
+      "snippet": {
+        "ro": "Soluțiile problemelor complexe au un rezolvitor conștiincios și capabil. ",
+        "en": "",
+        "bg": ""
+      },
+      "categoryId": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "5d034531-e436-4c80-8710-c7ab849c2b43",
+        "master": "library/5d034531-e436-4c80-8710-c7ab849c2b43.jpg",
+        "webp": "library/5d034531-e436-4c80-8710-c7ab849c2b43.webp",
+        "portrait800": "library/5d034531-e436-4c80-8710-c7ab849c2b43-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "3c75f9c1-83d1-42d9-b75e-5ee2d8204bbb",
+      "slug": "iulia-cotiga-69a9b2fb65",
+      "position": 4,
+      "name": {
+        "ro": "Iulia Cotiga",
+        "en": "",
+        "bg": ""
+      },
+      "roleId": "a89780bb-15e5-4dc7-94b7-b5c233eecdce",
+      "specialtyId": "e86b7a26-30c1-4671-a5e2-5779cc6b11da",
+      "role": {
+        "ro": "Medic specialist",
+        "en": "Medical Specialist",
+        "bg": "Специализиран лекар"
+      },
+      "specialty": {
+        "ro": "Protetică dentară",
+        "en": "Dental protection",
+        "bg": "Стоматологична протеза"
+      },
+      "doctorTitle": true,
+      "college": "Medicină Dentară – UMF „Iuliu Hațieganu” Cluj-Napoca",
+      "providedServiceIds": [
+        "796b783c-a954-494c-874f-b1d8419a707d"
+      ],
+      "snippet": {
+        "ro": "Experiență în protetica dentară, fără incidente, acordă atenție evoluției în timp a ficărei intervenții.  ",
+        "en": "",
+        "bg": ""
+      },
+      "categoryId": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "344b2c2e-ff59-46d8-b3ed-059dad63d170",
+        "master": "library/344b2c2e-ff59-46d8-b3ed-059dad63d170.jpg",
+        "webp": "library/344b2c2e-ff59-46d8-b3ed-059dad63d170.webp",
+        "portrait800": "library/344b2c2e-ff59-46d8-b3ed-059dad63d170-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "23be288d-8a43-4d3e-b01e-9713837c9752",
+      "slug": "ana-maria-28de5e1106",
+      "position": 5,
+      "name": {
+        "ro": "Ana Maria",
+        "en": "by Ana Maria",
+        "bg": "Ана Мария"
+      },
+      "roleId": "a89780bb-15e5-4dc7-94b7-b5c233eecdce",
+      "specialtyId": "491cb203-0fff-4a3f-b12e-f3a8820bccc3",
+      "role": {
+        "ro": "Medic specialist",
+        "en": "Medical Specialist",
+        "bg": "Специализиран лекар"
+      },
+      "specialty": {
+        "ro": "Endodonție",
+        "en": "Endodontically",
+        "bg": "ендодонция"
+      },
+      "doctorTitle": true,
+      "college": "Stomatologie – UMF „Carol Davila” București",
+      "providedServiceIds": [
+        "2d9a7083-20bc-4967-a242-5a589345b053"
+      ],
+      "snippet": {
+        "ro": "Medicul cu cele mai multe felicitări din partea pacienților. Reface zâmbetul și celor care și-au pierdut speranța.",
+        "en": "",
+        "bg": ""
+      },
+      "categoryId": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "afc7915a-104d-4619-a5fc-a60a6d35ce43",
+        "master": "library/afc7915a-104d-4619-a5fc-a60a6d35ce43.jpg",
+        "webp": "library/afc7915a-104d-4619-a5fc-a60a6d35ce43.webp",
+        "portrait800": "library/afc7915a-104d-4619-a5fc-a60a6d35ce43-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "ae7eabd5-9102-4ebd-8bb0-4b532a0e909d",
+      "slug": "madalina-mihale-d529e18d8d",
+      "position": 6,
+      "name": {
+        "ro": "Mădălina Mihale",
+        "en": "",
+        "bg": ""
+      },
+      "roleId": "1478a35a-5136-4689-a994-3007184ff6fa",
+      "specialtyId": "8a28bf19-0d64-47a0-b05d-9fadaab4519d",
+      "role": {
+        "ro": "Medic dentist",
+        "en": "Dentist Doctor",
+        "bg": "зъболекар"
+      },
+      "specialty": {
+        "ro": "Pedodonție",
+        "en": "Pedagogical",
+        "bg": "Педодонтия"
+      },
+      "doctorTitle": true,
+      "college": "Medicină Dentară – UMF „Grigore T. Popa” Iași",
+      "providedServiceIds": [
+        "2d9a7083-20bc-4967-a242-5a589345b053",
+        "2863ae0d-5101-4bb9-ad43-0c7e81764950"
+      ],
+      "snippet": {
+        "ro": "Dexteritatea și mentalitatea analitică rareori au cunoscut un nivel atât de înalt într-o singură persoană.",
+        "en": "Dexterity and analytical mentality have rarely experienced such a high level in one person.",
+        "bg": "Декстерията и аналитичният ум рядко са познавали такова високо ниво в един човек."
+      },
+      "categoryId": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "a9b3f822-5ab7-4608-abf3-fe2e02cc2837",
+        "master": "library/a9b3f822-5ab7-4608-abf3-fe2e02cc2837.jpg",
+        "webp": "library/a9b3f822-5ab7-4608-abf3-fe2e02cc2837.webp",
+        "portrait800": "library/a9b3f822-5ab7-4608-abf3-fe2e02cc2837-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "97c6db07-75a0-43dc-8192-c2a41f649013",
+      "slug": "cristina-sturzu-3f3560979f",
+      "position": 7,
+      "name": {
+        "ro": "Cristina Sturzu",
+        "en": "",
+        "bg": ""
+      },
+      "roleId": "1478a35a-5136-4689-a994-3007184ff6fa",
+      "specialtyId": "21a748ef-861a-4200-9bc4-4eb8e0878d6b",
+      "role": {
+        "ro": "Medic dentist",
+        "en": "Dentist Doctor",
+        "bg": "зъболекар"
+      },
+      "specialty": {
+        "ro": "Paradontologie",
+        "en": "Paradoxical",
+        "bg": "Парадонтологията"
+      },
+      "doctorTitle": true,
+      "college": "Medicină Dentară – UMF „Iuliu Hațieganu” Cluj-Napoca",
+      "providedServiceIds": [
+        "c509ee67-8973-46fa-bf74-2288eb2fe011"
+      ],
+      "snippet": {
+        "ro": "Un medic modern care pune în practică tehnicile moderne ale medicinei dentare. Teoretician și practician desăvârșit.",
+        "en": "A modern doctor who puts modern techniques of dental medicine into practice. Theorist and perfect practitioner.",
+        "bg": "Съвременен лекар, който прилага съвременните техники на зъболекарството. Теоретик и практикуващ."
+      },
+      "categoryId": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "2774150a-f1fd-419b-8e56-1e52680519cd",
+        "master": "library/2774150a-f1fd-419b-8e56-1e52680519cd.jpg",
+        "webp": "library/2774150a-f1fd-419b-8e56-1e52680519cd.webp",
+        "portrait800": "library/2774150a-f1fd-419b-8e56-1e52680519cd-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "8cacba99-32b6-4c03-8771-37f7d13fbab9",
+      "slug": "beatrice-ronea-737725e9eb",
+      "position": 8,
+      "name": {
+        "ro": "Beatrice Ronea",
+        "en": "",
+        "bg": ""
+      },
+      "roleId": "a89780bb-15e5-4dc7-94b7-b5c233eecdce",
+      "specialtyId": "2512b9a7-623a-454e-b3ed-9889fc99e2ac",
+      "role": {
+        "ro": "Medic specialist",
+        "en": "Medical Specialist",
+        "bg": "Специализиран лекар"
+      },
+      "specialty": {
+        "ro": "Ortodonție și ortopedie dento-facială",
+        "en": "Dento-facial Orthodontics and Orthopedics",
+        "bg": "Ортодонтия и денто-лицева ортопедия"
+      },
+      "doctorTitle": true,
+      "college": "UMF Carol Davila București",
+      "providedServiceIds": [
+        "2d9a7083-20bc-4967-a242-5a589345b053",
+        "2863ae0d-5101-4bb9-ad43-0c7e81764950"
+      ],
+      "snippet": {
+        "ro": "Un medic dentist specialist cu experiență în estetica dentară. Timpul și eficiența sunt copartenerii carierei acestui cadru medical.",
+        "en": "",
+        "bg": ""
+      },
+      "categoryId": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "5bc77733-f0ea-4c08-bfa0-2744efba1b88",
+        "master": "library/5bc77733-f0ea-4c08-bfa0-2744efba1b88.jpg",
+        "webp": "library/5bc77733-f0ea-4c08-bfa0-2744efba1b88.webp",
+        "portrait800": "library/5bc77733-f0ea-4c08-bfa0-2744efba1b88-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "92a0a060-71f9-46be-9558-5434b09c35c1",
+      "slug": "cristina-hordei-18fe3d1bae",
+      "position": 9,
+      "name": {
+        "ro": "Cristina Hordei",
+        "en": "by Cristina Hordei",
+        "bg": "Кристина Хордея"
+      },
+      "roleId": "deed0ecb-b110-4022-91ae-b56f9df6cd96",
+      "specialtyId": null,
+      "role": {
+        "ro": "Asistentă",
+        "en": "Nurse",
+        "bg": "медицинска сестра"
+      },
+      "specialty": {
+        "ro": "",
+        "en": "",
+        "bg": ""
+      },
+      "doctorTitle": false,
+      "college": "",
+      "providedServiceIds": [
+        "e3618415-449f-4031-a538-029c57ac8253",
+        "cab3dcb5-2b9e-4c67-8266-858e202c09b5"
+      ],
+      "snippet": {
+        "ro": "Asistenta care este cel mai eficient sprijin în cazul urgențelor. Rapiditate, precizie, obiectivitate, inteligență și predictibilitate. ",
+        "en": "The assistant that is the most effective support in emergencies. Speed, accuracy, objectivity, intelligence and predictability.",
+        "bg": "Асистентът, който е най-ефективната помощ при спешни случаи. Скорост, точност, обективност, интелигентност и предсказуемост."
+      },
+      "categoryId": "f2c7acea-0927-4e62-9059-a7e539aee610",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "5bc77cc4-7791-4d32-86a3-5d681a4e18a7",
+        "master": "library/5bc77cc4-7791-4d32-86a3-5d681a4e18a7.jpg",
+        "webp": "library/5bc77cc4-7791-4d32-86a3-5d681a4e18a7.webp",
+        "portrait800": "library/5bc77cc4-7791-4d32-86a3-5d681a4e18a7-p800.webp"
+      },
+      "enabled": true
+    },
+    {
+      "id": "786f9fd2-e257-4148-a386-41c347627862",
+      "slug": "m-435ce3b179",
+      "position": 10,
+      "name": {
+        "ro": "Mădălina Damian",
+        "en": "by Damian",
+        "bg": "Дядо Дамиан"
+      },
+      "roleId": "deed0ecb-b110-4022-91ae-b56f9df6cd96",
+      "specialtyId": null,
+      "role": {
+        "ro": "Asistentă",
+        "en": "Nurse",
+        "bg": "медицинска сестра"
+      },
+      "specialty": {
+        "ro": "",
+        "en": "",
+        "bg": ""
+      },
+      "doctorTitle": false,
+      "college": "",
+      "providedServiceIds": [
+        "e3618415-449f-4031-a538-029c57ac8253",
+        "0b4bfba0-e9ac-4acf-8852-6ca0b2380acc"
+      ],
+      "snippet": {
+        "ro": "Un om plăcut de copii, asistă fiecare intervenție dentară pediatrică. Copiii rămân calmi pe tot parcursul procesului medical. ",
+        "en": "A child-loving man, witnesses every pediatric dental intervention. Children remain calm throughout the medical process.",
+        "bg": "Приятел на децата, той присъства на всяка педиатрична стоматологична интервенция. Децата остават спокойни през целия медицински процес."
+      },
+      "categoryId": "f2c7acea-0927-4e62-9059-a7e539aee610",
+      "subcategoryId": null,
+      "portrait": {
+        "libraryId": "4716824d-0571-4813-b322-75934811764e",
+        "master": "library/4716824d-0571-4813-b322-75934811764e.jpg",
+        "webp": "library/4716824d-0571-4813-b322-75934811764e.webp",
+        "portrait800": "library/4716824d-0571-4813-b322-75934811764e-p800.webp"
+      },
+      "enabled": true
+    },
+    {
       "id": "652c9840-911b-4692-a7d0-0a60fc5b6136",
       "slug": "andrei-axeniuc-dc8ada2c54",
-      "position": 1,
+      "position": 11,
       "name": {
         "ro": "Andrei Axeniuc",
         "en": "",
@@ -366,7 +774,7 @@
     {
       "id": "03052479-4adc-4518-9634-dec2246f1e58",
       "slug": "andreea-stanescu-df78c2f3e4",
-      "position": 2,
+      "position": 12,
       "name": {
         "ro": "Andreea Stănescu",
         "en": "",
@@ -397,17 +805,17 @@
       "categoryId": "f2c7acea-0927-4e62-9059-a7e539aee610",
       "subcategoryId": null,
       "portrait": {
-        "libraryId": "a733232b-1100-4c10-9421-b791fe19f05b",
-        "master": "library/a733232b-1100-4c10-9421-b791fe19f05b.jpg",
-        "webp": "library/a733232b-1100-4c10-9421-b791fe19f05b.webp",
-        "portrait800": "library/a733232b-1100-4c10-9421-b791fe19f05b-p800.webp"
+        "libraryId": "820deed6-a726-46db-8e18-43cf002cad3e",
+        "master": "library/820deed6-a726-46db-8e18-43cf002cad3e.jpg",
+        "webp": "library/820deed6-a726-46db-8e18-43cf002cad3e.webp",
+        "portrait800": "library/820deed6-a726-46db-8e18-43cf002cad3e-p800.webp"
       },
       "enabled": true
     },
     {
       "id": "db04f25e-6aec-4380-80ff-6893fe54361a",
       "slug": "camelia-laz-565ffb2b97",
-      "position": 3,
+      "position": 13,
       "name": {
         "ro": "Camelia Lazăr",
         "en": "Camelia Lazăr",
@@ -435,7 +843,7 @@
         "en": "",
         "bg": ""
       },
-      "categoryId": "49803b2e-9239-4bfe-be47-140c846bace4",
+      "categoryId": "a9a915b8-e61a-45c4-9b1f-e94641d8b6cf",
       "subcategoryId": null,
       "portrait": {
         "libraryId": "1aca77cb-bef0-4dde-865f-1b302b337623",
@@ -446,5 +854,5 @@
       "enabled": true
     }
   ],
-  "updatedAt": "2026-10-16T07:18:58.046Z"
+  "updatedAt": "2026-10-16T12:24:29.138Z"
 }

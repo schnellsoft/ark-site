@@ -83,10 +83,23 @@ for (const svc of services) {
 	}
 }
 
-const pdfDest = join(assetsServices, 'price-list.pdf');
-console.log('↓ content services/price-list.pdf');
-if (!wranglerGet('ark-admin-content', 'services/price-list.pdf', pdfDest)) {
-	console.warn('No remote price-list.pdf');
+const pdfPublicDir = join(root, 'public/services');
+await mkdir(pdfPublicDir, { recursive: true });
+for (const lang of ['ro', 'en', 'bg']) {
+	const key = `services/price-list-${lang}.pdf`;
+	const dest = join(assetsServices, `price-list-${lang}.pdf`);
+	const pubDest = join(pdfPublicDir, `price-list-${lang}.pdf`);
+	console.log(`↓ content ${key}`);
+	if (wranglerGet('ark-admin-content', key, dest)) {
+		await copyFile(dest, pubDest);
+		if (lang === 'ro') {
+			await copyFile(dest, join(assetsServices, 'price-list.pdf'));
+			await copyFile(dest, join(pdfPublicDir, 'price-list.pdf'));
+		}
+		console.log(`  ✓ public/services/price-list-${lang}.pdf`);
+	} else {
+		console.warn(`No remote ${key}`);
+	}
 }
 
 /** Collect media keys from page JSON */

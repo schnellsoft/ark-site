@@ -1,3 +1,5 @@
+import { spriteSymbolId } from './icons';
+
 export type Lang = 'ro' | 'bg' | 'en';
 
 export type I18nString = string | Partial<Record<Lang, string>>;
@@ -55,9 +57,8 @@ export type HeaderIconsData = {
 };
 
 /**
- * CMS icon names → sprite symbol ids.
- * Prefer matching symbol ids in public/header/sprite.svg (email, whatsap, xtwitter, phone-in, …).
- * Aliases remain for legacy / alternate spellings.
+ * Legacy short names → sprite symbol ids (chrome + older CMS spellings).
+ * Prefixed catalog names (`orig:instagram`) are slugified via spriteSymbolId.
  */
 const ICON_ALIASES: Record<string, string> = {
 	whatsapp: 'whatsapp',
@@ -67,6 +68,10 @@ const ICON_ALIASES: Record<string, string> = {
 	phonecall: 'phonecall',
 	'phone-in': 'phone-in',
 	email: 'email',
+	instagram: 'instagram',
+	facebook: 'facebook',
+	location: 'location',
+	linkedin: 'linkedin',
 };
 
 export function resolveLangLabel(value: I18nString | undefined, lang: Lang, fallback = ''): string {
@@ -92,7 +97,9 @@ export function cssMaxWidth(raw: string | number | undefined): string {
 export function spriteId(name: string | undefined): string {
 	const key = (name ?? '').trim();
 	if (!key) return '';
-	return ICON_ALIASES[key] ?? key;
+	const lower = key.toLowerCase();
+	if (ICON_ALIASES[lower]) return ICON_ALIASES[lower];
+	return spriteSymbolId(key);
 }
 
 export function moreEnabled(data: { more?: boolean; moreList?: boolean } | undefined): boolean {

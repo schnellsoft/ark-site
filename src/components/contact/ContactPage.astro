@@ -1,0 +1,287 @@
+---
+import catalog from '../../data/services/services.json';
+import siteSettings from '../../data/settings/site.json';
+import './contact-page.css';
+
+type LocaleMap = { ro?: string; en?: string; bg?: string };
+type Catalog = {
+	services?: Array<{
+		slug: string;
+		title?: LocaleMap;
+		enabled?: boolean;
+	}>;
+};
+
+const data = catalog as Catalog;
+const services = (data.services || []).filter((s) => s.enabled !== false);
+const adminApiUrl = ((siteSettings as { adminApiUrl?: string }).adminApiUrl || '').trim();
+
+const copy = {
+	title: {
+		ro: 'Contact / Programare',
+		en: 'Contact / Booking',
+		bg: 'Контакт / Записване',
+	},
+	lead: {
+		ro: 'Completează datele pentru a deschide o conversație cu recepția clinicii.',
+		en: 'Fill in your details to open a conversation with the clinic reception.',
+		bg: 'Попълнете данните си, за да отворите разговор с рецепцията.',
+	},
+	services: {
+		ro: 'Servicii selectate',
+		en: 'Selected services',
+		bg: 'Избрани услуги',
+	},
+	servicesEmpty: {
+		ro: 'Niciun serviciu selectat încă. Poți continua formularul oricum.',
+		en: 'No services selected yet. You can still submit the form.',
+		bg: 'Все още няма избрани услуги. Можете да изпратите формуляра.',
+	},
+	name: { ro: 'Nume complet', en: 'Full name', bg: 'Пълно име' },
+	email: { ro: 'Email', en: 'Email', bg: 'Имейл' },
+	phone: { ro: 'Telefon', en: 'Phone', bg: 'Телефон' },
+	notes: {
+		ro: 'Observații (opțional)',
+		en: 'Observations (optional)',
+		bg: 'Бележки (по избор)',
+	},
+	submit: {
+		ro: 'Trimite și deschide conversația',
+		en: 'Submit and open conversation',
+		bg: 'Изпрати и отвори разговора',
+	},
+	autoReply: {
+		ro: 'Mulțumim pentru mesaj. Un coleg de la recepție vă va răspunde în curând. Vă rugăm să așteptați pe această pagină.',
+		en: 'Thank you for your message. A receptionist will reply soon. Please wait on this page.',
+		bg: 'Благодарим за съобщението. Рецепционист ще ви отговори скоро. Моля, изчакайте на тази страница.',
+	},
+};
+
+const serviceMap = Object.fromEntries(
+	services.map((s) => [
+		s.slug,
+		{
+			ro: s.title?.ro || s.slug,
+			en: s.title?.en || s.title?.ro || s.slug,
+			bg: s.title?.bg || s.title?.ro || s.slug,
+		},
+	]),
+);
+
+const payload = {
+	adminApiUrl,
+	serviceMap,
+	copy,
+};
+---
+
+<section
+	class="contact-page"
+	data-contact-page
+	data-contact-json={JSON.stringify(payload)}
+	aria-label={copy.title.ro}
+>
+	<h1 class="contact-page__title" data-contact-title>{copy.title.ro}</h1>
+	<p class="contact-page__lead" data-contact-lead>{copy.lead.ro}</p>
+
+	<details class="contact-services" data-contact-services>
+		<summary class="contact-services__summary" data-contact-services-summary>
+			{copy.services.ro}
+		</summary>
+		<div class="contact-services__body">
+			<ul class="contact-services__list" data-contact-services-list hidden></ul>
+			<p class="contact-services__empty" data-contact-services-empty>
+				{copy.servicesEmpty.ro}
+			</p>
+		</div>
+	</details>
+
+	<form class="contact-form" data-contact-form novalidate>
+		<div class="contact-form__field">
+			<label for="contact-name">{copy.name.ro}</label>
+			<input
+				id="contact-name"
+				name="fullName"
+				type="text"
+				autocomplete="name"
+				required
+				minlength="2"
+				maxlength="120"
+				data-contact-name
+			/>
+		</div>
+		<div class="contact-form__field">
+			<label for="contact-email">{copy.email.ro}</label>
+			<input
+				id="contact-email"
+				name="email"
+				type="email"
+				autocomplete="email"
+				required
+				maxlength="160"
+				data-contact-email
+			/>
+		</div>
+		<div class="contact-form__field">
+			<label for="contact-phone">{copy.phone.ro}</label>
+			<input
+				id="contact-phone"
+				name="phone"
+				type="tel"
+				autocomplete="tel"
+				inputmode="tel"
+				required
+				minlength="6"
+				maxlength="40"
+				pattern={"^[+0-9()\\s.-]{6,40}$"}
+				data-contact-phone
+			/>
+		</div>
+		<div class="contact-form__field">
+			<label for="contact-notes">{copy.notes.ro}</label>
+			<textarea
+				id="contact-notes"
+				name="observations"
+				maxlength="4000"
+				data-contact-notes
+			></textarea>
+		</div>
+		<p class="contact-form__error" data-contact-error role="alert" aria-live="polite"></p>
+		<button type="submit" class="contact-form__submit" data-contact-submit>
+			{copy.submit.ro}
+		</button>
+	</form>
+</section>
+
+<script>
+	import { readSelectedServices } from '../../scripts/booking';
+	import { getLang, LANG_CHANGE_EVENT, type Lang } from '../../scripts/header/lang';
+	import {
+		createConversationDraft,
+		postTicketToAdmin,
+		saveConversation,
+	} from '../../scripts/tickets-db';
+
+	type Copy = Record<string, Record<Lang, string>>;
+
+	type Payload = {
+		adminApiUrl: string;
+		serviceMap: Record<string, Record<Lang, string>>;
+		copy: Copy;
+	};
+
+	function boot() {
+		const root = document.querySelector<HTMLElement>('[data-contact-page]');
+		if (!root || root.dataset.booted) return;
+		root.dataset.booted = '1';
+
+		const raw = root.dataset.contactJson;
+		if (!raw) return;
+		let payload: Payload;
+		try {
+			payload = JSON.parse(raw) as Payload;
+		} catch {
+			return;
+		}
+
+		const titleEl = root.querySelector('[data-contact-title]');
+		const leadEl = root.querySelector('[data-contact-lead]');
+		const summaryEl = root.querySelector('[data-contact-services-summary]');
+		const listEl = root.querySelector<HTMLElement>('[data-contact-services-list]');
+		const emptyEl = root.querySelector<HTMLElement>('[data-contact-services-empty]');
+		const form = root.querySelector<HTMLFormElement>('[data-contact-form]');
+		const errorEl = root.querySelector<HTMLElement>('[data-contact-error]');
+		const submitBtn = root.querySelector<HTMLButtonElement>('[data-contact-submit]');
+		const nameInput = root.querySelector<HTMLInputElement>('[data-contact-name]');
+		const emailInput = root.querySelector<HTMLInputElement>('[data-contact-email]');
+		const phoneInput = root.querySelector<HTMLInputElement>('[data-contact-phone]');
+		const notesInput = root.querySelector<HTMLTextAreaElement>('[data-contact-notes]');
+		const nameLabel = root.querySelector('label[for="contact-name"]');
+		const emailLabel = root.querySelector('label[for="contact-email"]');
+		const phoneLabel = root.querySelector('label[for="contact-phone"]');
+		const notesLabel = root.querySelector('label[for="contact-notes"]');
+
+		function paint(lang: Lang) {
+			const c = payload.copy;
+			if (titleEl) titleEl.textContent = c.title[lang] || c.title.ro;
+			if (leadEl) leadEl.textContent = c.lead[lang] || c.lead.ro;
+			if (summaryEl) summaryEl.textContent = c.services[lang] || c.services.ro;
+			if (emptyEl) emptyEl.textContent = c.servicesEmpty[lang] || c.servicesEmpty.ro;
+			if (nameLabel) nameLabel.textContent = c.name[lang] || c.name.ro;
+			if (emailLabel) emailLabel.textContent = c.email[lang] || c.email.ro;
+			if (phoneLabel) phoneLabel.textContent = c.phone[lang] || c.phone.ro;
+			if (notesLabel) notesLabel.textContent = c.notes[lang] || c.notes.ro;
+			if (submitBtn) submitBtn.textContent = c.submit[lang] || c.submit.ro;
+
+			const slugs = readSelectedServices();
+			if (listEl && emptyEl) {
+				listEl.innerHTML = '';
+				if (!slugs.length) {
+					listEl.hidden = true;
+					emptyEl.hidden = false;
+				} else {
+					emptyEl.hidden = true;
+					listEl.hidden = false;
+					for (const slug of slugs) {
+						const titles = payload.serviceMap[slug];
+						const label = titles
+							? titles[lang] || titles.ro || slug
+							: slug;
+						const li = document.createElement('li');
+						li.textContent = label;
+						listEl.appendChild(li);
+					}
+				}
+			}
+		}
+
+		paint(getLang());
+		window.addEventListener(LANG_CHANGE_EVENT, () => paint(getLang()));
+		window.addEventListener('ark:booking-change', () => paint(getLang()));
+
+		form?.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			if (!form || !nameInput || !emailInput || !phoneInput) return;
+			if (errorEl) errorEl.textContent = '';
+
+			if (!form.checkValidity()) {
+				form.reportValidity();
+				return;
+			}
+
+			const lang = getLang();
+			const autoReply =
+				payload.copy.autoReply[lang] || payload.copy.autoReply.ro;
+
+			if (submitBtn) submitBtn.disabled = true;
+			try {
+				const convo = createConversationDraft({
+					patientName: nameInput.value,
+					patientEmail: emailInput.value,
+					patientPhone: phoneInput.value,
+					observations: notesInput?.value || '',
+					serviceSlugs: readSelectedServices(),
+					autoReply,
+				});
+
+				const serverId = await postTicketToAdmin(payload.adminApiUrl, convo);
+				if (serverId) convo.serverTicketId = serverId;
+				await saveConversation(convo);
+				window.location.href = '/conversation/';
+			} catch {
+				if (errorEl) {
+					errorEl.textContent =
+						lang === 'bg'
+							? 'Изпращането неуспешно. Опитайте отново.'
+							: lang === 'en'
+								? 'Could not submit. Please try again.'
+								: 'Trimiterea a eșuat. Încercați din nou.';
+				}
+				if (submitBtn) submitBtn.disabled = false;
+			}
+		});
+	}
+
+	boot();
+	document.addEventListener('astro:page-load', boot);
+</script>

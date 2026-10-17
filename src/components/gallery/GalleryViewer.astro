@@ -1,0 +1,781 @@
+---
+import { readdir, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+type LocaleMap = { ro?: string; en?: string; bg?: string };
+
+type SlideFiles = {
+	desktop?: Record<string, { width: number; height: number }>;
+	mobile?: Record<string, { width: number; height: number }>;
+	video?: { key: string; contentType: string };
+	sourceKey?: string;
+};
+
+type Slide = {
+	id: string;
+	position: number;
+	title?: string;
+	alt: string;
+	enabled?: boolean;
+	mediaKind: 'image' | 'video';
+	version: string;
+	files: SlideFiles;
+	desktopFocus?: { x: number; y: number } | null;
+	layer?: {
+		desktop?: {
+			enabled?: boolean;
+			rect?: Record<string, number>;
+			opacity?: number;
+			textColor?: string;
+			scaleText?: boolean;
+			animation?: {
+				effect?: string;
+				direction?: string;
+				duration?: number;
+				delay?: number;
+				stagger?: number;
+				playMode?: string;
+			};
+		};
+		mobile?: {
+			sameAsDesktop?: boolean;
+			enabled?: boolean;
+			rect?: Record<string, number>;
+			opacity?: number;
+			textColor?: string;
+			scaleText?: boolean;
+			animation?: {
+				effect?: string;
+				direction?: string;
+				duration?: number;
+				delay?: number;
+				stagger?: number;
+				playMode?: string;
+			};
+		};
+	} | null;
+};
+
+type GalleryDoc = {
+	id: string;
+	slug: string;
+	name: LocaleMap;
+	settings?: Record<string, unknown>;
+	slides?: Slide[];
+};
+
+interface Props {
+	gallery: GalleryDoc;
+}
+
+const { gallery } = Astro.props;
+
+function layerAnimAttrs(
+	anim: NonNullable<NonNullable<Slide['layer']>['desktop']>['animation'],
+) {
+	const effect = anim?.effect || 'fade';
+	const dir = anim?.direction || 'left';
+	const duration = Number(anim?.duration) || 600;
+	const delay = Number(anim?.delay) || 0;
+	const stagger = Number(anim?.stagger) || 120;
+	const play = anim?.playMode || 'once';
+	return {
+		'data-anim': effect,
+		'data-anim-dir': dir,
+		'data-anim-duration': String(duration),
+		'data-anim-delay': String(delay),
+		'data-anim-stagger': String(stagger),
+		'data-anim-play': play,
+	};
+}
+
+const settings = gallery.settings ?? {};
+const galleryId = gallery.id;
+const slides = ([...(gallery.slides ?? [])] as Slide[])
+	.filter((s) => s.enabled !== false)
+	.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+const mobileMaxWidth = Number((settings as { output?: { mobileMaxWidth?: number } }).output?.mobileMaxWidth) || 900;
+const autoplay = (settings as { autoplay?: boolean }).autoplay !== false;
+const interval = Math.max(
+	1500,
+	Number((settings as { autoplayInterval?: number }).autoplayInterval) || 7000,
+);
+const pauseOnHover = (settings as { pauseOnHover?: boolean }).pauseOnHover !== false;
+
+const htmlDir = join(process.cwd(), 'src/data/galleries', gallery.slug, 'html');
+const layerHtml = new Map<string, { desktop: string; mobile: string }>();
+try {
+	const files = await readdir(htmlDir);
+	for (const slide of slides) {
+		const desktopName = `${slide.id}.html`;
+		const mobileName = `${slide.id}.mobile.html`;
+		const desktop = files.includes(desktopName)
+			? await readFile(join(htmlDir, desktopName), 'utf8')
+			: '';
+		const mobile = files.includes(mobileName)
+			? await readFile(join(htmlDir, mobileName), 'utf8')
+			: '';
+		layerHtml.set(slide.id, { desktop, mobile });
+	}
+} catch {
+	/* no html yet */
+}
+
+function assetUrl(key: string) {
+	return `/media/${key}`;
+}
+
+function mediaPrefix(slideId: string) {
+	return `galleries/${galleryId}/${slideId}/`;
+}
+
+function thumbUrl(slide: Slide): string | null {
+	if (slide.mediaKind === 'video' && slide.files.video?.key) {
+		return assetUrl(slide.files.video.key);
+	}
+	const mobile = slide.files.mobile ?? {};
+	const desktop = slide.files.desktop ?? {};
+	const mKeys = Object.keys(mobile).sort((a, b) => Number(a) - Number(b));
+	const dKeys = Object.keys(desktop).sort((a, b) => Number(a) - Number(b));
+	if (slide.version && mKeys.length) {
+		const w = mKeys.find((k) => Number(k) >= 720) ?? mKeys[0]!;
+		return assetUrl(`${mediaPrefix(slide.id)}slide-${slide.id}.${slide.version}-m-${w}.jpg`);
+	}
+	if (slide.version && dKeys.length) {
+		const w = dKeys.find((k) => Number(k) >= 640) ?? dKeys[0]!;
+		return assetUrl(`${mediaPrefix(slide.id)}slide-${slide.id}.${slide.version}-d-${w}.jpg`);
+	}
+	if (slide.files.sourceKey) return assetUrl(slide.files.sourceKey);
+	return null;
+}
+
+const ratioRaw = String((settings as { ratio?: string }).ratio ?? '16:9');
+const ratioParts = ratioRaw.split(':').map((n) => Number.parseFloat(n));
+const ratioCss =
+	ratioParts.length === 2 && ratioParts.every((n) => Number.isFinite(n) && n > 0)
+		? `${ratioParts[0]} / ${ratioParts[1]}`
+		: '16 / 9';
+
+const title =
+	gallery.name?.ro || gallery.name?.en || gallery.name?.bg || gallery.slug;
+---
+
+{
+	slides.length === 0 ? (
+		<section class="ark-gallery ark-gallery--empty" aria-label={title}>
+			<p>No slides in this gallery yet.</p>
+		</section>
+	) : (
+		<section
+			class="ark-gallery"
+			role="region"
+			aria-label={title}
+			data-autoplay={autoplay ? '1' : '0'}
+			data-interval={String(interval)}
+			data-pause-hover={pauseOnHover ? '1' : '0'}
+			style={`--slide-ratio: ${ratioCss}; --gallery-interval: ${interval}ms`}
+		>
+			<aside class="ark-gallery__rail" aria-label="Slides">
+				<div class="ark-gallery__rail-scroller" tabindex="0">
+					{
+						slides.map((slide, index) => {
+							const thumb = thumbUrl(slide);
+							return (
+								<button
+									type="button"
+									class:list={['ark-gallery__thumb', index === 0 && 'is-current']}
+									data-index={String(index)}
+									aria-label={slide.title || slide.alt || `Slide ${index + 1}`}
+									aria-current={index === 0 ? 'true' : undefined}
+								>
+									<span class="ark-gallery__thumb-frame">
+										{slide.mediaKind === 'video' && thumb ? (
+											<video
+												src={thumb}
+												muted
+												playsinline
+												preload="metadata"
+												aria-hidden="true"
+											/>
+										) : thumb ? (
+											<img
+												src={thumb}
+												alt=""
+												loading={index < 4 ? 'eager' : 'lazy'}
+												decoding="async"
+											/>
+										) : (
+											<span class="ark-gallery__thumb-empty">—</span>
+										)}
+										<span
+											class="ark-gallery__thumb-progress"
+											aria-hidden="true"
+										>
+											<span class="ark-gallery__thumb-progress-bar" />
+										</span>
+									</span>
+								</button>
+							);
+						})
+					}
+				</div>
+			</aside>
+
+			<div class="ark-gallery__stage">
+				{
+					slides.map((slide, index) => {
+						const isFirst = index === 0;
+						const files = slide.files || {};
+						const layer = layerHtml.get(slide.id);
+						const desktopLayer = layer?.desktop ?? '';
+						const mobileLayer =
+							slide.layer?.mobile?.sameAsDesktop === false
+								? (layer?.mobile ?? '')
+								: desktopLayer;
+						const sameMobile = slide.layer?.mobile?.sameAsDesktop !== false;
+						const dRect = slide.layer?.desktop?.rect;
+						const mRect =
+							slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop
+								? slide.layer.mobile.rect
+								: dRect;
+						const dAnim = slide.layer?.desktop?.animation;
+						const mAnim =
+							slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop
+								? slide.layer.mobile.animation
+								: dAnim;
+						const dText = slide.layer?.desktop?.textColor || '#ffffff';
+						const mText =
+							slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop
+								? slide.layer.mobile.textColor || dText
+								: dText;
+						const dScale = slide.layer?.desktop?.scaleText !== false;
+						const mScale =
+							slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop
+								? slide.layer.mobile.scaleText !== false
+								: dScale;
+						const prefix = mediaPrefix(slide.id);
+
+						return (
+							<div
+								class:list={['ark-gallery__slide', isFirst && 'is-active']}
+								data-index={String(index)}
+								aria-hidden={isFirst ? 'false' : 'true'}
+							>
+								{slide.mediaKind === 'video' && files.video?.key ? (
+									<video
+										src={assetUrl(files.video.key)}
+										autoplay={isFirst}
+										muted
+										playsinline
+										loop
+										preload={isFirst ? 'auto' : 'metadata'}
+									/>
+								) : (
+									<picture>
+										{Object.keys(files.mobile || {}).length ? (
+											<>
+												<source
+													media={`(max-width: ${mobileMaxWidth}px)`}
+													type="image/webp"
+													srcset={Object.keys(files.mobile!)
+														.map(
+															(w) =>
+																`${assetUrl(`${prefix}slide-${slide.id}.${slide.version}-m-${w}.webp`)} ${w}w`,
+														)
+														.join(', ')}
+													sizes="100vw"
+												/>
+												<source
+													media={`(max-width: ${mobileMaxWidth}px)`}
+													srcset={Object.keys(files.mobile!)
+														.map(
+															(w) =>
+																`${assetUrl(`${prefix}slide-${slide.id}.${slide.version}-m-${w}.jpg`)} ${w}w`,
+														)
+														.join(', ')}
+													sizes="100vw"
+												/>
+											</>
+										) : null}
+										{Object.keys(files.desktop || {}).length ? (
+											<source
+												type="image/webp"
+												srcset={Object.keys(files.desktop!)
+													.map(
+														(w) =>
+															`${assetUrl(`${prefix}slide-${slide.id}.${slide.version}-d-${w}.webp`)} ${w}w`,
+													)
+													.join(', ')}
+												sizes="100vw"
+											/>
+										) : null}
+										<img
+											src={
+												files.desktop?.['1280']
+													? assetUrl(
+															`${prefix}slide-${slide.id}.${slide.version}-d-1280.jpg`,
+														)
+													: files.desktop?.['1920']
+														? assetUrl(
+																`${prefix}slide-${slide.id}.${slide.version}-d-1920.jpg`,
+															)
+														: ''
+											}
+											width={
+												files.desktop?.['1920']?.width ||
+												files.desktop?.['1280']?.width ||
+												1920
+											}
+											height={
+												files.desktop?.['1920']?.height ||
+												files.desktop?.['1280']?.height ||
+												1080
+											}
+											alt={slide.alt || ''}
+											decoding="async"
+											loading="eager"
+											style={
+												slide.desktopFocus &&
+												Number.isFinite(slide.desktopFocus.x) &&
+												Number.isFinite(slide.desktopFocus.y)
+													? `--desk-pos: ${slide.desktopFocus.x}% ${slide.desktopFocus.y}%`
+													: undefined
+											}
+											{...(isFirst
+												? { fetchpriority: 'high' as const }
+												: { fetchpriority: 'low' as const })}
+										/>
+									</picture>
+								)}
+
+								{desktopLayer && slide.layer?.desktop?.enabled !== false ? (
+									<div
+										class:list={[
+											'slide-layer',
+											'hl',
+											sameMobile ? 'slide-layer--both' : 'slide-layer--desktop',
+											dScale ? 'slide-layer--scale' : null,
+										]}
+										data-variant="desktop"
+										{...layerAnimAttrs(dAnim)}
+										style={`--l:${dRect?.left ?? 8}%;--t:${dRect?.top ?? 12}%;--w:${dRect?.width ?? 40}%;--h:${dRect?.height ?? 60}%;--op:${slide.layer?.desktop?.opacity ?? 1};--tc:${dText}`}
+									>
+										<div class="slide-layer__body" set:html={desktopLayer} />
+									</div>
+								) : null}
+
+								{!sameMobile && mobileLayer ? (
+									<div
+										class:list={[
+											'slide-layer',
+											'hl',
+											'slide-layer--mobile',
+											mScale ? 'slide-layer--scale' : null,
+										]}
+										data-variant="mobile"
+										{...layerAnimAttrs(mAnim)}
+										style={`--l:${mRect?.left ?? 8}%;--t:${mRect?.top ?? 12}%;--w:${mRect?.width ?? 40}%;--h:${mRect?.height ?? 60}%;--op:${slide.layer?.mobile && !slide.layer.mobile.sameAsDesktop ? (slide.layer.mobile.opacity ?? 1) : 1};--tc:${mText}`}
+									>
+										<div class="slide-layer__body" set:html={mobileLayer} />
+									</div>
+								) : null}
+							</div>
+						);
+					})
+				}
+
+				<div class="ark-gallery__nav">
+					<button type="button" class="ark-gallery__nav-btn" data-dir="-1" aria-label="Previous slide">
+						‹
+					</button>
+					<button type="button" class="ark-gallery__nav-btn" data-dir="1" aria-label="Next slide">
+						›
+					</button>
+				</div>
+			</div>
+		</section>
+	)
+}
+
+<style>
+	.ark-gallery {
+		display: grid;
+		grid-template-columns: minmax(4.5rem, 6.5rem) minmax(0, 1fr);
+		gap: 0.75rem;
+		width: min(100%, var(--content-max, 90rem));
+		margin-inline: auto;
+		padding-block: 1rem;
+		padding-inline: var(--content-inline, 1rem);
+		min-height: calc(100dvh - var(--header-block-size, 3.75rem) - 2rem);
+		box-sizing: border-box;
+	}
+	.ark-gallery--empty {
+		display: grid;
+		place-items: center;
+		color: color-mix(in srgb, #fff 55%, transparent);
+	}
+	.ark-gallery__rail {
+		min-height: 0;
+		height: calc(100dvh - var(--header-block-size, 3.75rem) - 2rem);
+	}
+	.ark-gallery__rail-scroller {
+		--scrollbar-thumb: color-mix(in srgb, #ffe082 55%, #2a2f31);
+		--scrollbar-track: transparent;
+		height: 100%;
+		overflow-y: auto;
+		overflow-x: hidden;
+		overscroll-behavior: contain;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding-right: 0.15rem;
+		scrollbar-width: thin;
+		scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+	}
+	@supports not (scrollbar-color: auto) {
+		.ark-gallery__rail-scroller::-webkit-scrollbar {
+			width: 3px;
+		}
+		.ark-gallery__rail-scroller::-webkit-scrollbar-thumb {
+			background: var(--scrollbar-thumb);
+			border-radius: 999px;
+		}
+		.ark-gallery__rail-scroller::-webkit-scrollbar-track {
+			background: var(--scrollbar-track);
+		}
+	}
+	.ark-gallery__thumb {
+		appearance: none;
+		border: 1px solid color-mix(in srgb, #fff 12%, transparent);
+		background: #0a0c0d;
+		padding: 0;
+		border-radius: 0.35rem;
+		cursor: pointer;
+		overflow: hidden;
+		flex: 0 0 auto;
+		transition:
+			border-color 0.18s ease,
+			box-shadow 0.18s ease,
+			transform 0.12s ease;
+	}
+	.ark-gallery__thumb.is-current {
+		border-color: #ffe082;
+		box-shadow: 0 0 0 1px color-mix(in srgb, #ffe082 45%, transparent);
+	}
+	.ark-gallery__thumb:focus-visible {
+		outline: 2px solid #ffe082;
+		outline-offset: 2px;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.ark-gallery__thumb:hover {
+			border-color: color-mix(in srgb, #ffe082 70%, transparent);
+		}
+	}
+	@media (pointer: coarse) {
+		.ark-gallery__thumb:active {
+			transform: scale(0.96);
+		}
+	}
+	.ark-gallery__thumb-frame {
+		position: relative;
+		display: block;
+		aspect-ratio: 3 / 4;
+		width: 100%;
+		background: #121516;
+	}
+	.ark-gallery__thumb-frame img,
+	.ark-gallery__thumb-frame video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+	.ark-gallery__thumb-empty {
+		display: grid;
+		place-items: center;
+		height: 100%;
+		color: #555;
+		font-size: 0.75rem;
+	}
+	.ark-gallery__thumb-progress {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 2px;
+		background: color-mix(in srgb, #000 45%, transparent);
+		overflow: hidden;
+	}
+	.ark-gallery__thumb-progress-bar {
+		display: block;
+		height: 100%;
+		width: 100%;
+		transform-origin: left center;
+		transform: scaleX(0);
+		background: #ffe082;
+		will-change: transform;
+	}
+	.ark-gallery__stage {
+		position: relative;
+		min-width: 0;
+		border-radius: 0.5rem;
+		overflow: hidden;
+		background: #0a0c0d;
+		aspect-ratio: var(--slide-ratio, 16 / 9);
+		max-height: calc(100dvh - var(--header-block-size, 3.75rem) - 2rem);
+		align-self: start;
+	}
+	.ark-gallery__slide {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.45s ease;
+		pointer-events: none;
+	}
+	.ark-gallery__slide.is-active {
+		opacity: 1;
+		visibility: visible;
+		pointer-events: auto;
+		z-index: 1;
+	}
+	.ark-gallery__slide :global(picture),
+	.ark-gallery__slide :global(img),
+	.ark-gallery__slide :global(video) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+	.ark-gallery__slide :global(img) {
+		object-position: var(--desk-pos, center);
+	}
+	.ark-gallery__nav {
+		position: absolute;
+		inset: 0;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.5rem;
+		pointer-events: none;
+	}
+	.ark-gallery__nav-btn {
+		pointer-events: auto;
+		appearance: none;
+		border: none;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: 999px;
+		background: color-mix(in srgb, #000 45%, transparent);
+		color: #ffe082;
+		font-size: 1.5rem;
+		line-height: 1;
+		cursor: pointer;
+		display: grid;
+		place-items: center;
+		transition: background-color 0.15s ease, transform 0.1s ease;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.ark-gallery__nav-btn:hover {
+			background: color-mix(in srgb, #000 65%, transparent);
+		}
+	}
+	@media (pointer: coarse) {
+		.ark-gallery__nav-btn {
+			width: 3rem;
+			height: 3rem;
+		}
+		.ark-gallery__nav-btn:active {
+			transform: scale(0.94);
+		}
+	}
+
+	/* Layer styles (aligned with homepage slideshow). */
+	.ark-gallery__slide :global(.slide-layer) {
+		position: absolute;
+		left: var(--l, 8%);
+		top: var(--t, 12%);
+		width: var(--w, 40%);
+		height: var(--h, 60%);
+		z-index: 3;
+		overflow: auto;
+		scrollbar-width: thin;
+		pointer-events: none;
+		color: var(--tc, #fff);
+		opacity: var(--op, 1);
+		container-type: inline-size;
+	}
+	.ark-gallery__slide :global(.slide-layer__body) {
+		height: 100%;
+		padding: 0.75rem;
+		color: inherit;
+	}
+	.ark-gallery__slide :global(.slide-layer--scale .slide-layer__body) {
+		font-size: clamp(0.85rem, 4.5cqi, 2rem);
+	}
+	.ark-gallery__slide :global(.slide-layer--desktop) {
+		display: block;
+	}
+	.ark-gallery__slide :global(.slide-layer--mobile) {
+		display: none;
+	}
+	@media (max-width: 900px) {
+		.ark-gallery__slide :global(.slide-layer--desktop:not(.slide-layer--both)) {
+			display: none;
+		}
+		.ark-gallery__slide :global(.slide-layer--mobile) {
+			display: block;
+		}
+		.ark-gallery {
+			grid-template-columns: minmax(3.75rem, 5rem) minmax(0, 1fr);
+			gap: 0.5rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.ark-gallery__slide {
+			transition: none;
+		}
+		.ark-gallery__thumb-progress-bar {
+			transition: none;
+		}
+	}
+</style>
+
+<script>
+	import '../../scripts/slide-layer-anim.ts';
+
+	function bootGallery(root: HTMLElement) {
+		const slides = [...root.querySelectorAll<HTMLElement>('.ark-gallery__slide')];
+		const thumbs = [...root.querySelectorAll<HTMLButtonElement>('.ark-gallery__thumb')];
+		const rail = root.querySelector<HTMLElement>('.ark-gallery__rail-scroller');
+		if (!slides.length || !thumbs.length) return;
+
+		const autoplay = root.dataset.autoplay === '1';
+		const interval = Math.max(1500, Number(root.dataset.interval) || 7000);
+		const pauseHover = root.dataset.pauseHover === '1';
+		let index = 0;
+		let paused = false;
+		let start = performance.now();
+		let raf = 0;
+
+		function setProgress(i: number, t: number) {
+			thumbs.forEach((thumb, ti) => {
+				const bar = thumb.querySelector<HTMLElement>('.ark-gallery__thumb-progress-bar');
+				if (!bar) return;
+				const value = ti === i ? Math.min(1, Math.max(0, t)) : 0;
+				bar.style.transform = `scaleX(${value})`;
+			});
+		}
+
+		function show(next: number) {
+			const len = slides.length;
+			index = ((next % len) + len) % len;
+			slides.forEach((slide, i) => {
+				const on = i === index;
+				slide.classList.toggle('is-active', on);
+				slide.setAttribute('aria-hidden', on ? 'false' : 'true');
+				slide.querySelectorAll<HTMLVideoElement>('video').forEach((v) => {
+					if (on) {
+						void v.play().catch(() => {});
+					} else {
+						v.pause();
+					}
+				});
+			});
+			thumbs.forEach((thumb, i) => {
+				const on = i === index;
+				thumb.classList.toggle('is-current', on);
+				if (on) thumb.setAttribute('aria-current', 'true');
+				else thumb.removeAttribute('aria-current');
+			});
+			const currentThumb = thumbs[index];
+			if (rail && currentThumb) {
+				const thumbTop = currentThumb.offsetTop;
+				const thumbBottom = thumbTop + currentThumb.offsetHeight;
+				const viewTop = rail.scrollTop;
+				const viewBottom = viewTop + rail.clientHeight;
+				if (thumbTop < viewTop || thumbBottom > viewBottom) {
+					rail.scrollTo({
+						top: Math.max(0, thumbTop - rail.clientHeight / 3),
+						behavior: 'smooth',
+					});
+				}
+			}
+			start = performance.now();
+			setProgress(index, 0);
+
+			// Re-trigger layer anims on the active slide.
+			const active = slides[index];
+			active?.querySelectorAll('.hl').forEach((el) => {
+				el.classList.remove('is-in');
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => el.classList.add('is-in'));
+				});
+			});
+		}
+
+		function tick(now: number) {
+			if (!autoplay || paused || document.hidden) {
+				raf = requestAnimationFrame(tick);
+				return;
+			}
+			const elapsed = now - start;
+			const t = elapsed / interval;
+			setProgress(index, t);
+			if (elapsed >= interval) {
+				show(index + 1);
+			}
+			raf = requestAnimationFrame(tick);
+		}
+
+		thumbs.forEach((thumb) => {
+			thumb.addEventListener('click', () => {
+				const i = Number(thumb.dataset.index);
+				if (!Number.isFinite(i)) return;
+				show(i);
+			});
+		});
+
+		root.querySelectorAll<HTMLButtonElement>('.ark-gallery__nav-btn').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const dir = Number(btn.dataset.dir) || 1;
+				show(index + dir);
+			});
+		});
+
+		if (pauseHover) {
+			root.addEventListener('pointerenter', () => {
+				paused = true;
+			});
+			root.addEventListener('pointerleave', () => {
+				paused = false;
+				start = performance.now();
+				setProgress(index, 0);
+			});
+		}
+
+		document.addEventListener('visibilitychange', () => {
+			if (!document.hidden) {
+				start = performance.now();
+				setProgress(index, 0);
+			}
+		});
+
+		show(0);
+		raf = requestAnimationFrame(tick);
+
+		return () => cancelAnimationFrame(raf);
+	}
+
+	function boot() {
+		document.querySelectorAll<HTMLElement>('.ark-gallery:not(.ark-gallery--empty)').forEach(bootGallery);
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', boot, { once: true });
+	} else {
+		boot();
+	}
+</script>

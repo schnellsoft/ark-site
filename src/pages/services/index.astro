@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import catalog from '../../data/services/services.json';
+import { ServicesCatalogTable } from '../../components/services/ServicesCatalogTable';
+import type { ServicesCatalog } from '../../components/services/ServicesCards';
+
+const data = catalog as ServicesCatalog;
+---
+
+<Layout title="Servicii · Ark Medical Clinic">
+	<ServicesCatalogTable client:load catalog={data} pdfHrefBase="/services" />
+</Layout>

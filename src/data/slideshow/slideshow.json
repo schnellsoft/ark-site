@@ -40,21 +40,29 @@
   },
   "slides": [
     {
-      "id": "f7d8137c-22f1-41b2-b518-c553fef5f7a5",
+      "id": "fd11d491-0de2-4852-bbf5-f691142b027c",
       "position": 1,
-      "title": "pexels-mm-dental-56682202-8260438",
-      "alt": "our resources",
+      "title": "610_7277",
+      "alt": "",
       "enabled": true,
       "mediaKind": "image",
-      "version": "e177",
+      "version": "7f40",
       "mobileCrop": {
-        "left": 0,
-        "top": 160,
-        "width": 1920,
-        "height": 2560
+        "left": 419,
+        "top": 0,
+        "width": 962,
+        "height": 1282
       },
-      "desktopCrop": null,
-      "desktopFocus": null,
+      "desktopCrop": {
+        "left": 0,
+        "top": 101,
+        "width": 1920,
+        "height": 1080
+      },
+      "desktopFocus": {
+        "x": 50,
+        "y": 50
+      },
       "filters": {
         "brightness": 100,
         "contrast": 100,
@@ -69,11 +77,11 @@
         "desktop": {
           "1280": {
             "width": 1280,
-            "height": 1920
+            "height": 720
           },
           "1920": {
             "width": 1920,
-            "height": 2880
+            "height": 1080
           }
         },
         "mobile": {
@@ -86,7 +94,7 @@
             "height": 1440
           }
         },
-        "sourceKey": "slideshow/f7d8137c-22f1-41b2-b518-c553fef5f7a5/slide-f7d8137c-22f1-41b2-b518-c553fef5f7a5.e177-source.jpg"
+        "sourceKey": "slideshow/fd11d491-0de2-4852-bbf5-f691142b027c/slide-fd11d491-0de2-4852-bbf5-f691142b027c.7f40-source.jpg"
       },
       "layer": {
         "desktop": {
@@ -109,9 +117,12 @@
           "verticalAlign": "center",
           "scaleText": true,
           "animation": {
+            "effect": "slide",
+            "direction": "left",
             "duration": 600,
             "delay": 200,
-            "stagger": 120
+            "stagger": 120,
+            "playMode": "once"
           },
           "zIndex": 2
         },
@@ -121,113 +132,21 @@
         "hasDesktopHtml": false,
         "hasMobileHtml": false
       },
-      "libraryAssetId": "a72bfd79-ae01-4e15-8263-8a358e21e8ac"
+      "libraryAssetId": "633bf520-4837-4a89-ba77-92d5085f1d14"
     },
     {
-      "id": "de8997a8-4706-4a7d-b9df-f984bebf3d8f",
+      "id": "3b0ce917-2cd9-446f-92ea-86cb99c89d6b",
       "position": 2,
-      "title": "pexels-iamluisao-12917374",
-      "alt": "dasd dasdasd",
-      "enabled": true,
-      "mediaKind": "image",
-      "version": "2950",
-      "mobileCrop": {
-        "left": 480,
-        "top": 0,
-        "width": 960,
-        "height": 1280
-      },
-      "desktopCrop": {
-        "left": 0,
-        "top": 200,
-        "width": 1920,
-        "height": 1080
-      },
-      "desktopFocus": {
-        "x": 50,
-        "y": 57.8
-      },
-      "filters": {
-        "brightness": 93,
-        "contrast": 109,
-        "saturate": 0,
-        "hueRotate": 88,
-        "grayscale": 48,
-        "sepia": 0,
-        "invert": 0,
-        "blur": 0
-      },
-      "files": {
-        "desktop": {
-          "1280": {
-            "width": 1280,
-            "height": 720
-          },
-          "1920": {
-            "width": 1920,
-            "height": 1080
-          }
-        },
-        "mobile": {
-          "720": {
-            "width": 720,
-            "height": 960
-          },
-          "1080": {
-            "width": 1080,
-            "height": 1440
-          }
-        },
-        "sourceKey": "slideshow/de8997a8-4706-4a7d-b9df-f984bebf3d8f/slide-de8997a8-4706-4a7d-b9df-f984bebf3d8f.2950-source.jpg"
-      },
-      "layer": {
-        "desktop": {
-          "enabled": true,
-          "rect": {
-            "left": 20.73,
-            "top": 18.72,
-            "width": 61.59,
-            "height": 61.94
-          },
-          "opacity": 1,
-          "background": {
-            "color": "#000000",
-            "opacity": 0.1,
-            "blur": 1
-          },
-          "padding": 4,
-          "radius": 12,
-          "textColor": "#ffffff",
-          "verticalAlign": "center",
-          "scaleText": true,
-          "animation": {
-            "duration": 600,
-            "delay": 200,
-            "stagger": 120
-          },
-          "zIndex": 2
-        },
-        "mobile": {
-          "sameAsDesktop": true
-        },
-        "hasDesktopHtml": true,
-        "hasMobileHtml": true
-      },
-      "libraryAssetId": "b3d9d04b-d169-4e54-82d8-6ecc2d8b4175"
-    },
-    {
-      "id": "fdf74cd7-719c-4a51-8a8b-b1f1a3bf69a1",
-      "position": 3,
-      "title": "pexels-mm-dental-56682202-8260438",
+      "title": "610_7230",
       "alt": "",
       "enabled": true,
       "mediaKind": "image",
-      "version": "7b2b",
+      "version": "482c",
       "mobileCrop": {
-        "left": 480,
+        "left": 958,
         "top": 0,
-        "width": 961,
-        "height": 1281
+        "width": 962,
+        "height": 1282
       },
       "desktopCrop": {
         "left": 0,
@@ -240,11 +159,11 @@
         "y": 50
       },
       "filters": {
-        "brightness": 86,
-        "contrast": 104,
-        "saturate": 0,
-        "hueRotate": 135,
-        "grayscale": 24,
+        "brightness": 100,
+        "contrast": 100,
+        "saturate": 100,
+        "hueRotate": 0,
+        "grayscale": 0,
         "sepia": 0,
         "invert": 0,
         "blur": 0
@@ -270,7 +189,7 @@
             "height": 1440
           }
         },
-        "sourceKey": "slideshow/fdf74cd7-719c-4a51-8a8b-b1f1a3bf69a1/slide-fdf74cd7-719c-4a51-8a8b-b1f1a3bf69a1.7b2b-source.jpg"
+        "sourceKey": "slideshow/3b0ce917-2cd9-446f-92ea-86cb99c89d6b/slide-3b0ce917-2cd9-446f-92ea-86cb99c89d6b.482c-source.jpg"
       },
       "layer": {
         "desktop": {
@@ -293,9 +212,12 @@
           "verticalAlign": "center",
           "scaleText": true,
           "animation": {
+            "effect": "slide",
+            "direction": "left",
             "duration": 600,
             "delay": 200,
-            "stagger": 120
+            "stagger": 120,
+            "playMode": "once"
           },
           "zIndex": 2
         },
@@ -305,7 +227,292 @@
         "hasDesktopHtml": false,
         "hasMobileHtml": false
       },
-      "libraryAssetId": "00b6f573-10a0-4a0d-8046-d9784d8c61af"
+      "libraryAssetId": "55b81acd-cadd-4f6b-92f3-500dc53aeca2"
+    },
+    {
+      "id": "6e8e5fb6-ba21-4a6f-87e2-6a08d363ca9d",
+      "position": 3,
+      "title": "610_7227",
+      "alt": "",
+      "enabled": true,
+      "mediaKind": "image",
+      "version": "48da",
+      "mobileCrop": {
+        "left": 832,
+        "top": 0,
+        "width": 962,
+        "height": 1282
+      },
+      "desktopCrop": {
+        "left": 0,
+        "top": 101,
+        "width": 1920,
+        "height": 1080
+      },
+      "desktopFocus": {
+        "x": 50,
+        "y": 50
+      },
+      "filters": {
+        "brightness": 100,
+        "contrast": 100,
+        "saturate": 100,
+        "hueRotate": 0,
+        "grayscale": 0,
+        "sepia": 0,
+        "invert": 0,
+        "blur": 0
+      },
+      "files": {
+        "desktop": {
+          "1280": {
+            "width": 1280,
+            "height": 720
+          },
+          "1920": {
+            "width": 1920,
+            "height": 1080
+          }
+        },
+        "mobile": {
+          "720": {
+            "width": 720,
+            "height": 960
+          },
+          "1080": {
+            "width": 1080,
+            "height": 1440
+          }
+        },
+        "sourceKey": "slideshow/6e8e5fb6-ba21-4a6f-87e2-6a08d363ca9d/slide-6e8e5fb6-ba21-4a6f-87e2-6a08d363ca9d.48da-source.jpg"
+      },
+      "layer": {
+        "desktop": {
+          "enabled": true,
+          "rect": {
+            "left": 8,
+            "top": 12,
+            "width": 40,
+            "height": 60
+          },
+          "opacity": 1,
+          "background": {
+            "color": "#000000",
+            "opacity": 0.45,
+            "blur": 4
+          },
+          "padding": 4,
+          "radius": 12,
+          "textColor": "#ffffff",
+          "verticalAlign": "center",
+          "scaleText": true,
+          "animation": {
+            "effect": "slide",
+            "direction": "left",
+            "duration": 600,
+            "delay": 200,
+            "stagger": 120,
+            "playMode": "once"
+          },
+          "zIndex": 2
+        },
+        "mobile": {
+          "sameAsDesktop": true
+        },
+        "hasDesktopHtml": false,
+        "hasMobileHtml": false
+      },
+      "libraryAssetId": "ceb11dac-dcd6-49c8-9ac7-0d023768584c"
+    },
+    {
+      "id": "8559504d-b953-45ca-8498-005a3679abaa",
+      "position": 4,
+      "title": "610_7286",
+      "alt": "",
+      "enabled": true,
+      "mediaKind": "image",
+      "version": "6a48",
+      "mobileCrop": {
+        "left": 552,
+        "top": 0,
+        "width": 962,
+        "height": 1282
+      },
+      "desktopCrop": {
+        "left": 0,
+        "top": 101,
+        "width": 1920,
+        "height": 1080
+      },
+      "desktopFocus": {
+        "x": 50,
+        "y": 50
+      },
+      "filters": {
+        "brightness": 100,
+        "contrast": 100,
+        "saturate": 100,
+        "hueRotate": 0,
+        "grayscale": 0,
+        "sepia": 0,
+        "invert": 0,
+        "blur": 0
+      },
+      "files": {
+        "desktop": {
+          "1280": {
+            "width": 1280,
+            "height": 720
+          },
+          "1920": {
+            "width": 1920,
+            "height": 1080
+          }
+        },
+        "mobile": {
+          "720": {
+            "width": 720,
+            "height": 960
+          },
+          "1080": {
+            "width": 1080,
+            "height": 1440
+          }
+        },
+        "sourceKey": "slideshow/8559504d-b953-45ca-8498-005a3679abaa/slide-8559504d-b953-45ca-8498-005a3679abaa.6a48-source.jpg"
+      },
+      "layer": {
+        "desktop": {
+          "enabled": true,
+          "rect": {
+            "left": 8,
+            "top": 12,
+            "width": 40,
+            "height": 60
+          },
+          "opacity": 1,
+          "background": {
+            "color": "#000000",
+            "opacity": 0.45,
+            "blur": 4
+          },
+          "padding": 4,
+          "radius": 12,
+          "textColor": "#ffffff",
+          "verticalAlign": "center",
+          "scaleText": true,
+          "animation": {
+            "effect": "slide",
+            "direction": "left",
+            "duration": 600,
+            "delay": 200,
+            "stagger": 120,
+            "playMode": "once"
+          },
+          "zIndex": 2
+        },
+        "mobile": {
+          "sameAsDesktop": true
+        },
+        "hasDesktopHtml": false,
+        "hasMobileHtml": false
+      },
+      "libraryAssetId": "f9d8250b-892b-47a6-89fc-6058b752636f"
+    },
+    {
+      "id": "6a5dcf59-93c1-4c6c-842d-0c5f1412d7ee",
+      "position": 5,
+      "title": "610_9049",
+      "alt": "",
+      "enabled": true,
+      "mediaKind": "image",
+      "version": "dd29",
+      "mobileCrop": {
+        "left": 0,
+        "top": 0,
+        "width": 1920,
+        "height": 2560
+      },
+      "desktopCrop": {
+        "left": 0,
+        "top": 195,
+        "width": 1920,
+        "height": 1080
+      },
+      "desktopFocus": {
+        "x": 50,
+        "y": 25.5
+      },
+      "filters": {
+        "brightness": 100,
+        "contrast": 100,
+        "saturate": 100,
+        "hueRotate": 0,
+        "grayscale": 0,
+        "sepia": 0,
+        "invert": 0,
+        "blur": 0
+      },
+      "files": {
+        "desktop": {
+          "1280": {
+            "width": 1280,
+            "height": 720
+          },
+          "1920": {
+            "width": 1920,
+            "height": 1080
+          }
+        },
+        "mobile": {
+          "720": {
+            "width": 720,
+            "height": 960
+          },
+          "1080": {
+            "width": 1080,
+            "height": 1440
+          }
+        },
+        "sourceKey": "slideshow/6a5dcf59-93c1-4c6c-842d-0c5f1412d7ee/slide-6a5dcf59-93c1-4c6c-842d-0c5f1412d7ee.dd29-source.jpg"
+      },
+      "layer": {
+        "desktop": {
+          "enabled": true,
+          "rect": {
+            "left": 8,
+            "top": 12,
+            "width": 40,
+            "height": 60
+          },
+          "opacity": 1,
+          "background": {
+            "color": "#000000",
+            "opacity": 0.45,
+            "blur": 4
+          },
+          "padding": 4,
+          "radius": 12,
+          "textColor": "#ffffff",
+          "verticalAlign": "center",
+          "scaleText": true,
+          "animation": {
+            "effect": "slide",
+            "direction": "left",
+            "duration": 600,
+            "delay": 200,
+            "stagger": 120,
+            "playMode": "once"
+          },
+          "zIndex": 2
+        },
+        "mobile": {
+          "sameAsDesktop": true
+        },
+        "hasDesktopHtml": false,
+        "hasMobileHtml": false
+      },
+      "libraryAssetId": "32e9014d-610b-4d35-a3e4-8e7433d1fdab"
     }
   ]
 }

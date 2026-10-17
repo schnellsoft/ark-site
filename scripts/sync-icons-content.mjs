@@ -8,7 +8,7 @@
 import { mkdir, writeFile, readFile, access } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { fetchR2Object } from './sync-r2-json.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dataDir = join(root, 'src/data/icons');
@@ -17,15 +17,6 @@ const jsonDest = join(dataDir, 'icons.json');
 const spriteDest = join(assetsDir, 'sprite.svg');
 
 const CANDIDATE_KEYS = ['icons/icons.json', 'published/latest/icons.json'];
-
-function wranglerGet(bucket, key, file) {
-	const result = spawnSync(
-		'npx',
-		['wrangler', 'r2', 'object', 'get', `${bucket}/${key}`, '--remote', `--file=${file}`],
-		{ cwd: root, encoding: 'utf8', stdio: ['ignore', 'inherit', 'pipe'] },
-	);
-	return result.status === 0;
-}
 
 /** Lowercase; non-alphanumeric runs become a single hyphen. */
 function spriteSymbolId(name) {
@@ -42,16 +33,94 @@ function extractInnerSvg(svg) {
 	if (!trimmed) return { inner: '', viewBox: '0 0 24 24' };
 	const open = /<svg\b([^>]*)>/i.exec(trimmed);
 	if (!open) {
-		return { inner: trimmed, viewBox: '0 0 24 24' };
+		return { inner: ensureCurrentColorFill(trimmed), viewBox: '0 0 24 24' };
 	}
 	const attrs = open[1] ?? '';
 	const vb = /\bviewBox\s*=\s*["']([^"']+)["']/i.exec(attrs);
 	const viewBox = vb?.[1] || '0 0 24 24';
-	const inner = trimmed
+	let inner = trimmed
 		.replace(/^[\s\S]*?<svg\b[^>]*>/i, '')
 		.replace(/<\/svg>\s*$/i, '')
 		.trim();
-	return { inner, viewBox };
+
+	/* Promote root svg stroke/fill onto a wrapper so stroke-only icons keep paint. */
+	const rootStroke = /\bstroke\s*=\s*(["'])([^"']+)\1/i.exec(attrs)?.[2];
+	const rootFill = /\bfill\s*=\s*(["'])([^"']+)\1/i.exec(attrs)?.[2];
+	const rootSw = /\bstroke-width\s*=\s*(["']?)([^"'\s>]+)\1/i.exec(attrs)?.[2];
+	if (rootStroke || rootFill || rootSw) {
+		const wrapAttrs = [
+			rootFill ? `fill="${rootFill}"` : '',
+			rootStroke ? `stroke="${rootStroke}"` : '',
+			rootSw ? `stroke-width="${rootSw}"` : '',
+		]
+			.filter(Boolean)
+			.join(' ');
+		inner = `<g ${wrapAttrs}>\n${inner}\n</g>`;
+	}
+
+	return { inner: ensureCurrentColorFill(inner), viewBox };
+}
+
+function isWhiteFill(fillVal) {
+	const v = String(fillVal ?? '')
+		.trim()
+		.toLowerCase()
+		.replace(/\s+/g, '');
+	return (
+		v === 'white' ||
+		v === '#fff' ||
+		v === '#ffffff' ||
+		v === 'rgb(255,255,255)' ||
+		v === 'rgba(255,255,255,1)'
+	);
+}
+
+/**
+ * External <use href="sprite.svg#id"> needs paint that follows CSS color.
+ * Branded icons often use white “cutouts” over colored/gradient plates — those
+ * whites become --sprite-cutout so the glyph stays legible on dark chrome.
+ * All-white icons simply use currentColor.
+ */
+function ensureCurrentColorFill(inner) {
+	const source = String(inner);
+	let seenPlate = false;
+
+	return source.replace(
+		/<(path|circle|rect|polygon|ellipse|polyline)\b([^>]*?)(\/?)>/gi,
+		(_full, tag, attrs, selfClose) => {
+			const raw = String(attrs);
+			const fillMatch = /\bfill\s*=\s*(["'])([^"']*)\1/i.exec(raw);
+			const fillVal = (fillMatch?.[2] ?? '').trim().toLowerCase();
+			const hasStroke = /\bstroke\s*=/i.test(raw);
+			const close = selfClose ? ' /' : '';
+			const white = isWhiteFill(fillVal);
+			const plate = Boolean(fillVal) && fillVal !== 'none' && !white;
+
+			let next = raw
+				.replace(/\bfill\s*=\s*(["'])[^"']*\1/gi, '')
+				.replace(/\bstroke\s*=\s*(["'])(?!none\b)[^"']*\1/gi, ' stroke="currentColor"');
+
+			if (fillVal === 'none') {
+				return `<${tag}${next} fill="none"${close}>`;
+			}
+			/* No explicit fill — inherit from <g> (stroke-only icons). */
+			if (!fillMatch) {
+				if (hasStroke) {
+					return `<${tag}${next} stroke="currentColor"${close}>`.replace(
+						/ stroke="currentColor" stroke="currentColor"/,
+						' stroke="currentColor"',
+					);
+				}
+				return `<${tag}${next}${close}>`;
+			}
+			/* White detail after a colored/gradient plate → knock-out (instagram, facebook). */
+			if (white && seenPlate) {
+				return `<${tag}${next} fill="var(--sprite-cutout, #121516)"${close}>`;
+			}
+			if (plate) seenPlate = true;
+			return `<${tag}${next} fill="currentColor"${close}>`;
+		},
+	);
 }
 
 await mkdir(dataDir, { recursive: true });
@@ -60,12 +129,13 @@ await mkdir(assetsDir, { recursive: true });
 let fetched = false;
 for (const key of CANDIDATE_KEYS) {
 	console.log(`↓ try content ${key}`);
-	if (wranglerGet('ark-admin-content', key, jsonDest)) {
-		console.log(`✓ got ${key}`);
+	const source = await fetchR2Object(root, 'ark-admin-content', key, jsonDest);
+	if (source) {
+		console.log(`✓ got ${key} (${source})`);
 		fetched = true;
 		break;
 	}
-	console.warn(`  (missing) ${key}`);
+	console.warn(`  (missing remote + local) ${key}`);
 }
 
 async function ensureValidIconsJson() {
@@ -114,16 +184,42 @@ for (const icon of icons) {
 	const { inner, viewBox } = extractInnerSvg(icon?.svg);
 	if (!inner) continue;
 	symbols.push(
-		`  <symbol id="${id}" viewBox="${viewBox}" fill="none">\n    ${inner}\n  </symbol>`,
+		`  <symbol id="${id}" viewBox="${viewBox}">\n    ${inner}\n  </symbol>`,
 	);
 }
 
-const sprite = [
-	'<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display: none;">',
+/**
+ * Merge CMS symbols with chrome UI glyphs (hamburger, morev, chevrons).
+ * Written without display:none so same-document <use href="#id"> works when inlined.
+ */
+const headerSpriteDest = join(root, 'public/header/sprite.svg');
+const publicIconsDest = join(root, 'public/icons/sprite.svg');
+let chromeSymbols = [];
+try {
+	const existing = await readFile(headerSpriteDest, 'utf8');
+	chromeSymbols = [...existing.matchAll(/<symbol\b[^>]*>[\s\S]*?<\/symbol>/gi)]
+		.map((m) => m[0])
+		.filter((sym) => {
+			const id = /\bid\s*=\s*["']([^"']+)["']/i.exec(sym)?.[1] ?? '';
+			return id && !usedIds.has(id);
+		});
+} catch {
+	/* first run — chrome file may be rebuilt from prior merge */
+}
+
+const merged = [
+	'<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
+	...chromeSymbols,
 	...symbols,
 	'</svg>',
 	'',
 ].join('\n');
 
-await writeFile(spriteDest, sprite, 'utf8');
-console.log(`Icons sync complete: ${symbols.length} symbols → ${spriteDest}`);
+await writeFile(spriteDest, merged, 'utf8');
+await mkdir(dirname(headerSpriteDest), { recursive: true });
+await mkdir(dirname(publicIconsDest), { recursive: true });
+await writeFile(headerSpriteDest, merged, 'utf8');
+await writeFile(publicIconsDest, merged, 'utf8');
+console.log(
+	`Icons sync complete: ${symbols.length} CMS + ${chromeSymbols.length} chrome → ${spriteDest}`,
+);

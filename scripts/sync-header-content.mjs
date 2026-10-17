@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Pull header JSON from ark-admin-content and referenced images from ark-admin-media.
+ * Pull header JSON + logo images into src/.
+ * Prefers sibling ark-admin local vinext R2 (admin `pnpm dev` puts), then remote.
  * Usage: node scripts/sync-header-content.mjs
  */
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { copyLocalVinextR2Object, wranglerGet } from './sync-r2-json.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const contentDir = join(root, 'src/data/header');
@@ -18,34 +19,42 @@ const CONTENT_KEYS = [
 	['header/icons/header_icons.json', 'header_icons.json'],
 ];
 
-function wranglerGet(bucket, key, file) {
-	const result = spawnSync(
-		'npx',
-		['wrangler', 'r2', 'object', 'get', `${bucket}/${key}`, '--remote', `--file=${file}`],
-		{ cwd: root, encoding: 'utf8', stdio: 'inherit' },
-	);
-	if (result.status !== 0) {
-		throw new Error(`Failed to get ${bucket}/${key}`);
-	}
+/**
+ * Prefer local vinext (admin save target during dev), then remote.
+ * @returns {Promise<'local'|'remote'|null>}
+ */
+async function fetchPreferLocal(bucket, key, file) {
+	if (await copyLocalVinextR2Object(root, bucket, key, file)) return 'local';
+	if (wranglerGet(root, bucket, key, file)) return 'remote';
+	return null;
 }
 
 await mkdir(contentDir, { recursive: true });
 
 for (const [key, file] of CONTENT_KEYS) {
 	const dest = join(contentDir, file);
-	console.log(`↓ content ${key}`);
-	wranglerGet('ark-admin-content', key, dest);
+	console.log(`↓ content ${key} (prefer local vinext)`);
+	const source = await fetchPreferLocal('ark-admin-content', key, dest);
+	if (!source) {
+		throw new Error(`Failed to get ${key} from local or remote`);
+	}
+	console.log(`  ✓ ${source}`);
 }
 
-const logoJson = JSON.parse(await (await import('node:fs/promises')).readFile(join(contentDir, 'header_logo.json'), 'utf8'));
+const logoJson = JSON.parse(await readFile(join(contentDir, 'header_logo.json'), 'utf8'));
 
 async function syncLogoEntry(entry) {
 	if (!entry || entry.type !== 'image' || typeof entry.src !== 'string') return;
 	const key = entry.src.replace(/^\/+/, '');
 	const dest = join(mediaDir, key);
 	await mkdir(dirname(dest), { recursive: true });
-	console.log(`↓ media ${key}`);
-	wranglerGet('ark-admin-media', key, dest);
+	console.log(`↓ media ${key} (prefer local vinext)`);
+	const source = await fetchPreferLocal('ark-admin-media', key, dest);
+	if (!source) {
+		console.warn(`  ✗ missing ${key}`);
+	} else {
+		console.log(`  ✓ ${source}`);
+	}
 }
 
 await syncLogoEntry(logoJson.logo_min);

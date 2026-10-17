@@ -2,6 +2,8 @@
 	--header-bg: color-mix(in srgb, #121516 92%, transparent);
 	--header-fg: #e6e4e1;
 	--header-border: color-mix(in srgb, #ffffff 12%, transparent);
+	/* Knock-out fills in branded CMS icons (instagram lens, facebook “f”, …) */
+	--sprite-cutout: #121516;
 	--primary: #ffe082;
 	--primary-hover: #ffeca8;
 	--primary-ink: #1a1508;
@@ -108,6 +110,9 @@
 	justify-content: center;
 	gap: 0.55rem;
 	box-sizing: border-box;
+	text-decoration: none;
+	appearance: none;
+	-webkit-appearance: none;
 	flex: 0 0 auto;
 	max-inline-size: min(100%, 18rem);
 	min-height: 2.75rem;
@@ -339,10 +344,17 @@
 	transition: color 0.15s ease;
 }
 
-.snd-list-link svg {
+.snd-list-link svg,
+.snd-list-icon {
 	flex-shrink: 0;
 	display: block;
 	color: var(--snd-item-color, currentColor);
+	fill: currentColor;
+}
+
+.snd-list-icon use {
+	fill: currentColor;
+	color: inherit;
 }
 
 .snd-list-label:empty {

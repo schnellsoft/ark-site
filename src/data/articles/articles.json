@@ -1,13 +1,37 @@
 {
   "categories": [
     {
-      "id": "0c567b05-b3f9-475c-a05a-a9d7258baf53",
-      "slug": "events",
+      "id": "36bd12b8-427f-414c-8a5f-36773f3d7c42",
+      "slug": "article",
       "position": 1,
       "name": {
-        "ro": "",
+        "ro": "Tematică medicală",
+        "en": "Medical themes",
+        "bg": "Медицинска тематика"
+      },
+      "iconSvg": "",
+      "enabled": true
+    },
+    {
+      "id": "604ad736-d961-4e9e-9809-32c81f636091",
+      "slug": "services-snd",
+      "position": 2,
+      "name": {
+        "ro": "Servicii",
+        "en": "The Services",
+        "bg": "Услугите"
+      },
+      "iconSvg": "",
+      "enabled": true
+    },
+    {
+      "id": "0c567b05-b3f9-475c-a05a-a9d7258baf53",
+      "slug": "events",
+      "position": 3,
+      "name": {
+        "ro": "Evenimente",
         "en": "Events",
-        "bg": ""
+        "bg": "Събития"
       },
       "iconSvg": "",
       "enabled": true
@@ -16,9 +40,41 @@
   "subcategories": [],
   "articles": [
     {
+      "id": "87421821-e2f8-4b68-a80e-20d2985a7ece",
+      "slug": "prophylactic",
+      "position": 1,
+      "title": {
+        "ro": "Profilaxie",
+        "en": "Prophylactic",
+        "bg": "Профилактиката"
+      },
+      "categoryId": null,
+      "subcategoryId": null,
+      "datetime": "2026-10-14T08:42",
+      "snippet": {
+        "title": {
+          "ro": "Profilaxie",
+          "en": "Prophylactic",
+          "bg": "Профилактиката"
+        },
+        "text": {
+          "ro": "Prevenirea afecțiunilor dentare — cunoscută sub numele de profilaxie — este piatra de temelie a unei vieți cu zâmbete sănătoase. În timp ce tratamentele precum plombele și obturațiile de canal repară daunele, îngrijirea proactivă oprește problemele de sănătate orală înainte ca acestea să înceapă.\nBaza unei profilaxii eficiente se bazează pe o rutină zilnică consecventă. Periajul de două ori pe zi cu pastă de dinți cu fluor și folosirea zilnică a aței dentare îndepărtează placa bacteriană, pelicula lipicioasă de bacterii care provoacă carii și boli gingivale.",
+          "en": "Prevention of dental diseases — known as prophylaxis — is the cornerstone of a healthy smile life. While treatments such as seals and canal obturations repair the damage, proactive care stops oral health problems before they begin. The basis of effective prophylaxis is based on a consistent daily routine. Brushing your teeth twice a day with fluoride toothpaste and using a daily toothpaste removes bacterial plaque, the sticky film of bacteria that cause caries and gum disease.",
+          "bg": "Предотвратяването на стоматологични заболявания – известно като профилактика – е крайъгълният камък на здравословен живот с усмивки. Докато лечението като уплътнения и запушване на канали поправя щетите, проактивната грижа спира проблемите със здравето на устната кухина, преди те да започнат. Основата на ефективната профилактика се основава на последователна ежедневна рутина. Четкането два пъти дневно с флуоровъчна паста за зъби и ежедневното използване на зъбни остриета премахва бактериалната плака, лепкавия филм от бактерии, които причиняват кариес и заболявания на венците."
+        },
+        "date": "2026-10-17",
+        "image": {
+          "libraryId": "svc-img-hygiene",
+          "master": "library/svc-img-hygiene/hygiene.jpg",
+          "webp": "library/svc-img-hygiene/hygiene.webp"
+        }
+      },
+      "enabled": true
+    },
+    {
       "id": "501a4768-a0ea-4023-8fb6-779b297d54e1",
       "slug": "o-noapte-la-muzeu",
-      "position": 1,
+      "position": 2,
       "title": {
         "ro": "O noapte la muzeu",
         "en": "",
@@ -27,9 +83,29 @@
       "categoryId": "0c567b05-b3f9-475c-a05a-a9d7258baf53",
       "subcategoryId": null,
       "datetime": "2026-10-14T08:42",
+      "snippet": {
+        "title": {
+          "ro": "",
+          "en": "",
+          "bg": ""
+        },
+        "text": {
+          "ro": "",
+          "en": "",
+          "bg": ""
+        },
+        "date": null,
+        "image": {
+          "libraryId": null,
+          "master": null,
+          "webp": null
+        }
+      },
       "enabled": true
     }
   ],
-  "updatedAt": "2026-10-14T05:45:39.267Z",
-  "firstPage": []
+  "firstPage": [
+    "87421821-e2f8-4b68-a80e-20d2985a7ece"
+  ],
+  "updatedAt": "2026-10-17T12:08:29.004Z"
 }

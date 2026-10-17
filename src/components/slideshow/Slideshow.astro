@@ -248,6 +248,8 @@ if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
 												height={files.desktop?.['1920']?.height || files.desktop?.['1280']?.height || 1080}
 												alt={slide.alt || ''}
 												decoding="async"
+												/* Hero carousel: never lazy — lazy adjacent slides flash the wrong/empty frame during fade. */
+												loading="eager"
 												style={
 													slide.desktopFocus &&
 													Number.isFinite(slide.desktopFocus.x) &&
@@ -257,7 +259,7 @@ if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
 												}
 												{...(isFirst
 													? { fetchpriority: 'high' as const }
-													: { loading: 'lazy' as const })}
+													: { fetchpriority: 'low' as const })}
 											/>
 										</picture>
 									)}
@@ -334,8 +336,8 @@ if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
 	.ark-slideshow :global(.uk-slideshow-items) {
 		min-height: 280px;
 	}
-	/* UIkit hides all slides until JS marks .uk-active — show first as fallback */
-	.ark-slideshow :global(.uk-slideshow-items > *:first-child) {
+	/* UIkit hides inactive slides; keep first visible before JS boots (no opacity leak). */
+	.ark-slideshow:not(.is-ready) :global(.uk-slideshow-items > *:first-child) {
 		display: block;
 	}
 	.ark-slideshow :global(picture),
@@ -511,4 +513,50 @@ if (settings.maxHeight) ukAttrs['max-height'] = settings.maxHeight;
 	const icons = Icons?.default ?? Icons;
 	if (typeof ui?.use === 'function' && icons) ui.use(icons);
 	window.UIkit = ui;
+
+	function markDecoded(img: HTMLImageElement) {
+		const done = () => img.setAttribute('data-decoded', '');
+		if (img.complete && img.naturalWidth > 0) {
+			done();
+			return;
+		}
+		const decode = typeof img.decode === 'function' ? img.decode() : Promise.resolve();
+		decode.then(done).catch(done);
+		img.addEventListener('load', done, { once: true });
+		img.addEventListener('error', done, { once: true });
+	}
+
+	function warmSlideImages(root: Element) {
+		root.querySelectorAll<HTMLImageElement>('.uk-slideshow-items img').forEach((img) => {
+			markDecoded(img);
+			// Force browser to resolve <picture> candidates for hidden slides early.
+			if (!img.complete) {
+				const pre = new Image();
+				pre.src = img.currentSrc || img.src;
+			}
+		});
+	}
+
+	function armSlideshow(root: HTMLElement) {
+		warmSlideImages(root);
+		root.classList.add('is-ready');
+
+		root.addEventListener('itemshow', ((e: Event) => {
+			const item =
+				(e.target as HTMLElement | null)?.closest?.('.uk-slideshow-items > *') ||
+				(e as CustomEvent<{ slide?: Element }>).detail?.slide;
+			if (!(item instanceof Element)) return;
+			item.querySelectorAll<HTMLImageElement>('img').forEach(markDecoded);
+		}) as EventListener);
+	}
+
+	function boot() {
+		document.querySelectorAll<HTMLElement>('.ark-slideshow').forEach(armSlideshow);
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', boot, { once: true });
+	} else {
+		boot();
+	}
 </script>

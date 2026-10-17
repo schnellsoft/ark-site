@@ -5,6 +5,7 @@ import '@fontsource/roboto/700.css';
 import 'uikit/dist/css/uikit.min.css';
 import Header from '../components/header/Header.astro';
 import Footer from '../components/footer/Footer.astro';
+import IconSprite from '../components/icons/IconSprite.astro';
 
 interface Props {
 	title?: string;
@@ -26,6 +27,7 @@ const { title = 'Ark Medical Clinic' } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body>
+		<IconSprite />
 		<Header />
 		<main>
 			<slot />
@@ -48,6 +50,8 @@ const { title = 'Ark Medical Clinic' } = Astro.props;
 		--bg-elevated: #1a1a1a;
 		--fg: #ffe082;
 		--border: #2a2a2a;
+		/* Branded CMS icon knock-outs (instagram lens, facebook “f”, …) */
+		--sprite-cutout: var(--bg);
 	}
 
 	*,
@@ -58,6 +62,13 @@ const { title = 'Ark Medical Clinic' } = Astro.props;
 
 	html {
 		scroll-padding-top: var(--header-block-size);
+	}
+
+	/* In-page menu targets (#team, #contact, #articles) clear the fixed header */
+	#team,
+	#contact,
+	#articles {
+		scroll-margin-top: calc(var(--header-block-size) + 0.75rem);
 	}
 
 	body {

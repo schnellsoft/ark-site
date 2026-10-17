@@ -3,5 +3,71 @@
   "max-width": "200",
   "color": "",
   "color-hover": "",
-  "icons": []
+  "icons": [
+    {
+      "name": "origin:home",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "home",
+      "link": "https://arkmed.ro",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "orig:instagramp",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "instagram",
+      "link": "https://instagram.com/ark_med_clinic/",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "orig:facebookp",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "facebook",
+      "link": "https://www.facebook.com/ark.med.94",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "origin:whatsappc",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "whatsapp",
+      "link": "https://api.whatsapp.com/send?phone=+40770389737",
+      "color": "",
+      "color-hover": ""
+    },
+    {
+      "name": "orig:location",
+      "label": {
+        "ro": "",
+        "bg": "",
+        "en": ""
+      },
+      "description": "",
+      "aria-label": "locatie",
+      "link": "https://arkmed.ro/locatie",
+      "color": "",
+      "color-hover": ""
+    }
+  ]
 }

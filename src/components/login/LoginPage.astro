@@ -1,0 +1,87 @@
+---
+import './login-page.css';
+
+const copy = {
+	title: {
+		ro: 'Cont pacient',
+		en: 'Patient account',
+		bg: 'Пациентски акаунт',
+	},
+	lead: {
+		ro: 'Autentificarea va fi disponibilă după prima vizită la clinică.',
+		en: 'Sign-in will be available after your first visit to the clinic.',
+		bg: 'Входът ще е наличен след първото ви посещение в клиниката.',
+	},
+	note: {
+		ro: 'La prima consultație, recepția creează contul pe baza datelor din programare. Ulterior veți putea urmări mesajele și programările aici.',
+		en: 'At your first appointment, reception creates your account from booking details. Afterwards you can follow messages and appointments here.',
+		bg: 'При първата ви консултация рецепцията създава акаунта по данните от записа. След това ще можете да следите съобщения и часове тук.',
+	},
+	book: {
+		ro: 'Programează o consultație',
+		en: 'Book an appointment',
+		bg: 'Запази час',
+	},
+	home: {
+		ro: 'Înapoi acasă',
+		en: 'Back home',
+		bg: 'Към началото',
+	},
+};
+---
+
+<section class="login-page" data-login-page data-login-copy={JSON.stringify(copy)} aria-label={copy.title.ro}>
+	<div class="login-page__card">
+		<svg class="login-page__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor">
+			<circle cx="10.1" cy="7" r="4.35"></circle>
+			<path d="M3.2 21.2c0-4.15 3.05-7.05 6.9-7.05 1.55 0 2.98.48 4.12 1.28-1.55.55-2.67 2.02-2.67 3.77v4.2H3.2Z"></path>
+			<path d="M16.15 12.15c-.94 0-1.7.76-1.7 1.7v1.3h-1.3c-.94 0-1.7.76-1.7 1.7s.76 1.7 1.7 1.7h1.3v1.3c0 .94.76 1.7 1.7 1.7s1.7-.76 1.7-1.7v-1.3h1.3c.94 0 1.7-.76 1.7-1.7s-.76-1.7-1.7-1.7h-1.3v-1.3c0-.94-.76-1.7-1.7-1.7Z"></path>
+		</svg>
+		<h1 class="login-page__title" data-login-title>{copy.title.ro}</h1>
+		<p class="login-page__lead" data-login-lead>{copy.lead.ro}</p>
+		<p class="login-page__note" data-login-note>{copy.note.ro}</p>
+		<div class="login-page__actions">
+			<a class="primary" href="/contact/" data-login-book>{copy.book.ro}</a>
+			<a class="ghost" href="/" data-login-home>{copy.home.ro}</a>
+		</div>
+	</div>
+</section>
+
+<script>
+	import { getLang, LANG_CHANGE_EVENT, type Lang } from '../../scripts/header/lang';
+
+	type Copy = Record<string, Record<Lang, string>>;
+
+	function boot() {
+		const root = document.querySelector<HTMLElement>('[data-login-page]');
+		if (!root || root.dataset.booted) return;
+		root.dataset.booted = '1';
+		const raw = root.dataset.loginCopy;
+		if (!raw) return;
+		let copy: Copy;
+		try {
+			copy = JSON.parse(raw) as Copy;
+		} catch {
+			return;
+		}
+		const title = root.querySelector('[data-login-title]');
+		const lead = root.querySelector('[data-login-lead]');
+		const note = root.querySelector('[data-login-note]');
+		const book = root.querySelector('[data-login-book]');
+		const home = root.querySelector('[data-login-home]');
+
+		function paint(lang: Lang) {
+			if (title) title.textContent = copy.title[lang] || copy.title.ro;
+			if (lead) lead.textContent = copy.lead[lang] || copy.lead.ro;
+			if (note) note.textContent = copy.note[lang] || copy.note.ro;
+			if (book) book.textContent = copy.book[lang] || copy.book.ro;
+			if (home) home.textContent = copy.home[lang] || copy.home.ro;
+		}
+
+		paint(getLang());
+		window.addEventListener(LANG_CHANGE_EVENT, () => paint(getLang()));
+	}
+
+	boot();
+	document.addEventListener('astro:page-load', boot);
+</script>

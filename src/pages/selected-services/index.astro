@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import catalog from '../../data/services/services.json';
+import { SelectedServicesList } from '../../components/services/SelectedServicesList';
+import type { ServicesCatalog } from '../../components/services/ServicesCards';
+
+const data = catalog as ServicesCatalog;
+---
+
+<Layout title="Servicii selectate · Ark Medical Clinic">
+	<SelectedServicesList client:load catalog={data} />
+</Layout>

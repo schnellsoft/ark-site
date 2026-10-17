@@ -81,6 +81,7 @@
 	display: grid;
 	grid-template-columns: 240px 1fr;
 	gap: 16px;
+	align-items: start;
 }
 
 .stuff-spotlight__list {
@@ -88,11 +89,16 @@
 	flex-direction: column;
 	gap: 8px;
 	position: relative;
-	max-height: 420px;
+	align-self: start;
+	inline-size: 100%;
+	max-block-size: min(26.25rem, 70dvh);
+	overflow-x: hidden;
 	overflow-y: auto;
+	overscroll-behavior: contain;
 	padding: 2px 8px 2px 2px;
 	scrollbar-width: thin;
 	scrollbar-color: var(--ss-acc) #231f16;
+	-webkit-overflow-scrolling: touch;
 }
 
 .stuff-spotlight__list::-webkit-scrollbar {
@@ -120,10 +126,12 @@
 	position: relative;
 	overflow: hidden;
 	display: flex;
-	gap: 12px;
+	gap: 0.75rem;
 	align-items: center;
 	text-align: left;
-	padding: 10px;
+	/* Tall enough that the round mini portrait is fully visible (not clipped). */
+	min-block-size: 4.5rem;
+	padding: 0.75rem;
 	border-radius: 14px;
 	border: 1px solid var(--ss-line);
 	background: linear-gradient(160deg, #2a2519, #17140e);
@@ -179,8 +187,9 @@
 }
 
 .stuff-spotlight__mini {
-	width: 40px;
-	height: 40px;
+	--ss-mini: 3rem;
+	inline-size: var(--ss-mini);
+	block-size: var(--ss-mini);
 	border-radius: 50%;
 	display: grid;
 	place-items: center;
@@ -312,7 +321,32 @@
 	text-align: center;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 56rem) {
+	.stuff-spotlight {
+		padding-inline: 0.75rem;
+		padding-block-end: 2.5rem;
+	}
+
+	.stuff-spotlight__spot {
+		grid-template-columns: minmax(0, 12.5rem) minmax(0, 1fr);
+		gap: 0.85rem;
+	}
+
+	.stuff-spotlight__list {
+		max-block-size: min(28rem, 65dvh);
+	}
+}
+
+@media (max-width: 42rem) {
+	.stuff-spotlight__head {
+		flex-wrap: wrap;
+		gap: 0.75rem;
+	}
+
+	.stuff-spotlight__title {
+		font-size: clamp(1.25rem, 5vw, 1.65rem);
+	}
+
 	.stuff-spotlight__spot {
 		grid-template-columns: 1fr;
 	}
@@ -323,20 +357,45 @@
 		overflow-y: hidden;
 		max-height: none;
 		padding: 2px 2px 10px;
+		gap: 0.65rem;
+		scroll-snap-type: x proximity;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	.stuff-spotlight__tab {
-		flex: none;
+		flex: 0 0 auto;
+		min-inline-size: min(70vw, 16rem);
+		scroll-snap-align: start;
 	}
 
 	.stuff-spotlight__detail {
 		grid-template-columns: 1fr;
 		height: auto;
+		min-height: 0;
 	}
 
 	.stuff-spotlight__portrait {
 		order: -1;
-		height: 280px;
-		min-height: 0;
+		height: min(52vw, 18rem);
+		min-height: 14rem;
+	}
+
+	.stuff-spotlight__info h3 {
+		font-size: clamp(1.15rem, 4.5vw, 1.45rem);
+	}
+}
+
+@media (pointer: coarse) {
+	.stuff-spotlight__tab {
+		min-block-size: 4.75rem;
+		padding: 0.75rem;
+	}
+
+	.stuff-spotlight__mini {
+		--ss-mini: 3.25rem;
+	}
+
+	.stuff-spotlight__list {
+		gap: 0.75rem;
 	}
 }
