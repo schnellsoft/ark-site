@@ -37,10 +37,12 @@
     "astro": "^7.3.5",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "sharp": "^0.34.4",
     "uikit": "^3.25.26"
   },
   "allowScripts": {
     "esbuild": true,
+    "sharp": true,
     "workerd@1.20261006.1": true
   },
   "devDependencies": {
