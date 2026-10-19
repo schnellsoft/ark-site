@@ -1,7 +1,12 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 
 import react from '@astrojs/react';
+import { mediaDevPlugin } from './scripts/vite-media-dev-plugin.mjs';
+
+const siteRoot = join(dirname(fileURLToPath(import.meta.url)));
 
 // https://astro.build/config
 export default defineConfig({
@@ -11,4 +16,7 @@ export default defineConfig({
 	build: { format: 'directory' },
 	integrations: [react()],
 	prefetch: { prefetchAll: false, defaultStrategy: 'viewport' },
+	vite: {
+		plugins: [mediaDevPlugin(siteRoot)],
+	},
 });

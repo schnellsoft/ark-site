@@ -21,36 +21,31 @@ For the following descriptions:
 
 ## images embedding
 
-`ark-admin-media` is the source of truth for uploaded images. On every rebuild, pull only the images referenced by `ark-admin-content` JSON and bake them into the static site — do not rely on runtime `/media/*` for those assets.
+`ark-admin-media` is the source of truth for uploaded images. **Do not bake CMS images into `src/assets` at build time** — serve them at runtime via the site Worker `GET /media/<key>` (R2 binding). That keeps rebuilds fast (JSON/HTML sync only).
 If svg is found in json file, it is embedded directly inside the static site.
 
 ### Pipeline
 
 ```
-ark-admin-content (JSON)  →  read at build (which image keys are needed)
-ark-admin-media (images)  →  download those keys into src/assets/media/<key>
-astro build               →  Sharp optimizes via <Image> / <Picture> into dist/
-wrangler deploy           →  static assets; R2 remains CMS source only
+ark-admin-content (JSON + HTML) → sync at prebuild into src/data/
+ark-admin-media (images)        → NOT downloaded at build; served live via /media/*
+astro build                     → HTML/CSS/JS only; img src="/media/..."
+wrangler deploy                 → static assets + Worker R2 proxy for /media and /content
 ```
-
-### Where to write files
-
-- **Default: `src/assets/media/`** (mirror the R2 object key under this folder). Required for Astro `<Image>` / `<Picture>` resize, format conversion (WebP/AVIF), and responsive `srcset`.
-- **Not `public/` for general media.** Files in `public/` are copied as-is: no Sharp resize, no responsive layouts. Use `public/` only for non-processed site chrome (favicon, `robots.txt`, `_headers`).
-- **logomin / logomax:** sync into `src/assets/media/header/logo/` like other media. Choose logomin vs logomax by viewport in CSS/markup; do not treat them as SVG icons.
 
 ### Authoring
 
-- Prefer `import { Image } from 'astro:assets'` with a local import (or `import.meta.glob` / `getImage()` mapped from content JSON keys).
-- Do not use string paths like `src="/media/..."` when you need optimization — that path style is for `public/` and skips processing.
-- Generated/synced trees under `src/assets/media/` may be gitignored if CI always re-downloads before build; originals stay in R2.
+- Use `mediaUrl(key)` from `src/lib/media.ts` → `/media/<key>`.
+- Prefer admin-generated variants (webp, `-p800`, slideshow `d-1280` / `m-720`, etc.).
+- `public/` only for non-CMS chrome (favicon, `robots.txt`, `_headers`, price-list PDFs if synced).
+- **logomin / logomax:** `<img src={mediaUrl('header/logo/logo_min.png')}>` (and logo_max); swap by viewport in CSS.
 
 ### Checklist
 
-- [ ] Build downloads content JSON first, then only referenced media keys
-- [ ] Synced files land under `src/assets/media/`, not `public/media/`
-- [ ] Page images use `<Image>` or `<Picture>` (or `getImage()`), not raw unoptimized copies
-- [ ] Rebuild + redeploy after CMS media changes
+- [ ] Build syncs content JSON (+ layer HTML) only — no media downloads
+- [ ] CMS images use `/media/<key>` (Worker → R2)
+- [ ] SVGs from JSON stay inlined
+- [ ] Rebuild after CMS *structure* changes; new media keys are live without re-bake
 
 ## design directions  
 - use as primary color the color: #FFE082

@@ -1,18 +1,17 @@
 #!/usr/bin/env node
 /**
- * Pull galleries index, per-gallery JSON, layer HTML, and media into src/.
+ * Pull galleries index, per-gallery JSON, and layer HTML into src/data.
+ * Gallery media loads at runtime from R2 via /media/*.
  * Prefers sibling ark-admin local vinext R2, then remote R2.
  * Usage: node scripts/sync-galleries-content.mjs
  */
-import { mkdir, writeFile, readFile, copyFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { copyLocalVinextR2Object, wranglerGet } from './sync-r2-json.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dataDir = join(root, 'src/data/galleries');
-const mediaDir = join(root, 'src/assets/media');
-const publicMediaDir = join(root, 'public/media');
 
 async function fetchPreferLocal(bucket, key, file) {
 	if (await copyLocalVinextR2Object(root, bucket, key, file)) return 'local';
@@ -116,38 +115,7 @@ for (const entry of galleries) {
 				console.log(`  ✓ ${mSource}`);
 			}
 		}
-
-		const keys = new Set();
-		const files = slide.files || {};
-		if (files.video?.key) keys.add(files.video.key);
-		if (files.sourceKey) keys.add(files.sourceKey);
-		if (slide.version) {
-			const prefix = `galleries/${gid}/${id}/`;
-			for (const w of Object.keys(files.desktop || {})) {
-				keys.add(`${prefix}slide-${id}.${slide.version}-d-${w}.jpg`);
-				keys.add(`${prefix}slide-${id}.${slide.version}-d-${w}.webp`);
-			}
-			for (const w of Object.keys(files.mobile || {})) {
-				keys.add(`${prefix}slide-${id}.${slide.version}-m-${w}.jpg`);
-				keys.add(`${prefix}slide-${id}.${slide.version}-m-${w}.webp`);
-			}
-		}
-
-		for (const key of keys) {
-			const dest = join(mediaDir, key);
-			const pubDest = join(publicMediaDir, key);
-			await mkdir(dirname(dest), { recursive: true });
-			await mkdir(dirname(pubDest), { recursive: true });
-			console.log(`↓ media ${key}`);
-			const mediaSource = await fetchPreferLocal('ark-admin-media', key, dest);
-			if (mediaSource) {
-				await copyFile(dest, pubDest);
-				console.log(`  ✓ ${mediaSource}`);
-			} else {
-				console.warn(`  ✗ missing ${key}`);
-			}
-		}
 	}
 }
 
-console.log('Galleries content sync complete.');
+console.log('Galleries content sync complete (media from /media at runtime).');

@@ -2,6 +2,7 @@
 import slideshow from '../../data/slideshow/slideshow.json';
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { mediaUrl as assetUrl } from '../../lib/media';
 
 type SlideFiles = {
 	desktop?: Record<string, { width: number; height: number }>;
@@ -92,10 +93,6 @@ try {
 	}
 } catch {
 	/* no html dir yet */
-}
-
-function assetUrl(key: string) {
-	return `/media/${key}`;
 }
 
 const ratioRaw = String(settings.ratio ?? '16:9');

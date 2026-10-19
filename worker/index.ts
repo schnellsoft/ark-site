@@ -77,6 +77,31 @@ async function serveR2Object(
 	});
 }
 
+function langFromCountry(country: string | undefined): 'bg' | 'ro' | 'en' {
+	const c = (country || '').toUpperCase();
+	if (c === 'BG') return 'bg';
+	if (c === 'RO') return 'ro';
+	return 'en';
+}
+
+function hasArkLangCookie(request: Request): boolean {
+	const cookie = request.headers.get('Cookie') || '';
+	return /(?:^|;\s*)ark-lang=/.test(cookie);
+}
+
+function withLangCookie(response: Response, lang: 'bg' | 'ro' | 'en'): Response {
+	const headers = new Headers(response.headers);
+	headers.append(
+		'Set-Cookie',
+		`ark-lang=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`,
+	);
+	return new Response(response.body, {
+		status: response.status,
+		statusText: response.statusText,
+		headers,
+	});
+}
+
 export default {
 	async fetch(request, env): Promise<Response> {
 		const url = new URL(request.url);
@@ -113,6 +138,17 @@ export default {
 			return json({ ok: true, service: 'ark-site' });
 		}
 
-		return env.ASSETS.fetch(request);
+		const assetResponse = await env.ASSETS.fetch(request);
+		const accept = request.headers.get('Accept') || '';
+		const isDocument =
+			request.method === 'GET' &&
+			(accept.includes('text/html') || url.pathname === '/' || url.pathname.endsWith('/'));
+
+		if (!isDocument || hasArkLangCookie(request)) {
+			return assetResponse;
+		}
+
+		const country = (request as Request & { cf?: { country?: string } }).cf?.country;
+		return withLangCookie(assetResponse, langFromCountry(country));
 	},
 } satisfies ExportedHandler<Env>;

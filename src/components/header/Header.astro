@@ -1,12 +1,10 @@
 ---
-import { Image } from 'astro:assets';
-import logoMinImg from '../../assets/media/header/logo/logo_min.png';
-import logoMaxImg from '../../assets/media/header/logo/logo_max.png';
 import logoData from '../../data/header/header_logo.json';
 import menuData from '../../data/header/header_menu.json';
 import iconsData from '../../data/header/header_icons.json';
 import appointmentData from '../../data/header/appointment.json';
 import MenuTree from './MenuTree.astro';
+import { mediaUrl } from '../../lib/media';
 import {
 	cssMaxWidth,
 	moreEnabled,
@@ -51,6 +49,23 @@ const iconsColorHover = icons['color-hover']?.trim() || undefined;
 function logoIsSvg(entry: { type?: string; svg?: string }) {
 	return entry?.type === 'svg' && typeof entry.svg === 'string' && entry.svg.trim().length > 0;
 }
+
+function logoSrc(entry: { type?: string; src?: string } | undefined): string {
+	if (!entry || entry.type === 'svg') return '';
+	return mediaUrl(entry.src);
+}
+
+/** Bust CDN/browser cache when admin replaces logos (updated_at from header_logo.json). */
+function logoSrcWithBust(entry: { type?: string; src?: string } | undefined): string {
+	const src = logoSrc(entry);
+	if (!src) return '';
+	const v = typeof logo.updated_at === 'string' ? logo.updated_at : '';
+	if (!v) return src;
+	return `${src}?v=${encodeURIComponent(v)}`;
+}
+
+const logoMinSrc = logoSrcWithBust(logo.logo_min);
+const logoMaxSrc = logoSrcWithBust(logo.logo_max);
 ---
 
 <header
@@ -65,30 +80,33 @@ function logoIsSvg(entry: { type?: string; svg?: string }) {
 				{
 					logoIsSvg(logo.logo_min) ? (
 						<span class="snd-logo-svg" set:html={logo.logo_min.svg} />
-					) : (
-						<Image
-							src={logoMinImg}
+					) : logoMinSrc ? (
+						<img
+							src={logoMinSrc}
 							alt="Ark Medical Clinic"
-							widths={[64, 96, 128]}
-							sizes="48px"
+							width="48"
+							height="48"
 							class="snd-logo-img"
+							decoding="async"
+							fetchpriority="high"
 						/>
-					)
+					) : null
 				}
 			</span>
 			<span class="snd-ct-logo-max">
 				{
 					logoIsSvg(logo.logo_max) ? (
 						<span class="snd-logo-svg" set:html={logo.logo_max.svg} />
-					) : (
-						<Image
-							src={logoMaxImg}
+					) : logoMaxSrc ? (
+						<img
+							src={logoMaxSrc}
 							alt="Ark Medical Clinic"
-							widths={[200, 280, 390]}
-							sizes="(min-width: 64em) 200px, 0px"
+							width="200"
+							height="48"
 							class="snd-logo-img"
+							decoding="async"
 						/>
-					)
+					) : null
 				}
 			</span>
 		</a>

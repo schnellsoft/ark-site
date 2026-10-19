@@ -1,8 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getImage } from 'astro:assets';
 import catalog from '../../data/services/services.json';
-import type { ImageMetadata } from 'astro';
+import { mediaUrl } from '../../lib/media';
 import {
 	ServicePageView,
 	type ServicePageData,
@@ -53,44 +52,10 @@ if (!page) {
 	return Astro.redirect('/');
 }
 
-const imageModules = import.meta.glob<{ default: ImageMetadata }>(
-	'/src/assets/media/library/**/*.{jpg,jpeg,png,webp}',
-	{ eager: true },
-);
-
-function resolveImage(master: string) {
-	const hit = Object.entries(imageModules).find(
-		([path]) => path.endsWith(master) || path.includes(`/${master}`),
-	);
-	return hit?.[1]?.default ?? null;
-}
-
-const images: ServicePageData['images'] = [];
-for (const img of page.images || []) {
-	const asset = resolveImage(img.master);
-	if (asset) {
-		const optimized = await getImage({
-			src: asset,
-			width: 720,
-			format: 'webp',
-		});
-		images.push({
-			src: optimized.src,
-			width: optimized.attributes.width
-				? Number(optimized.attributes.width)
-				: undefined,
-			height: optimized.attributes.height
-				? Number(optimized.attributes.height)
-				: undefined,
-			alt: img.alt,
-		});
-	} else {
-		images.push({
-			src: `/media/${img.master}`,
-			alt: img.alt,
-		});
-	}
-}
+const images: ServicePageData['images'] = (page.images || []).map((img) => ({
+	src: mediaUrl(img.webp || img.master),
+	alt: img.alt,
+}));
 
 const viewPage: ServicePageData = {
 	slug: page.slug,

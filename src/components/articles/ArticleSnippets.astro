@@ -1,7 +1,6 @@
 ---
-import { getImage } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
 import catalog from '../../data/articles/articles.json';
+import { mediaUrl } from '../../lib/media';
 import type { ArticleSnippetItem } from './article-snippets';
 import './article-snippets.css';
 
@@ -29,18 +28,6 @@ type ArticlesDoc = {
 const doc = catalog as ArticlesDoc;
 const byId = new Map((doc.articles ?? []).map((a) => [a.id, a]));
 
-const imageModules = import.meta.glob<{ default: ImageMetadata }>(
-	'/src/assets/media/**/*.{jpg,jpeg,png,webp}',
-	{ eager: true },
-);
-
-function resolveAsset(key: string): ImageMetadata | null {
-	const hit = Object.entries(imageModules).find(
-		([path]) => path.endsWith(key) || path.includes(`/${key}`),
-	);
-	return hit?.[1]?.default ?? null;
-}
-
 function localeTriple(map: LocaleMap | undefined): Record<Lang, string> {
 	return {
 		ro: (map?.ro || map?.en || map?.bg || '').trim(),
@@ -57,20 +44,6 @@ for (const id of doc.firstPage ?? []) {
 	if (!title.ro && !title.en && !title.bg) continue;
 
 	const key = a.snippet?.image?.webp || a.snippet?.image?.master || null;
-	let img = '';
-	if (key) {
-		const asset = resolveAsset(key);
-		if (asset) {
-			const optimized = await getImage({
-				src: asset,
-				width: 720,
-				format: 'webp',
-			});
-			img = optimized.src;
-		} else {
-			img = `/media/${key}`;
-		}
-	}
 
 	items.push({
 		id: a.id,
@@ -78,7 +51,7 @@ for (const id of doc.firstPage ?? []) {
 		title,
 		date: (a.snippet?.date || '').trim(),
 		text: localeTriple(a.snippet?.text),
-		img,
+		img: mediaUrl(key),
 	});
 }
 
@@ -130,7 +103,7 @@ const payload = { items, config: { labels } };
 					};
 					initArticleSnippets(root, data.items, data.config);
 				} catch {
-					// ignore
+					/* ignore */
 				}
 			});
 	}

@@ -41,8 +41,12 @@ function resolveAdminRoot(siteRoot) {
 	return null;
 }
 
-function vinextR2Root(adminRoot) {
-	return join(adminRoot, '.cloudflare', 'state', 'v3', 'r2');
+/** vinext (`pnpm dev`) → .cloudflare; bare wrangler CLI → .wrangler */
+function localR2Roots(adminRoot) {
+	return [
+		join(adminRoot, '.cloudflare', 'state', 'v3', 'r2'),
+		join(adminRoot, '.wrangler', 'state', 'v3', 'r2'),
+	];
 }
 
 /**
@@ -52,46 +56,49 @@ function vinextR2Root(adminRoot) {
 export async function copyLocalVinextR2Object(siteRoot, bucket, key, dest) {
 	const adminRoot = resolveAdminRoot(siteRoot);
 	if (!adminRoot) return false;
-	const r2 = vinextR2Root(adminRoot);
-	const objectsDir = join(r2, 'miniflare-R2BucketObject');
-	if (!existsSync(objectsDir)) return false;
 
-	let blobId = null;
-	try {
-		const files = (await readdir(objectsDir)).filter(
-			(f) => f.endsWith('.sqlite') && !f.includes('metadata'),
-		);
-		for (const file of files) {
-			const dbPath = join(objectsDir, file);
-			try {
-				const db = new DatabaseSync(dbPath, { readOnly: true });
-				const row = db
-					.prepare('SELECT blob_id FROM _mf_objects WHERE key = ?')
-					.get(key);
-				db.close();
-				if (row?.blob_id) {
-					blobId = row.blob_id;
-					break;
+	for (const r2 of localR2Roots(adminRoot)) {
+		const objectsDir = join(r2, 'miniflare-R2BucketObject');
+		if (!existsSync(objectsDir)) continue;
+
+		let blobId = null;
+		try {
+			const files = (await readdir(objectsDir)).filter(
+				(f) => f.endsWith('.sqlite') && !f.includes('metadata'),
+			);
+			for (const file of files) {
+				const dbPath = join(objectsDir, file);
+				try {
+					const db = new DatabaseSync(dbPath, { readOnly: true });
+					const row = db
+						.prepare('SELECT blob_id FROM _mf_objects WHERE key = ?')
+						.get(key);
+					db.close();
+					if (row?.blob_id) {
+						blobId = row.blob_id;
+						break;
+					}
+				} catch {
+					/* try next db */
 				}
-			} catch {
-				/* try next db */
 			}
+		} catch {
+			continue;
 		}
-	} catch {
-		return false;
-	}
-	if (!blobId) return false;
+		if (!blobId) continue;
 
-	const blobPath = join(r2, bucket, 'blobs', blobId);
-	if (!existsSync(blobPath)) return false;
+		const blobPath = join(r2, bucket, 'blobs', blobId);
+		if (!existsSync(blobPath)) continue;
 
-	try {
-		await mkdir(dirname(dest), { recursive: true });
-		await copyFile(blobPath, dest);
-		return true;
-	} catch {
-		return false;
+		try {
+			await mkdir(dirname(dest), { recursive: true });
+			await copyFile(blobPath, dest);
+			return true;
+		} catch {
+			/* try next root */
+		}
 	}
+	return false;
 }
 
 export function wranglerGet(root, bucket, key, file) {
@@ -113,7 +120,7 @@ export function wranglerGet(root, bucket, key, file) {
 
 /**
  * Prefer remote R2; fall back to local vinext R2 from sibling ark-admin.
- * Never leaves empty files that break Astro `astro:assets` metadata.
+ * Never leaves empty JSON stubs that break the Astro build.
  * @returns {Promise<'remote'|'local'|null>}
  */
 export async function fetchR2Object(root, bucket, key, file) {

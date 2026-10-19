@@ -1,7 +1,6 @@
 ---
-import { getImage } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
 import catalog from '../../data/stuff/stuff.json';
+import { mediaUrl } from '../../lib/media';
 import { accentForIndex } from './stuff-spotlight';
 import type {
 	TeamCardLocalized,
@@ -84,18 +83,6 @@ function portraitKey(
 	return p.portrait800 || p.webp || p.master || null;
 }
 
-const imageModules = import.meta.glob<{ default: ImageMetadata }>(
-	'/src/assets/media/**/*.{jpg,jpeg,png,webp}',
-	{ eager: true },
-);
-
-function resolveAsset(key: string): ImageMetadata | null {
-	const hit = Object.entries(imageModules).find(
-		([path]) => path.endsWith(key) || path.includes(`/${key}`),
-	);
-	return hit?.[1]?.default ?? null;
-}
-
 const categories: TeamCategoryLocalized[] = (doc.categories ?? [])
 	.filter((c) => c.enabled !== false)
 	.map((c) => ({
@@ -130,21 +117,7 @@ for (const m of enabledMembers) {
 	};
 	if (!names.ro && !names.en && !names.bg) continue;
 
-	const key = portraitKey(m);
-	let img = '';
-	if (key) {
-		const asset = resolveAsset(key);
-		if (asset) {
-			const optimized = await getImage({
-				src: asset,
-				width: 800,
-				format: 'webp',
-			});
-			img = optimized.src;
-		} else {
-			img = `/media/${key}`;
-		}
-	}
+	const img = mediaUrl(portraitKey(m));
 
 	const tags = {
 		ro: (m.providedServiceIds ?? [])

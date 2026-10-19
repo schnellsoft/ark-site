@@ -1,6 +1,7 @@
 ---
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { mediaUrl as assetUrl } from '../../lib/media';
 
 type LocaleMap = { ro?: string; en?: string; bg?: string };
 
@@ -119,10 +120,6 @@ try {
 	}
 } catch {
 	/* no html yet */
-}
-
-function assetUrl(key: string) {
-	return `/media/${key}`;
 }
 
 function mediaPrefix(slideId: string) {

@@ -9,7 +9,7 @@
       "label": {
         "ro": "Despre noi",
         "bg": "За нас",
-        "en": "About us"
+        "en": "about us"
       },
       "description": "",
       "aria-label": "despre noi",
@@ -22,11 +22,11 @@
           "label": {
             "ro": "Echipa",
             "bg": "екипът",
-            "en": "Team"
+            "en": "team"
           },
           "description": "",
           "aria-label": "echipa",
-          "link": "/team",
+          "link": "/team/",
           "color": "",
           "color-hover": ""
         },
@@ -39,7 +39,7 @@
           },
           "description": "",
           "aria-label": "activitatea noastră",
-          "link": "/pages/about-our-activity",
+          "link": "/#articles",
           "color": "",
           "color-hover": ""
         }
@@ -54,7 +54,7 @@
       },
       "description": "",
       "aria-label": "contact",
-      "link": "/contact",
+      "link": "/contact/",
       "color": "",
       "color-hover": ""
     },

@@ -1,12 +1,13 @@
 {
   "latitude": "",
   "longitude": "",
-  "address": "Romania, Jud. Calarasi, Calarasi, Str. Panduri, Nr. 8",
-  "googleMapsKey": "changeme",
+  "address": "",
+  "googleMapsKey": "",
+  "siteDomain": "",
   "building": {
-    "libraryId": "1db98e39-decd-498a-bcb3-d8cc3567d365",
-    "master": "library/1db98e39-decd-498a-bcb3-d8cc3567d365.jpg",
-    "webp": "library/1db98e39-decd-498a-bcb3-d8cc3567d365.webp"
+    "libraryId": null,
+    "master": null,
+    "webp": null
   },
-  "updatedAt": "2026-10-17T02:59:12.597Z"
+  "updatedAt": "2026-10-19T10:12:16.884Z"
 }

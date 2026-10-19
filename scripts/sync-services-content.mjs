@@ -1,20 +1,18 @@
 #!/usr/bin/env node
 /**
- * Pull services catalog, pages, PDF, and referenced library media from R2 into src/.
+ * Pull services catalog, pages, and PDFs from R2 into src/.
+ * Service images load at runtime from R2 via /media/*.
  * Usage: node scripts/sync-services-content.mjs
  */
 import { mkdir, writeFile, readFile, copyFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dataDir = join(root, 'src/data/services');
 const pagesDir = join(dataDir, 'pages');
-const mediaDir = join(root, 'src/assets/media');
 const assetsServices = join(root, 'src/assets/services');
-const publicMediaDir = join(root, 'public/media');
 
 function wranglerGet(bucket, key, file) {
 	const result = spawnSync(
@@ -27,8 +25,6 @@ function wranglerGet(bucket, key, file) {
 
 await mkdir(pagesDir, { recursive: true });
 await mkdir(assetsServices, { recursive: true });
-await mkdir(join(mediaDir, 'library'), { recursive: true });
-await mkdir(join(publicMediaDir, 'library'), { recursive: true });
 
 const jsonDest = join(dataDir, 'services.json');
 console.log('↓ content services/services.json');
@@ -102,35 +98,6 @@ for (const lang of ['ro', 'en', 'bg']) {
 	}
 }
 
-/** Collect media keys from page JSON */
-const mediaKeys = new Set();
-for (const svc of services) {
-	const pagePath = join(pagesDir, `${svc.slug}.json`);
-	if (!existsSync(pagePath)) continue;
-	try {
-		const page = JSON.parse(await readFile(pagePath, 'utf8'));
-		for (const img of page.images || []) {
-			if (img.master) mediaKeys.add(img.master);
-			if (img.webp) mediaKeys.add(img.webp);
-		}
-	} catch {
-		// skip
-	}
-}
-
-for (const key of mediaKeys) {
-	const dest = join(mediaDir, key);
-	const pubDest = join(publicMediaDir, key);
-	await mkdir(dirname(dest), { recursive: true });
-	await mkdir(dirname(pubDest), { recursive: true });
-	console.log(`↓ media ${key}`);
-	if (wranglerGet('ark-admin-media', key, dest)) {
-		try {
-			await copyFile(dest, pubDest);
-		} catch {
-			// ignore
-		}
-	}
-}
-
-console.log(`Synced ${services.length} services, ${mediaKeys.size} media keys`);
+console.log(
+	`Synced ${services.length} services (images from /media at runtime)`,
+);

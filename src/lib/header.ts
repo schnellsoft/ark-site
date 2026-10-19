@@ -109,7 +109,7 @@ export function moreEnabled(data: { more?: boolean; moreList?: boolean } | undef
 	return true;
 }
 
-/** Absolute public URL for a media key synced under src/assets/media — used only after Image import. */
+/** @deprecated Prefer mediaUrl from ./media — CMS media is served from R2 via /media/*. */
 export function mediaAssetPath(key: string): string {
 	return key.replace(/^\/+/, '');
 }

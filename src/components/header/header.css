@@ -45,6 +45,7 @@
 
 .header-top {
 	overflow: visible;
+	padding-block: 0.25rem;
 }
 
 .header-bottom {
@@ -58,6 +59,8 @@
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
+	align-self: center;
+	max-block-size: 100%;
 	text-decoration: none;
 	color: inherit;
 }
@@ -69,24 +72,29 @@
 
 .snd-ct-logo-min {
 	display: block;
+	line-height: 0;
 }
 
 .snd-ct-logo-max {
 	display: none;
+	line-height: 0;
 }
 
 .snd-logo-img {
 	display: block;
-	block-size: 2.75rem;
-	inline-size: auto;
-	max-inline-size: 12rem;
-	height: auto;
+	height: 2.75rem;
+	width: auto;
+	max-width: min(12rem, 100%);
+	max-height: 2.75rem;
+	object-fit: contain;
+	object-position: left center;
 }
 
 .snd-logo-svg svg {
 	display: block;
-	block-size: 2.75rem;
-	inline-size: auto;
+	height: 2.75rem;
+	width: auto;
+	max-height: 2.75rem;
 }
 
 @media (min-width: 64em) {

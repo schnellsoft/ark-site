@@ -1,7 +1,6 @@
 ---
-import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
 import locationData from '../../data/location/location.json';
+import { mediaUrl } from '../../lib/media';
 import './location-page.css';
 
 type LocDoc = {
@@ -36,50 +35,17 @@ function isMapsApiKeyConfigured(value: string): boolean {
 	) {
 		return false;
 	}
-	// Typical Google API keys start with AIza; also accept any long opaque token.
 	if (/^AIza[0-9A-Za-z_-]{20,}$/.test(value)) return true;
 	return value.length >= 20 && !/\s/.test(value);
 }
 
 const keyReady = isMapsApiKeyConfigured(key);
 
-const imageModules = import.meta.glob<{ default: ImageMetadata }>(
-	'/src/assets/media/library/**/*.{jpg,jpeg,png,webp}',
-	{ eager: true },
-);
-
-function resolveAsset(keyPath: string | null | undefined): ImageMetadata | null {
-	if (!keyPath) return null;
-	const normalized = keyPath.replace(/^\/+/, '');
-	const hit = Object.entries(imageModules).find(([path]) => {
-		const p = path.replace(/\\/g, '/');
-		return (
-			p.endsWith(`/${normalized}`) ||
-			p.endsWith(normalized) ||
-			p.includes(`/media/${normalized}`)
-		);
-	});
-	return hit?.[1]?.default ?? null;
-}
-
-const buildingCandidates = [
-	loc.building?.webp,
-	loc.building?.master,
-].filter((k): k is string => typeof k === 'string' && k.trim().length > 0);
-
-let buildingAsset: ImageMetadata | null = null;
-let buildingKey: string | null = null;
-for (const candidate of buildingCandidates) {
-	const asset = resolveAsset(candidate);
-	if (asset) {
-		buildingAsset = asset;
-		buildingKey = candidate;
-		break;
-	}
-	buildingKey = buildingKey || candidate;
-}
-
-const buildingFallback = buildingKey ? `/media/${buildingKey}` : '';
+const buildingKey =
+	[loc.building?.webp, loc.building?.master].find(
+		(k): k is string => typeof k === 'string' && k.trim().length > 0,
+	) ?? null;
+const buildingSrc = mediaUrl(buildingKey);
 
 const titles = {
 	ro: 'Locație',
@@ -110,23 +76,16 @@ const mapsSearchHref =
 	<div class="loc-page__intro">
 		<figure class="loc-page__building">
 			{
-				buildingAsset ? (
-					<Image
-						src={buildingAsset}
-						alt={address || 'Clinic building'}
-						widths={[480, 720, 960]}
-						sizes="(min-width: 720px) 22rem, 100vw"
-						class="loc-page__building-img"
-					/>
-				) : buildingFallback ? (
+				buildingSrc ? (
 					<img
 						class="loc-page__building-img"
-						src={buildingFallback}
+						src={buildingSrc}
 						alt={address || 'Clinic building'}
 						width="720"
 						height="540"
 						loading="eager"
 						decoding="async"
+						fetchpriority="high"
 					/>
 				) : (
 					<div class="loc-page__building-ph">Building photo coming soon</div>
