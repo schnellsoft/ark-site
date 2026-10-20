@@ -255,6 +255,9 @@ const payload = {
 
 			if (submitBtn) submitBtn.disabled = true;
 			try {
+				if (!payload.adminApiUrl?.trim()) {
+					throw new Error('Admin API URL is not configured');
+				}
 				const convo = createConversationDraft({
 					patientName: nameInput.value,
 					patientEmail: emailInput.value,
@@ -264,8 +267,7 @@ const payload = {
 					autoReply,
 				});
 
-				const serverId = await postTicketToAdmin(payload.adminApiUrl, convo);
-				if (serverId) convo.serverTicketId = serverId;
+				convo.serverTicketId = await postTicketToAdmin(payload.adminApiUrl, convo);
 				await saveConversation(convo);
 				window.location.href = '/conversation/';
 			} catch {

@@ -201,26 +201,29 @@ export async function appendMessage(
 export async function postTicketToAdmin(
 	adminApiUrl: string,
 	convo: TicketConversation,
-): Promise<string | null> {
-	const base = adminApiUrl.replace(/\/$/, '');
-	if (!base) return null;
-	try {
-		const res = await fetch(`${base}/api/public/tickets`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				subject: `Appointment request — ${convo.patientName}`,
-				body: convo.observations || 'Appointment request',
-				fromName: convo.patientName,
-				fromEmail: convo.patientEmail,
-				fromPhone: convo.patientPhone,
-				serviceSlugs: convo.serviceSlugs,
-			}),
-		});
-		if (!res.ok) return null;
-		const data = (await res.json()) as { id?: string };
-		return data.id || null;
-	} catch {
-		return null;
+): Promise<string> {
+	const base = adminApiUrl.replace(/\/$/, '').trim();
+	if (!base) {
+		throw new Error('Admin API URL is not configured');
 	}
+	const res = await fetch(`${base}/api/public/tickets`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			subject: `Appointment request — ${convo.patientName}`,
+			body: convo.observations || 'Appointment request',
+			fromName: convo.patientName,
+			fromEmail: convo.patientEmail,
+			fromPhone: convo.patientPhone,
+			serviceSlugs: convo.serviceSlugs,
+		}),
+	});
+	if (!res.ok) {
+		throw new Error(`Ticket create failed (${res.status})`);
+	}
+	const data = (await res.json()) as { id?: string };
+	if (!data.id) {
+		throw new Error('Ticket create returned no id');
+	}
+	return data.id;
 }
