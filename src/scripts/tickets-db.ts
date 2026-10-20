@@ -10,6 +10,8 @@ export type TicketMessage = {
 	role: 'patient' | 'clinic' | 'system';
 	body: string;
 	createdAt: string;
+	/** Admin ticket_messages.id when synced from / mirrored to the server. */
+	serverMessageId?: string | null;
 };
 
 export type TicketConversation = {
@@ -226,4 +228,97 @@ export async function postTicketToAdmin(
 		throw new Error('Ticket create returned no id');
 	}
 	return data.id;
+}
+
+type ServerTicketMessage = {
+	id: string;
+	kind: 'patient' | 'staff';
+	body: string;
+	authorName: string;
+	createdAt: string;
+};
+
+function adminBase(adminApiUrl: string): string {
+	const base = adminApiUrl.replace(/\/$/, '').trim();
+	if (!base) throw new Error('Admin API URL is not configured');
+	return base;
+}
+
+/** Pull staff replies from admin and merge into the local conversation. */
+export async function syncTicketMessagesFromAdmin(
+	adminApiUrl: string,
+	convo: TicketConversation,
+): Promise<TicketConversation> {
+	if (!convo.serverTicketId) return convo;
+	const base = adminBase(adminApiUrl);
+	const url = new URL(`${base}/api/public/tickets/${convo.serverTicketId}/messages`);
+	url.searchParams.set('email', convo.patientEmail);
+	const res = await fetch(url.toString(), { method: 'GET' });
+	if (!res.ok) return convo;
+	const data = (await res.json()) as { messages?: ServerTicketMessage[] };
+	const remote = data.messages ?? [];
+	const known = new Set(
+		convo.messages
+			.map((m) => m.serverMessageId)
+			.filter((id): id is string => Boolean(id)),
+	);
+	function toIso(raw: string): string {
+		const s = String(raw || '').trim();
+		if (!s) return new Date().toISOString();
+		if (s.includes('T')) {
+			return s.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(s) ? s : `${s}Z`;
+		}
+		// D1 datetime('now') → "YYYY-MM-DD HH:MM:SS" (UTC)
+		return `${s.replace(' ', 'T')}Z`;
+	}
+
+	let changed = false;
+	for (const msg of remote) {
+		if (msg.kind !== 'staff') continue;
+		if (known.has(msg.id)) continue;
+		convo.messages.push({
+			id: crypto.randomUUID(),
+			role: 'clinic',
+			body: msg.body,
+			createdAt: toIso(msg.createdAt),
+			serverMessageId: msg.id,
+		});
+		known.add(msg.id);
+		changed = true;
+	}
+	if (!changed) return convo;
+	convo.messages.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+	convo.updatedAt = new Date().toISOString();
+	return saveConversation(convo);
+}
+
+/** Post a patient follow-up to admin and store the server message id locally. */
+export async function postPatientReplyToAdmin(
+	adminApiUrl: string,
+	convo: TicketConversation,
+	body: string,
+): Promise<TicketConversation> {
+	if (!convo.serverTicketId) {
+		throw new Error('Conversation has no server ticket');
+	}
+	const base = adminBase(adminApiUrl);
+	const res = await fetch(
+		`${base}/api/public/tickets/${convo.serverTicketId}/messages`,
+		{
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				email: convo.patientEmail,
+				body,
+				fromName: convo.patientName,
+			}),
+		},
+	);
+	if (!res.ok) {
+		throw new Error(`Reply failed (${res.status})`);
+	}
+	const data = (await res.json()) as { id?: string };
+	const local = newMessage('patient', body);
+	local.serverMessageId = data.id ?? null;
+	return (await appendMessage(convo.id, local)) ?? convo;
 }

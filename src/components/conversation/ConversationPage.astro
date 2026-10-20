@@ -1,5 +1,8 @@
 ---
+import siteSettings from '../../data/settings/site.json';
 import './conversation-page.css';
+
+const adminApiUrl = ((siteSettings as { adminApiUrl?: string }).adminApiUrl || '').trim();
 
 const copy = {
 	title: {
@@ -30,10 +33,22 @@ const copy = {
 		bg: 'Напишете съобщение…',
 	},
 	send: { ro: 'Trimite', en: 'Send', bg: 'Изпрати' },
+	sendError: {
+		ro: 'Trimiterea a eșuat. Încercați din nou.',
+		en: 'Could not send. Please try again.',
+		bg: 'Изпращането неуспешно. Опитайте отново.',
+	},
 };
+
+const payload = { adminApiUrl, copy };
 ---
 
-<section class="convo-page" data-convo-page data-convo-copy={JSON.stringify(copy)} aria-label={copy.title.ro}>
+<section
+	class="convo-page"
+	data-convo-page
+	data-convo-json={JSON.stringify(payload)}
+	aria-label={copy.title.ro}
+>
 	<h1 class="convo-page__title" data-convo-title>{copy.title.ro}</h1>
 	<p class="convo-page__meta" data-convo-meta>{copy.expires.ro}</p>
 
@@ -43,6 +58,7 @@ const copy = {
 	</div>
 
 	<div class="convo-thread" data-convo-thread hidden aria-live="polite"></div>
+	<p class="convo-error" data-convo-error hidden></p>
 
 	<form class="convo-composer" data-convo-composer hidden>
 		<label class="visually-hidden" for="convo-input">Message</label>
@@ -63,6 +79,11 @@ const copy = {
 		white-space: nowrap;
 		border: 0;
 	}
+	.convo-error {
+		margin: 0.5rem 0 0;
+		color: #f87171;
+		font-size: 0.9rem;
+	}
 </style>
 
 <script>
@@ -71,24 +92,34 @@ const copy = {
 		appendMessage,
 		getActiveConversation,
 		newMessage,
+		postPatientReplyToAdmin,
+		syncTicketMessagesFromAdmin,
 		type TicketConversation,
 	} from '../../scripts/tickets-db';
 
 	type Copy = Record<string, Record<Lang, string>>;
+
+	type Payload = {
+		adminApiUrl: string;
+		copy: Copy;
+	};
+
+	const POLL_MS = 4000;
 
 	function boot() {
 		const root = document.querySelector<HTMLElement>('[data-convo-page]');
 		if (!root || root.dataset.booted) return;
 		root.dataset.booted = '1';
 
-		const raw = root.dataset.convoCopy;
+		const raw = root.dataset.convoJson;
 		if (!raw) return;
-		let copy: Copy;
+		let payload: Payload;
 		try {
-			copy = JSON.parse(raw) as Copy;
+			payload = JSON.parse(raw) as Payload;
 		} catch {
 			return;
 		}
+		const copy = payload.copy;
 
 		const titleEl = root.querySelector('[data-convo-title]');
 		const metaEl = root.querySelector('[data-convo-meta]');
@@ -98,9 +129,12 @@ const copy = {
 		const threadEl = root.querySelector<HTMLElement>('[data-convo-thread]');
 		const composer = root.querySelector<HTMLFormElement>('[data-convo-composer]');
 		const input = root.querySelector<HTMLTextAreaElement>('[data-convo-input]');
-		const sendBtn = root.querySelector('[data-convo-send]');
+		const sendBtn = root.querySelector<HTMLButtonElement>('[data-convo-send]');
+		const errorEl = root.querySelector<HTMLElement>('[data-convo-error]');
 
 		let convo: TicketConversation | null = null;
+		let pollTimer: number | null = null;
+		let syncing = false;
 
 		function paintLabels(lang: Lang) {
 			if (titleEl) titleEl.textContent = copy.title[lang] || copy.title.ro;
@@ -134,19 +168,60 @@ const copy = {
 			});
 		}
 
+		function showThread() {
+			emptyEl && (emptyEl.hidden = true);
+			threadEl && (threadEl.hidden = false);
+			composer && (composer.hidden = false);
+		}
+
+		function showEmpty() {
+			emptyEl && (emptyEl.hidden = false);
+			threadEl && (threadEl.hidden = true);
+			composer && (composer.hidden = true);
+		}
+
+		async function syncFromServer() {
+			if (!convo?.serverTicketId || !payload.adminApiUrl || syncing) return;
+			if (document.visibilityState === 'hidden') return;
+			syncing = true;
+			try {
+				const before = convo.messages.length;
+				convo = await syncTicketMessagesFromAdmin(payload.adminApiUrl, convo);
+				if (convo.messages.length !== before) {
+					renderThread(getLang());
+				}
+			} catch {
+				/* keep local thread; next poll retries */
+			} finally {
+				syncing = false;
+			}
+		}
+
+		function stopPoll() {
+			if (pollTimer != null) {
+				window.clearInterval(pollTimer);
+				pollTimer = null;
+			}
+		}
+
+		function startPoll() {
+			stopPoll();
+			if (!convo?.serverTicketId || !payload.adminApiUrl) return;
+			pollTimer = window.setInterval(() => {
+				void syncFromServer();
+			}, POLL_MS);
+		}
+
 		async function load() {
 			const lang = getLang();
 			paintLabels(lang);
 			convo = await getActiveConversation();
 			if (!convo) {
-				emptyEl && (emptyEl.hidden = false);
-				threadEl && (threadEl.hidden = true);
-				composer && (composer.hidden = true);
+				showEmpty();
+				stopPoll();
 				return;
 			}
-			emptyEl && (emptyEl.hidden = true);
-			threadEl && (threadEl.hidden = false);
-			composer && (composer.hidden = false);
+			showThread();
 			if (metaEl) {
 				const until = new Date(convo.expiresAt).toLocaleString(
 					lang === 'bg' ? 'bg-BG' : lang === 'en' ? 'en-GB' : 'ro-RO',
@@ -154,6 +229,8 @@ const copy = {
 				metaEl.textContent = `${copy.expires[lang] || copy.expires.ro} · ${convo.patientName} · until ${until}`;
 			}
 			renderThread(lang);
+			await syncFromServer();
+			startPoll();
 		}
 
 		composer?.addEventListener('submit', async (e) => {
@@ -161,11 +238,34 @@ const copy = {
 			if (!convo || !input) return;
 			const text = input.value.trim();
 			if (!text) return;
-			input.value = '';
-			const updated = await appendMessage(convo.id, newMessage('patient', text));
-			if (updated) {
-				convo = updated;
+			if (errorEl) {
+				errorEl.hidden = true;
+				errorEl.textContent = '';
+			}
+			if (sendBtn) sendBtn.disabled = true;
+			try {
+				if (convo.serverTicketId && payload.adminApiUrl) {
+					convo = await postPatientReplyToAdmin(
+						payload.adminApiUrl,
+						convo,
+						text,
+					);
+				} else {
+					convo =
+						(await appendMessage(convo.id, newMessage('patient', text))) ??
+						convo;
+				}
+				input.value = '';
 				renderThread(getLang());
+			} catch {
+				const lang = getLang();
+				if (errorEl) {
+					errorEl.hidden = false;
+					errorEl.textContent =
+						copy.sendError[lang] || copy.sendError.ro;
+				}
+			} finally {
+				if (sendBtn) sendBtn.disabled = false;
 			}
 		});
 
@@ -173,6 +273,15 @@ const copy = {
 			const lang = getLang();
 			paintLabels(lang);
 			if (convo) renderThread(lang);
+		});
+
+		document.addEventListener('visibilitychange', () => {
+			if (document.visibilityState === 'visible') {
+				void syncFromServer();
+				startPoll();
+			} else {
+				stopPoll();
+			}
 		});
 
 		void load();

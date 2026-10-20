@@ -2,28 +2,27 @@
 /**
  * Pull galleries index, per-gallery JSON, and layer HTML into src/data.
  * Gallery media loads at runtime from R2 via /media/*.
- * Prefers sibling ark-admin local vinext R2, then remote R2.
+ * Prefers remote R2 (cloud SoT), then sibling ark-admin local vinext R2.
  * Usage: node scripts/sync-galleries-content.mjs
  */
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { copyLocalVinextR2Object, wranglerGet } from './sync-r2-json.mjs';
+import { fetchR2Object } from './sync-r2-json.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dataDir = join(root, 'src/data/galleries');
 
-async function fetchPreferLocal(bucket, key, file) {
-	if (await copyLocalVinextR2Object(root, bucket, key, file)) return 'local';
-	if (wranglerGet(root, bucket, key, file)) return 'remote';
-	return null;
+/** Prefer remote content (cloud SoT); fall back to local vinext R2. */
+async function fetchGalleryObject(bucket, key, file) {
+	return fetchR2Object(root, bucket, key, file);
 }
 
 await mkdir(dataDir, { recursive: true });
 
 const indexDest = join(dataDir, 'galleries.json');
-console.log('↓ content galleries/galleries.json (prefer local vinext)');
-const indexSource = await fetchPreferLocal(
+console.log('↓ content galleries/galleries.json (prefer remote R2)');
+const indexSource = await fetchGalleryObject(
 	'ark-admin-content',
 	'galleries/galleries.json',
 	indexDest,
@@ -53,7 +52,7 @@ for (const entry of galleries) {
 
 	const jsonDest = join(galleryDir, 'gallery.json');
 	console.log(`↓ content galleries/${slug}/gallery.json`);
-	const gSource = await fetchPreferLocal(
+	const gSource = await fetchGalleryObject(
 		'ark-admin-content',
 		`galleries/${slug}/gallery.json`,
 		jsonDest,
@@ -89,7 +88,7 @@ for (const entry of galleries) {
 
 		const desktopHtml = join(htmlDir, `${id}.html`);
 		console.log(`↓ html galleries/${gid}/html/${id}.html`);
-		const htmlSource = await fetchPreferLocal(
+		const htmlSource = await fetchGalleryObject(
 			'ark-admin-content',
 			`galleries/${gid}/html/${id}.html`,
 			desktopHtml,
@@ -104,7 +103,7 @@ for (const entry of galleries) {
 		if (!mobileSame) {
 			const mobileHtml = join(htmlDir, `${id}.mobile.html`);
 			console.log(`↓ html galleries/${gid}/html/${id}.mobile.html`);
-			const mSource = await fetchPreferLocal(
+			const mSource = await fetchGalleryObject(
 				'ark-admin-content',
 				`galleries/${gid}/html/${id}.mobile.html`,
 				mobileHtml,
